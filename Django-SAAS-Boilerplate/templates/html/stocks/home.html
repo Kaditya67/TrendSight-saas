@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+
+    <h2>Sectoral Dashboard </h2>
+    
+    <div class="container mt-5">
+        <div class="card">
+                <div class="card-header">
+                    Number of days Indices trending Up or Down
+                </div>
+
+              <div class="container mt-3">
+                <div class="d-flex justify-content-end">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="emaDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Select EMA
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="emaDropdownMenuButton">
+                            <a class="dropdown-item" href="#">EMA 20</a>
+                            <a class="dropdown-item" href="#">EMA 50</a>
+                            <a class="dropdown-item" href="#">EMA 100</a>
+                            <a class="dropdown-item" href="#">EMA 200</a>
+                        </div>
+                    </div>
+                </div>
+             </div>
+
+                <br>
+                <div class="row">
+                    <!-- Example for a positive stock -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">NIFTY </h5>
+                                <p class="card-text">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                       <div class="col-md-3 mb-2">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Auto </h5>
+                                <p class="card-text ">10</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example for a negative stock -->
+                    <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Bank</h5>
+                                <p class="card-text"> -34 </p>
+                            </div>
+                        </div>
+                       </div>
+
+                     <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">	Nifty Financial Service</h5>
+                                <p class="card-text"> 34 </p>
+                            </div>
+                        </div>
+                       </div>
+                </div>
+
+                   <div class="row">
+                    <!-- Example for a positive stock -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">NIFTY </h5>
+                                <p class="card-text">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                       <div class="col-md-3 mb-2">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">	Nifty FMCG </h5>
+                                <p class="card-text ">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example for a negative stock -->
+                    <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Healthcare</h5>
+                                <p class="card-text"> 34 </p>
+                            </div>
+                        </div>
+                       </div>
+
+                     <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty IT</h5>
+                                <p class="card-text"> -34 </p>
+                            </div>
+                        </div>
+                       </div>
+                </div>
+
+                            <div class="row">
+                    <!-- Example for a positive stock -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">NIFTY </h5>
+                                <p class="card-text">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                       <div class="col-md-3 mb-2">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Media</h5>
+                                <p class="card-text ">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example for a negative stock -->
+                    <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Metal</h5>
+                                <p class="card-text"> 34 </p>
+                            </div>
+                        </div>
+                       </div>
+
+                     <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Pharma</h5>
+                                <p class="card-text"> -34 </p>
+                            </div>
+                        </div>
+                       </div>
+                </div>
+
+                 <div class="row">
+                    <!-- Example for a positive stock -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">NIFTY </h5>
+                                <p class="card-text">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                       <div class="col-md-3 mb-2">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Private Bank </h5>
+                                <p class="card-text ">10</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example for a negative stock -->
+                    <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">IT</h5>
+                                <p class="card-text"> 34 </p>
+                            </div>
+                        </div>
+                       </div>
+
+                     <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty PSU Bank</h5>
+                                <p class="card-text"> -34 </p>
+                            </div>
+                        </div>
+                       </div>
+                </div>
+
+                  <div class="row">
+                    <!-- Example for a positive stock -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">NIFTY </h5>
+                                <p class="card-text">-10</p>
+                            </div>
+                        </div>
+                    </div>
+                       <div class="col-md-3 mb-2">
+                        <div class="card card-positive">
+                            <div class="card-body">
+                                <h5 class="card-title">	Nifty Realty </h5>
+                                <p class="card-text ">10</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example for a negative stock -->
+                    <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Consumer Durables</h5>
+                                <p class="card-text"> -34 </p>
+                            </div>
+                        </div>
+                       </div>
+
+                     <div class="col-md-3 mb-2">
+                        <div class="card card-negative">
+                            <div class="card-body">
+                                <h5 class="card-title">Nifty Oil and Gas</h5>
+                                <p class="card-text"> -34 </p>
+                            </div>
+                        </div>
+                       </div>
+                </div>
+
+         </div>
+        </div>
+        <br>
+
+     <div class="container">
+        <div class="card">
+            <div class="card-header">
+                    Number of Days since the Sectors are up or down
+            </div> <br>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var ctx = document.getElementById('sectorChart').getContext('2d');
+                var sectorChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Nifty IT', 'Nifty Auto', 'Pharma', 'Metal', 'Media', 'Consumer Durables', 'Oil and Gas'],
+                        datasets: [{
+                            label: 'Relative Strength Compared to Nifty 50 based on Number of days ',
+                            data: [12, 19, -8, 5, -6, 15, 45], // Replace with actual data
+                            backgroundColor: [
+                                'rgba(0, 255, 0, 0.2)',
+                                'rgba(0, 255, 0, 0.2)',
+                                'rgba(255, 0, 0, 0.2)',
+                                'rgba(0, 255, 0, 0.2)',
+                                'rgba(255, 0, 0, 0.2)',
+                                'rgba(0, 255, 0, 0.2)',
+                                'rgba(0, 255, 0, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(0, 255, 0, 1)',
+                                'rgba(0, 255, 0, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(0, 255, 0, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(0, 255, 0, 1)',
+                                'rgba(0, 255, 0, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            });
+            </script>
+
+
+    </div>
+    <div class="container mt-3">
+       <div class="card">
+            <div class="card-header">
+                    Multiple EMA (Candle closing above EMA )and RSI Data
+            </div> <br>
+
+
+           <div class="table-responsive">
+             <table class="table">
+            <thead>
+                <tr>
+                    <th>Sector</th>
+                    <th>EMA 10</th>
+                    <th>EMA 20</th>
+                    <th>EMA 50</th>
+                    <th>EMA 100</th>
+                    <th>EMA 200</th>
+                    <th>RSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Example Row -->
+{#                <tr>#}
+{#                    <td>Sector 1</td>#}
+{#                    <td style="background-color: {{ EMA_10 == 'Buy' ? 'green' : 'none' }}">Buy</td>#}
+{#                    <td style="background-color: {{ EMA_20 == 'Buy' ? 'green' : 'none' }}">Sell</td>#}
+{#                    <td style="background-color: {{ EMA_50 == 'Buy' ? 'green' : 'none' }}">Hold</td>#}
+{#                    <td style="background-color: {{ EMA_100 == 'Buy' ? 'green' : 'none' }}">Buy</td>#}
+{#                    <td style="background-color: {{ EMA_200 == 'Buy' ? 'green' : 'none' }}">Sell</td>#}
+{#                    <td style="background-color: {{ RSI > 50 ? 'green' : 'none' }}">55</td>#}
+{#                </tr>#}
+                     <tr>
+                    <td> Nifty </td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                                 <tr>
+                    <td> Bank Nifty </td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                                 <tr>
+                    <td> Auto </td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                                 <tr>
+                    <td> IT  </td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                                 <tr>
+                    <td> Metal </td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                    <tr>
+                    <td> Media </td>
+                    <td style="background-color: red">Sell</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                    <tr>
+                    <td> Consumer Durables </td>
+                    <td style="background-color: red">Sell</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                    <tr>
+                    <td> Nifty 100 </td>
+                    <td style="background-color: red">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                    <tr>
+                    <td> Nifty 200 </td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: red">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+                    <tr>
+                    <td> Nifty Next 50</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: red">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    <td style="background-color: green">Buy</td>
+                    </tr>
+
+            </tbody>
+        </table>
+    </div>
+    </div>
+     </div>
+     </div>
+{% endblock %}

@@ -1,0 +1,242 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    {% load static %}
+    <link rel="icon" href="{% static 'images/TrendSight_logo.png' %}" type="image/png">
+    <title>TrendSight</title>
+    <style>
+
+      .card-img-top {
+        height: 200px; /* Adjust the height as needed */
+        object-fit: cover;
+      }
+    </style>
+    
+  </head>
+  <body>
+      {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">      <img src="{% static 'images/TrendSight_logo.png' %}" alt="Stock Track Logo" style="width: 30%; height: auto;">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#features"><h6>Features</h6></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#pricing"><h6>Pricing</h6></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact"><h6>Contact</h6></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href={% url "user_login" %}><h6>Login/SignUp</h6></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero bg-primary text-white text-center py-5">
+      <div class="container">
+          <h1 class="display-4">Track Your Stocks Like a Pro</h1>
+          <p class="lead">Stay informed about your investments with real-time data and advanced analytics.</p>
+          <!-- <a href="{% url 'subscription' %}" class="btn btn-light btn-lg black-border" style="color: white; background-color: #343a3f;"><h6>Subscription</h6></a> -->
+          <a href="{% url 'signup' %}" class="btn btn-light btn-lg black-border" style="color: white;background-color: #343a3f; margin-left: 30px "><h6>Try now ></h6></a>
+      </div>
+  </header>
+
+
+    <!-- Features Section -->
+  <section id="features" class="py-5">
+    <div class="container">
+      <h2 class="text-center">Features</h2>
+      <div class="row">
+        <!-- Feature Card 1 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <img src="{% static 'images/image1.jpg' %}" class="card-img-top" alt="Feature 1 Image">
+            <div class="card-body">
+              <h5 class="card-title">Effortless Stock Analysis</h5>
+              <p class="card-text">Search for stocks, choose analysis periods, and gain insights through clear visualizations of trends and technical indicators - all within a user-friendly interface.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Card 2 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <img src="{% static 'images/image2.jpg' %}" class="card-img-top" alt="Feature 2 Image">
+            <div class="card-body">
+              <h5 class="card-title">Data-Driven Decisions</h5>
+              <p class="card-text">Leverage TrendSight's calculations of technical indicators like EMAs and potentially RSI to understand market behavior and make informed investment choices</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Card 3 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <img src="{% static 'images/image3.jpg' %}" class="card-img-top" alt="Feature 3 Image">
+            <div class="card-body">
+              <h5 class="card-title">Customizable Alerts</h5>
+              <p class="card-text">Set personalized alerts based on user-defined criteria, empowering users to stay informed about significant market developments and potential investment opportunities.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  
+<!--   
+<section id="pricing" class="bg-light py-5">
+    <div class="container">
+      <h2 class="text-center">Pricing Plans</h2> <br>
+      <div class="row"> -->
+        <!-- Pricing Plan Box 1 -->
+        <!-- <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h3 class="card-title">Monthly Plan</h3>
+              <p class="card-text">Perfect for beginners.</p>
+              <h4 class="card-subtitle mb-3">Rs. 599/Month</h4>
+              <ul class="list-unstyled">
+                <li>Real-time Data Access</li>
+                <li>Portfolio Tracking</li>
+                <li>Limited Analytics</li>
+              </ul>
+              <a href="#" class="btn btn-primary btn-block">Get Started</a>
+            </div>
+          </div>
+        </div> -->
+
+        <!-- Pricing Plan Box 2 -->
+        <!-- <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h3 class="card-title">Yearly Plan</h3>
+              <p class="card-text">For serious investors.</p>
+              <h4 class="card-subtitle mb-3">Rs. 4999/month</h4>
+              <ul class="list-unstyled">
+                <li>Real-time Data Access</li>
+                <li>Portfolio Tracking</li>
+                <li>Advanced Analytics</li>
+              </ul>
+              <a href="#" class="btn btn-primary btn-block">Get Started</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section> -->
+
+
+    <!-- Contact Section -->
+    
+    <!-- Contact Section -->
+  <section id="contact" class="py-5">
+    <div class="container">
+      <h2 class="text-center">Contact Us</h2> <br><br>
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Contact Information</h3>
+          <p>If you have any questions or inquiries, feel free to reach out to us through the following contact details:</p>
+          <ul class="list-unstyled">
+            <li>
+              <strong>Email:</strong> <a href="mailto:
+              stockbased9@gmail.com">
+              stockbased9@gmail.com</a>
+            </li>
+            <!-- <li>
+              <strong>Phone:</strong> +1 (123) 456-7890
+            </li>
+            <li>
+              <strong>Address:</strong> 123 Main Street, City, Country
+            </li> -->
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <form method="post" action="{% url 'index' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Your Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Your Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea class="form-control" id="message" rows="5" name="address" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+        
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+      <div class="container">
+        <p>&copy; 2024 TrendSight | Developed by Aditya, Atiya and Asad</p>
+      </div>
+    </footer>
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    {% comment %} Smooth scrolling Javascript text {% endcomment %}
+    <script>
+      {% comment %} $(document).ready(function() {
+        // Toggle collapsible panel visibility
+        $('.collapse-button').on('click', function() {
+            const target = $(this).data('target');
+            $(target).collapse('toggle');
+        });
+    }); {% endcomment %}
+  
+      {% comment %} $(document).ready(function() {
+        // Smooth scrolling for navigation links
+        $('a.nav-link').on('click', function(event) {
+            if (this.hash !== '') {
+                event.preventDefault();
+                const hash = this.hash;
+                $('html, body').animate({
+                    scrollTop: $(hash).offset().top
+                }, 800, function(){
+                    window.location.hash = hash;
+                });
+            }
+        });
+      });     {% endcomment %}
+    </script>
+
+  </body>
+  </html>

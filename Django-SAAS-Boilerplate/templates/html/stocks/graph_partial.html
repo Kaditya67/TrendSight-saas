@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %} Stock Graph {% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Graph</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        select {
+            width: 24%; /* Adjust the width as needed */
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        img {
+            display: block;
+            
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div style="padding-left: 28px;">
+        <div> 
+            <div> 
+                <b>Type:</b>
+                <select id="typeSelector" onchange="updateGraphUrl()">
+                    <option value="stock">Stock</option>
+                    <option value="sector">Sector</option>
+                    {% for sectors in sectors%}
+                    <option value="{{ sectors }}">{{ sectors }}</option>
+                    {% endfor%}
+                </select>
+
+                <b style="padding-left:24px">Symbol:</b>
+                <select id="symbolSelector" onchange="updateGraphUrl()">
+                    <!-- Populate options dynamically based on available symbols -->
+                    {% for symbol in s_list %}
+                    <option value="{{ symbol }}">{{ symbol }}</option>
+                    {% endfor %}
+                </select>
+
+                <b style="padding-left:24px">EMA:</b>
+                <select id="emaSelector" onchange="updateGraphUrl()">
+                    <option value="20">EMA 20</option>
+                    <option value="50">EMA 50</option>
+                    <option value="100">EMA 100</option>
+                    <option value="200">EMA 200</option>
+                </select>
+
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var storedValue1 = localStorage.getItem("selectedDropdownValue1");
+                var storedValue2 = localStorage.getItem("selectedDropdownValue2");
+                
+            });
+        </script>
+        <img src="data:image/png;base64,{{ img_base64 }}" alt="Stock Graph" />
+    </div>
+    
+    <script>
+        
+
+        document.getElementById("typeSelector").addEventListener("change", function() {
+            var selectedValue = this.value;
+            localStorage.setItem("selectedDropdownValue1", selectedValue);
+        });
+        
+        document.getElementById("symbolSelector").addEventListener("change", function() {
+            var selectedValue = this.value;
+            localStorage.setItem("selectedDropdownValue2", selectedValue);
+        });
+        
+        document.getElementById("emaSelector").addEventListener("change", function() {
+            var selectedValue = this.value;
+            localStorage.setItem("selectedDropdownValue3", selectedValue);
+        });
+
+        var storedValue1 = localStorage.getItem("selectedDropdownValue1");
+        var storedValue2 = localStorage.getItem("selectedDropdownValue2");
+        var storedValue3 = localStorage.getItem("selectedDropdownValue3");
+
+        
+        // Set the dropdown value to the stored value (if any)
+        if (storedValue1 && storedValue2 && storedValue3 ) {
+            document.getElementById("typeSelector").value = storedValue1;
+            document.getElementById("symbolSelector").value = storedValue2;
+            document.getElementById("emaSelector").value = storedValue3;
+        }
+        
+       
+        // Function to update the URL and reload the page
+        function updateGraphUrl() {
+            
+            var selectedType = document.getElementById("typeSelector").value;
+            var selectedSymbol = document.getElementById("symbolSelector").value;
+            var selectedEMA = document.getElementById("emaSelector").value;
+    
+            var newUrl = '/graph/' + selectedType + '/' + encodeURIComponent(selectedSymbol) + '/' + selectedEMA + '/';
+            if (newUrl.includes('//')) {
+                alert("Failed to load the chart");
+                window.location.href = "/graph/sector/^NSEI/20/";
+                newUrl='/graph/sector/^NSEI/20/'
+            }
+            
+            history.pushState(null, "", newUrl);
+            location.reload();
+        
+            
+            $.ajax({
+                type: "GET",
+                url: newUrl,
+                success: function (response) {
+                    $("#graphContainer").html(response);
+                },
+                error: function (error) {
+                    console.error("Error fetching graph:", error);
+                },
+            });
+        }
+        
+    </script>
+
+</body>
+</html>
+{% endblock %}

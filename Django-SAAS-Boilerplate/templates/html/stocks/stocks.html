@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %} Stocks {% endblock %}
+
+{% block content %}
+    <h1 class="text-center">Stocks Analysis (EMA20)</h1>
+    
+    <!-- Dropdown menu for filtering by sector -->
+    <div class="container mt-3">
+        <form method="GET" action="{% url 'stocks' %}">
+            <div class="form-group">
+                <label for="sector">Filter by Stocks:</label>
+                <select class="form-control" id="sector" name="sector">
+                    <option value="">All Stocks</option>
+                    {% for sector in sectors %}
+                        <option value="{{ sector.name }}" {% if selected_sector == sector.name %} selected {% endif %}>{{ sector.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <div class="container mt-3">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Add</th>
+                        <th style="text-align:center">Symbol</th>
+                        {% for date in date_list %}
+                            <th>{{ date }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for symbol in unique_symbols %}
+                        <tr>
+                            <td><button type="button" class="btn btn-outline-secondary add-to-watchlist" data-symbol="{{ symbol }}">+</button></td>
+                            {% comment %} <td>{{ symbol|slice:":-3"  }}</td> {% endcomment %}
+                            <td><a href="#" onclick="showGraph('{{ symbol }}');">{{ symbol|slice:":-3" }}</a></td>
+
+                            {% for item in result %}
+                                {% if item.0 == symbol %}
+                                    <td style="background-color: {% if item.2 > 0%}#81e777{% else %}#fd1c00{% endif %};">{{ item.2 }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function showGraph(symbol) {
+            var type = 'stock';
+            if (symbol.startsWith('^')) {
+                type = 'sector';
+            }
+            localStorage.setItem("selectedDropdownValue1", type);
+            localStorage.setItem("selectedDropdownValue2", symbol);
+            localStorage.setItem("selectedDropdownValue3", '20');
+  
+            var url = '/graph/' + type + '/' + encodeURIComponent(symbol) + '/20/'; 
+            window.location.href = url;
+        }
+        
+        jQuery(document).ready(function($) {
+            $('.add-to-watchlist').click(function() {
+                var symbol = $(this).data('symbol');
+                $.ajax({
+                    url: '{% url "fetch_stock_data" %}',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    data: {'symbol': symbol},
+                    success: function(response) {
+                        if (response.success) {
+                            // Append the fetched data to the watchlist table
+                            var tableRow = '<tr><td>' + response.data.date + '</td><td>' + response.data.symbol + '</td><td>' + response.data.closing_price + '</td></tr>';
+                            $.ajax({
+                                url: '{% url "watchlist" %}',
+                                type: 'GET',
+                                success: function(data) {
+                                    alert("Sector added successfully to watchlist")
+                                    
+                                },
+                                error: function(xhr, status, error) {
+                                    alert('Failed to Sector to watchlist. Please try again.');
+                                }
+                            });
+                        } else {
+                            alert('Failed! Sector may already present in watchlist.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred while processing your request. Please try again.');
+                    }
+                });
+                
+            });
+        });
+    </script>
+    
+  {% endblock %}

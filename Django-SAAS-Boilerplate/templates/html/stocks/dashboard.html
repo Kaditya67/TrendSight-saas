@@ -1,0 +1,508 @@
+{% extends "./base.html" %}
+{% load static %}
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+
+<h2>Sectoral Dashboard</h2>
+<!-- Button trigger modal -->
+{% comment %} <button type="button" class="btn btn-primary logo-button" data-bs-toggle="modal" data-bs-target="#exampleModal" style="max-width: 5%; max-height: 5%; background-color:white;position: absolute;top:20px;right: 20px">
+  <img src="{% static 'images/alerts.png' %}" alt="Logo" style="max-width: 110%; max-height: 110%;">
+</button> {% endcomment %}
+
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-header"> 
+      Number of days Indices trending Up or Down
+    </div>
+    <br>
+    <form method="GET" action="{% url 'dashboard' %}">
+      {% if selected_ema == '20' %}
+      <div class="row">
+        {% for sector in sector_data %}
+        {% for ema_count in ema_counts %}
+        {% if sector.symbol == ema_count.stock_data.symbol %}
+        <div class="col-md-3 mb-3">
+          <div class="card {% if ema_count.ema20_output > 0 %}card-positive{% else %}card-negative{% endif %}">
+            <div class="card-body">
+              {% if sector.symbol == '^NSEI' %}
+              <h6 class="card-title">NIFTY 50</h6>
+              <p class="card-text">{{ ema_count.ema20_output }}</p>
+              {% else %}
+              <h6 class="card-title">NIFTY {{ sector.symbol|slice:"4:" }} INDEX</h6>
+              <p class="card-text">{{ ema_count.ema20_output }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+  
+      {% if selected_ema == '50' %}
+      <div class="row">
+        {% for sector in sector_data %}
+        {% for ema_count in ema_counts %}
+        {% if sector.symbol == ema_count.stock_data.symbol %}
+        <div class="col-md-3 mb-3">
+          <div class="card {% if ema_count.ema50_output > 0 %}card-positive{% else %}card-negative{% endif %}">
+            <div class="card-body">
+              <h6 class="card-title">NIFTY {{ sector.symbol|slice:"4:" }} INDEX</h6>
+              <p class="card-text">{{ ema_count.ema50_output }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if selected_ema == '100' %}
+      <div class="row">
+        {% for sector in sector_data %}
+        {% for ema_count in ema_counts %}
+        {% if sector.symbol == ema_count.stock_data.symbol %}
+        <div class="col-md-3 mb-3">
+          <div class="card {% if ema_count.ema100_output > 0 %}card-positive{% else %}card-negative{% endif %}">
+            <div class="card-body">
+              <h6 class="card-title">NIFTY {{ sector.symbol|slice:"4:" }} INDEX</h6>
+              <p class="card-text">{{ ema_count.ema100_output }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if selected_ema == '200' %}
+      <div class="row">
+        {% for sector in sector_data %}
+        {% for ema_count in ema_counts %}
+        {% if sector.symbol == ema_count.stock_data.symbol %}
+        <div class="col-md-3 mb-3">
+          <div class="card {% if ema_count.ema200_output > 0 %}card-positive{% else %}card-negative{% endif %}">
+            <div class="card-body">
+              <h6 class="card-title">NIFTY {{ sector.symbol|slice:"4:" }} INDEX</h6>
+              <p class="card-text">{{ ema_count.ema200_output }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+      <form method="GET" action="{% url 'dashboard' %}">
+        <span class="select" style="border:2px solid #6c757d;background:#6c757d;color:white;padding:7px;border-radius:8px">
+          <label for="selected_ema">Choose : </label>
+          <select name="ema" id="selected_ema" onchange="this.form.submit()" style="background-color:#6c757d;border-radius:8px;color:white">
+            <option value="20" {% if selected_ema == '20' %}selected{% endif %}>Ema 20</option>
+            <option value="50" {% if selected_ema == '50' %}selected{% endif %}>Ema 50</option>
+            <option value="100" {% if selected_ema == '100' %}selected{% endif %}>Ema 100</option>
+            <option value="200" {% if selected_ema == '200' %}selected{% endif %}>Ema 200</option>
+          </select>
+        </span>
+      </form>
+    </form>
+  </div>
+</div>
+
+<br>
+<div class="container">
+  <div class="graph-container">
+  <div class="card">
+    <div class="card-header">
+      Number of Days since the Sectors are up or down compared to Nifty50
+    </div>
+    <br>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <canvas id="sectorChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('sectorChart').getContext('2d');
+    var sectorChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [{% for sector in sector_data|slice:"-1" %}'{{ sector.symbol|slice:"4:" }}',{% endfor %}],
+        datasets: [{
+          label: 'RS Output Value',
+          data: [{% for rs_value in rs_values|slice:"-1" %}{{ rs_value }},{% endfor %}],
+          backgroundColor: [{% for rs_value in rs_values|slice:"-1" %}{% if rs_value > 0 %}'rgba(0, 255, 0, 0.2)',{% else %}'rgba(255, 0, 0, 0.2)',{% endif %}{% endfor %}],
+          borderColor: [{% for rs_value in rs_values|slice:"-1" %}{% if rs_value > 0 %}'rgba(0, 255, 0, 1)',{% else %}'rgba(255, 0, 0, 1)',{% endif %}{% endfor %}],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'RS Output Value'
+            },
+            ticks: {
+              beginAtZero: true
+            }
+          }],
+          xAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Symbol'
+            }
+          }]
+        }
+      }
+    });
+  });
+</script>
+
+<!-- Include the DataTables CSS file -->
+<link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include the DataTables JavaScript file -->
+<script src="//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    // Initialize the DataTable
+    $('#interactive-table').DataTable();
+  });
+</script>
+<div class="container mt-3">
+  <div class="card">
+    <div class="card-header">
+      Multiple EMA (Candle closing above EMA) and RSI Data
+    </div>
+    <br>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped" id="interactive-table">
+        <thead>
+          <tr>
+            <th style="width: 16.66%;background-color: #343a3f;">Sector</th>
+            <th style="width: 16.66%;background-color: #343a3f;">EMA 20</th>
+            <th style="width: 16.66%;background-color: #343a3f;">EMA 50</th>
+            <th style="width: 16.66%;background-color: #343a3f;">EMA 100</th>
+            <th style="width: 16.66%;background-color: #343a3f;">EMA 200</th>
+            <th style="width: 16.66%;background-color: #343a3f;">RSI</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sector in sector_data %}
+          <tr>
+            <td style="font-size:15px">NIFTY {{ sector.symbol|slice:"4:" }}</td>
+            <td style="text-align: center; font-weight: bold; padding: 8px; color: {% if sector.ema20 <= sector.close_price %}#155724{% else %}#721c24{% endif %}; background-color: {% if sector.ema20 <= sector.close_price %}#dff0d8{% else %}#f8d7da{% endif %};">{% if sector.ema20 <= sector.close_price %}<span style="color: #155724;">Buy &#8593;</span>{% else %}<span style="color: #721c24;">Sell &#8595;</span>{% endif %}</td>
+            <td style="text-align: center; font-weight: bold; padding: 8px; color: {% if sector.ema50 <= sector.close_price %}#155724{% else %}#721c24{% endif %}; background-color: {% if sector.ema50 <= sector.close_price %}#dff0d8{% else %}#f8d7da{% endif %};">{% if sector.ema50 <= sector.close_price %}<span style="color: #155724;">Buy &#8593;</span>{% else %}<span style="color: #721c24;">Sell &#8595;</span>{% endif %}</td>
+            <td style="text-align: center; font-weight: bold; padding: 8px; color: {% if sector.ema100 <= sector.close_price %}#155724{% else %}#721c24{% endif %}; background-color: {% if sector.ema100 <= sector.close_price %}#dff0d8{% else %}#f8d7da{% endif %};">{% if sector.ema100 <= sector.close_price %}<span style="color: #155724;">Buy &#8593;</span>{% else %}<span style="color: #721c24;">Sell &#8595;</span>{% endif %}</td>
+            <td style="text-align: center; font-weight: bold; padding: 8px; color: {% if sector.ema200 <= sector.close_price %}#155724{% else %}#721c24{% endif %}; background-color: {% if sector.ema200 <= sector.close_price %}#dff0d8{% else %}#f8d7da{% endif %};">{% if sector.ema200 <= sector.close_price %}<span style="color: #155724;">Buy &#8593;</span>{% else %}<span style="color: #721c24;">Sell &#8595;</span>{% endif %}</td>
+            <td style="text-align: center; font-weight: bold; padding: 8px; color: {% if sector.rsi < 50 %}#155724{% else %}#721c24{% endif %}; background-color: {% if sector.rsi < 50 %}#dff0d8{% else %}#f8d7da{% endif %};">{% if sector.rsi < 50 %}<span style="color: #155724;">Buy &#8593;</span>{% else %}<span style="color: #721c24;">Sell &#8595;</span>{% endif %}</td>
+        </tr>        
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<style>
+  .accordion-item {
+      border: 1px solid lightskyblue;
+      border-radius: 0.25rem;
+  }
+
+  .modal-dialog {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100% - 60px);
+      margin-top: 30px;
+      width: 500px;
+  }
+
+  .modal-content {
+      overflow-y: auto;
+      height: 650px;
+      width: 100%;
+  }
+
+  .btn-group.d-flex {
+      display: flex;
+      justify-content: center;
+  }
+
+  .btn-group.d-flex .btn {
+      margin: 0 5px;
+      background-color: aliceblue;
+      color: black;
+  }
+
+  .btn-group {
+      width: 100%;
+  }
+
+  .btn {
+      flex-grow: 1;
+      margin: 0;
+  }
+
+  #displayText {
+      font-size: 14px;
+  }
+
+  .input-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+  }
+
+  #expirationDate {
+      margin-left: 40px;
+  }
+
+  .name-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+  }
+
+  #name {
+      margin-right: 20px;
+  }
+
+  .form-control {
+      flex: 1;
+  }
+
+  .content-container {
+      display: flex;
+      flex-direction: column;
+  }
+
+  .Modal-button {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.5rem 0;
+      margin: 0;
+      border: 0px solid blue;
+      border-radius: 0.25rem;
+      background-color: transparent;
+  }
+
+  .btn-group .btn.active {
+      background-color: blue;
+      color: white;
+  }
+  .form-select{
+  font-size: 16px; /* Adjust the font size as needed */
+    padding: 12px 147px; /* Adjust the padding as needed */
+  }
+
+  .dropdown-option {
+    
+}
+
+
+
+</style>
+</head>
+<body>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Create Alerts</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="btn-group" role="group" aria-label="Basic outlined example">
+                  <button type="button" class="btn btn-outline-primary active" id="first">Settings</button>
+                  <button type="button" class="btn btn-outline-primary" id="sec">Notification</button>
+              </div>
+
+              <div class="content-container">
+                  <div id="settingsContent">
+                      <!-- Content for Settings -->
+                      <div class="accordion" id="accordionExample">
+                          <div class="accordion-item">
+                              <h4 class="accordion-header" id="headingOne">
+                                  <button class="Modal-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                      Create Alert On
+                                  </button>
+                              </h4>
+                              <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <!-- Wrap the select inside a div with Bootstrap grid classes -->
+                                    <div class="row">
+                                        <div class="col">
+                                            <select class="form-select" id="symbolDropdown">
+                                                <!-- Loop through symbols and populate dropdown options -->
+                                                {% for symbol in symbols %}
+                                                    <option class="dropdown-option">{{ symbol }}</option>
+                                                {% endfor %}
+                                                {% for symbol in unique_symbols %}
+                                                    <option class="dropdown-option">{{ symbol }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                          </div>
+                          <div class="accordion-item">
+                              <h4 class="accordion-header" id="headingTwo">
+                                  <button class="Modal-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                      Select Trend
+                                  </button>
+                              </h4>
+                              <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                  <div class="accordion-body">
+                                      <ul>
+                                          <h6>UP</h6>
+                                          <hr>
+                                          <h6>Down</h6>
+                                          <hr>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <br>
+                      <label for="integerInput"><h6>Price :</h6></label>
+                      <input type="number" id="integerInput" name="integerInput" min="0" step="1" placeholder="21782.50">
+                      <br>
+                      <hr>
+                      <h6>Trigger</h6>
+                      <br>
+                      <div class="btn-group d-flex justify-content-between" role="group" aria-label="Basic example">
+                          <button type="button" class="btn btn-primary" id="myButton">Only Once</button>
+                          <button type="button" class="btn btn-primary" id="myButton2">Every Time</button>
+                      </div>
+                      <br>
+                      <div id="displayText"></div>
+                      <br>
+                      <div class="input-container">
+                          <h6>Expiration :</h6>
+                          <input type="date" id="expirationDate" name="expirationDate">
+                      </div>
+                      <br>
+                      <hr>
+                      <div class="name-container">
+                          <label for="exampleFormControlInput1" class="form-label" id="name"><br><h6>Alert Name :</h6></label>
+                          <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="eg: Nifty Alert">
+                      </div>
+                      <div class="message-container">
+                          <label for="exampleFormControlTextarea1" class="form-label"><h6>Message</h6></label>
+                          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="message"></textarea>
+                      </div>
+                  </div>
+
+                  <div id="notificationContent" style="display: none;">
+                      <!-- Content for Notification -->
+                      <h4>Notification Content</h4>
+                      <p>This is the content for Notification.</p>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="save">Save changes</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Bootstrap Bundle with Popper.js and Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+<script>
+  // Get a reference to the button elements
+  var button = document.getElementById("myButton");
+  var button2 = document.getElementById("myButton2");
+
+  // Add click event listeners to the buttons
+  button.addEventListener("click", function() {
+    // Get a reference to the displayText element
+    var displayText = document.getElementById("displayText");
+    // Set the text content of the displayText element
+    displayText.textContent = "The Alert will only trigger once and will not be repeated.";
+  });
+
+  button2.addEventListener("click", function() {
+    // Get a reference to the displayText element
+    var displayText = document.getElementById("displayText");
+    // Set the text content of the displayText element
+    displayText.textContent = "The Alert will trigger every time the condition is met, but not more than once per minute.";
+  });
+
+  // Function to get the expiration date as the same day of the next month
+  function getNextMonthDate() {
+    var currentDate = new Date();
+    var nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate() + 1);
+    return nextMonthDate;
+  }
+
+  // Set the value of the input field to the expiration date
+  document.getElementById("expirationDate").valueAsDate = getNextMonthDate();
+
+  // Get references to the buttons and content divs
+  var firstButton = document.getElementById("first");
+  var secButton = document.getElementById("sec");
+  var settingsContent = document.getElementById("settingsContent");
+  var notificationContent = document.getElementById("notificationContent");
+
+  // Add event listeners to the buttons
+  firstButton.addEventListener("click", function() {
+    // Show settings content and hide notification content
+    settingsContent.style.display = "block";
+    notificationContent.style.display = "none";
+  });
+
+  secButton.addEventListener("click", function() {
+    // Show notification content and hide settings content
+    settingsContent.style.display = "none";
+    notificationContent.style.display = "block";
+  });
+
+  document.getElementById("save").addEventListener("click", function() {
+    // Call the email_alert function with the desired parameters
+    // email_alert("Alert Subject", "Alert Body", "recipient@example.com", "YOUR_API_KEY", ["image_path1.jpg", "image_path2.jpg"]);
+    // Uncomment and replace with your desired functionality
+  });
+
+  firstButton.addEventListener("click", function() {
+    // Show settings content and hide notification content
+    settingsContent.style.display = "block";
+    notificationContent.style.display = "none";
+    // Toggle active class on buttons
+    firstButton.classList.add("active");
+    secButton.classList.remove("active");
+  });
+
+  secButton.addEventListener("click", function() {
+    // Show notification content and hide settings content
+    settingsContent.style.display = "none";
+    notificationContent.style.display = "block";
+    // Toggle active class on buttons
+    secButton.classList.add("active");
+    firstButton.classList.remove("active");
+  });
+</script>
+
+{% endblock %}

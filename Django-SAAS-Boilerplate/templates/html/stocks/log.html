@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Log {% endblock %}
+{% block content %}
+
+
+    <form method="post" action="/log/">
+    {% csrf_token %}
+{#    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">#}
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create Alerts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <button type="button" class="btn btn-outline-primary active" id="first">Settings</button>
+                    <button type="button" class="btn btn-outline-primary" id="sec">Notification</button>
+                </div>
+
+                <div class="content-container">
+                    <div id="settingsContent">
+                        <!-- Content for Settings -->
+                        <div class="accordion" id="accordionExample">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingOne">
+                                    <button class="Modal-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Create Alert On
+                                    </button>
+                                </h3>
+                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                  <div class="accordion-body">
+                                      <!-- Wrap the select inside a div with Bootstrap grid classes -->
+                                      <div class="row">
+                                          <div class="col" style="padding-left:10px;padding-right:0px">
+                                            <label for="symbolDropdown"></label>
+                                              <select class="form-select" id="symbolDropdown" name="create_alert">
+                                                  <!-- Loop through symbols and populate dropdown options -->
+                                                  {% for symbol in symbols %}
+                                                      <option class="dropdown-option">{{ symbol }}</option>
+                                                  {% endfor %}
+                                                  {% for symbol in unique_symbols %}
+                                                      <option class="dropdown-option">{{ symbol }}</option>
+                                                  {% endfor %}
+                                              </select>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingTwo">
+                                    <button class="Modal-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Select Trend
+                                    </button>
+                                </h3>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                  <div class="accordion-body">
+                                    <label for="trendDropdown"></label>
+                                    <select class="form-select1" name="trend" id="trendDropdown">
+                                        <option value="UP">UP</option>
+                                        <option value="Down">Down</option>
+                                    </select>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <label for="integerInput"><h6>Price :</h6></label>
+                        <input type="number" id="integerInput" name="price" min="0" step="1" placeholder="21782.50">
+                        <br>
+                        <hr>
+                        <h6>Trigger</h6>
+                        <br>
+                        <br>
+                        <div id="displayText"></div>
+                        <br>
+                        <div class="input-container">
+                            <h6>Expiration :</h6>
+                            <label for="expirationDate"></label><input type="date" id="expirationDate" name="expirationDate">
+                        </div>
+                        <br>
+                        <hr>
+                        <div class="name-container">
+                            <label for="exampleFormControlInput1" class="form-label" id="name"><br><h6>Alert Name :</h6></label>
+                            <input type="text" class="form-control" id="exampleFormControlInput1" name="name" placeholder="eg: Nifty Alert">
+                        </div>
+                        <div class="message-container">
+                            <label for="exampleFormControlTextarea1" class="form-label"><h6>Message</h6></label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="message" name="message"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="notificationContent" style="display: none;">
+                        <!-- Content for Notification -->
+                        <h4>Notification Content</h4>
+                        <p>This is the content for Notification.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="save">Save changes</button>
+            </div>
+        </div>
+    </div>
+{#  </div>#}
+</form>
+
+ <style>
+    .accordion-item {
+        border: 1px solid lightskyblue;
+        border-radius: 0.25rem;
+    }
+
+    .modal-dialog {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100% - 60px);
+        margin-top: 30px;
+        width: 500px;
+    }
+
+    .modal-content {
+        overflow-y: auto;
+        height: 650px;
+        width: 100%;
+    }
+
+
+
+    .btn-group.d-flex .btn {
+        margin: 0 5px;
+        background-color: aliceblue;
+        color: black;
+    }
+
+    .btn-group {
+        width: 100%;
+    }
+
+    .btn {
+        flex-grow: 1;
+        margin: 0;
+    }
+
+    #displayText {
+        font-size: 14px;
+    }
+
+    .input-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    #expirationDate {
+        margin-left: 40px;
+    }
+
+    .name-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    #name {
+        margin-right: 20px;
+    }
+
+    .form-control {
+        flex: 1;
+    }
+
+    .content-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .Modal-button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 0.5rem 0;
+        margin: 0;
+        border: 0 solid blue;
+        border-radius: 0.25rem;
+        background-color: transparent;
+    }
+
+    .btn-group .btn.active {
+        background-color: blue;
+        color: white;
+    }
+    .form-select{
+    font-size: 20px; /* Adjust the font size as needed */
+      padding: 13px 131px; /* Adjust the padding as needed */
+    }
+
+    .form-select1{
+      font-size: 20px; /* Adjust the font size as needed */
+        padding: 13px 189px; /* Adjust the padding as needed */
+      }
+
+
+
+
+
+  </style>
+
+  <!-- Modal -->
+
+
+  <!-- Bootstrap Bundle with Popper.js and Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+
+{#  <script>#}
+{##}
+{#    // Function to redirect to log.html after form submission#}
+{##}
+{##}
+{##}
+{##}
+{#    // Function to get the expiration date as the same day of the next month#}
+{#    function getNextMonthDate() {#}
+{#      var currentDate = new Date();#}
+{#        return new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate() + 1);#}
+{#    }#}
+{##}
+{#    // Set the value of the input field to the expiration date#}
+{#    document.getElementById("expirationDate").valueAsDate = getNextMonthDate();#}
+{##}
+{#    // Get references to the buttons and content divs#}
+{#    var firstButton = document.getElementById("first");#}
+{#    var secButton = document.getElementById("sec");#}
+{#    var settingsContent = document.getElementById("settingsContent");#}
+{#    var notificationContent = document.getElementById("notificationContent");#}
+{##}
+{#    // Add event listeners to the buttons#}
+{#    firstButton.addEventListener("click", function() {#}
+{#      // Show settings content and hide notification content#}
+{#      settingsContent.style.display = "block";#}
+{#      notificationContent.style.display = "none";#}
+{#    });#}
+{##}
+{#    secButton.addEventListener("click", function() {#}
+{#      // Show notification content and hide settings content#}
+{#      settingsContent.style.display = "none";#}
+{#      notificationContent.style.display = "block";#}
+{#    });#}
+{##}
+{#    document.getElementById("save").addEventListener("click", function() {#}
+{#      // Call the email_alert function with the desired parameters#}
+{#      // email_alert("Alert Subject", "Alert Body", "recipient@example.com", "YOUR_API_KEY", ["image_path1.jpg", "image_path2.jpg"]);#}
+{#      // Uncomment and replace with your desired functionality#}
+{#    });#}
+{##}
+{#    firstButton.addEventListener("click", function() {#}
+{#      // Show settings content and hide notification content#}
+{#      settingsContent.style.display = "block";#}
+{#      notificationContent.style.display = "none";#}
+{#      // Toggle active class on buttons#}
+{#      firstButton.classList.add("active");#}
+{#      secButton.classList.remove("active");#}
+{#    });#}
+{##}
+{#    secButton.addEventListener("click", function() {#}
+{#      // Show notification content and hide settings content#}
+{#      settingsContent.style.display = "none";#}
+{#      notificationContent.style.display = "block";#}
+{#      // Toggle active class on buttons#}
+{#      secButton.classList.add("active");#}
+{#      firstButton.classList.remove("active");#}
+{#    });#}
+{#  </script>#}
+
+{% endblock %}
+

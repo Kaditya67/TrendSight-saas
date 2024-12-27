@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %} EMA Based Analysis {% endblock %}
+
+{% block content %}
+
+        <p class="h1 text-center">Past Performance </p>
+
+        <hr class="hr" />
+
+
+        <table class="table table-bordered mt-3">
+            <thead style="background-color:#343a3f">
+                <tr class="text-center">
+                    <th>Sr. No</th>
+                    <th>Sell Date</th>
+                    <th>Script</th>
+                    <th>Buy Price </th>
+                    <th> QTY </th>
+                    <th> Return % </th>
+                    <th>No of Days</th>
+                    <th>Sold Price </th>
+                    <th>Position</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center">
+                    {% comment %} <td>1(example)</td>
+                    <td> AXIS </td>
+                    <td> 567.40 </td>
+                    <td> 24 </td>
+                    <td> 13 %</td>
+                    <td>5</td>
+                    <td>600</td>
+                    <td>Closed</td> {% endcomment %}
+                </tr>
+              </tr>
+              {% for entry in cp_entries %}
+                  <tr class="text-center">
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ entry.sell_date }}</td>
+                      <td>{{ entry.symbol }}</td>
+                      <td>{{ entry.purchase_price }}</td>
+                      <td>{{ entry.sell_quantity }}</td>
+                      <td>{{ entry.return_percentage }} %</td>
+                      <td>{{ entry.days_held }}</td>
+                      <td>{{ entry.sell_price }}</td>
+                      <td>{{ entry.position }}</td>
+                             
+                  </tr>
+              {% endfor %}         
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+  </div>
+
+   <!-- Modal for adding a stock -->
+   <div class="modal fade" id="addStockModal" tabindex="-1" role="dialog" aria-labelledby="addStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addStockModalLabel">Add Stock to Portfolio</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Stock addition form -->
+          <form>
+            <div class="form-group">
+              <label for="stockSymbol">Stock Symbol:</label>
+              <input type="text" class="form-control" id="stockSymbol" placeholder="Enter stock symbol" required>
+            </div>
+            <div class="form-group">
+              <label for="quantity">Quantity:</label>
+              <input type="number" class="form-control" id="quantity" placeholder="Enter quantity" required>
+            </div>
+            <div class="form-group">
+              <label for="purchasePrice">Purchase Price:</label>
+              <input type="number" class="form-control" id="purchasePrice" placeholder="Enter purchase price" required>
+            </div>
+            <div class="form-group">
+              <label for="purchaseDate">Purchase Date:</label>
+              <input type="date" class="form-control" id="purchaseDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Stock</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    <!-- Modal for closing a position -->
+    <div class="modal fade" id="closePositionModal" tabindex="-1" role="dialog" aria-labelledby="closePositionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="closePositionModalLabel">Close Position</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+{% endblock %}

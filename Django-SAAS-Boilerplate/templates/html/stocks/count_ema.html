@@ -1,0 +1,42 @@
+<!-- count_ema.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMA Counters</title>
+</head>
+<body>
+    <h1>EMA Counters</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Latest Date</th>
+                <th>EMA20 Counter</th>
+                <th>EMA50 Counter</th>
+                <th>EMA100 Counter</th>
+                <th>EMA200 Counter</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ema_counts in ema_counts_list %}
+                <tr>
+                    <td>{{ ema_counts.stock_data.symbol }}</td>
+                    <td>{{ ema_counts.stock_data.date }}</td>
+                    <td>{{ ema_counts.ema20_counter }}</td>
+                    <td>{{ ema_counts.ema50_counter }}</td>
+                    <td>{{ ema_counts.ema100_counter }}</td>
+                    <td>{{ ema_counts.ema200_counter }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Add your other HTML content here -->
+
+</body>
+</html>

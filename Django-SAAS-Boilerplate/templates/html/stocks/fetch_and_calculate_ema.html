@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} | Fetch and Calculate EMA</title>
+    <style>
+        /* Define CSS styles for the table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ name }} Fetch and Calculate EMA</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Date</th>
+                <th>Close Price</th>
+                <th>EMA 20</th>
+                <th>EMA 50</th>
+                <th>EMA 100</th>
+                <th>EMA 200</th>
+                <th>RSI</th>
+                <th>RS</th>
+                <!-- Add other indicator values as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in result_data %}
+                <tr>
+                    <td>{{ data.symbol }}</td>
+                    <td>{{ data.date }}</td>
+                    <td>{{ data.close_price }}</td>
+                    <td>{{ data.ema20 }}</td>
+                    <td>{{ data.ema50 }}</td>
+                    <td>{{ data.ema100 }}</td>
+                    <td>{{ data.ema200 }}</td>
+                    <td>{{ data.rsi }}</td>
+                    <td>{{ data.rs }}</td>
+                    <!-- Add other indicator values as needed -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

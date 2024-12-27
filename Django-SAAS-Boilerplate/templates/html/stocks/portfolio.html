@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+<script>
+
+  var $j = jQuery.noConflict();
+
+  $j(function() {
+      $j('.badge.badge-danger').click(function() {
+  
+          var stockSymbol = $j(this).closest('tr').find('td:eq(1)').text();
+          
+          $j('#close_position_form #sellsymbol').val(stockSymbol);
+          //alert(stockSymbol);
+      });
+  });
+  
+
+  </script>
+  
+
+    <div class="container mt-5">
+        <p class="h1 text-center">My Portfolio </p>
+        <!-- <p class=" text-center">Check Which stocks you need to exit </p> -->
+        <!-- <p class="text-right"> Last Update on : 11 August 2023 </p> -->
+        <hr class="hr" />
+
+
+        <!-- Button to trigger the modal -->
+        <button type="button" class="btn btn-primary btn-right" data-toggle="modal" data-target="#addStockModal">
+            Add Stock to Portfolio
+        </button>
+
+    
+        <!-- <p class="h3">Open Positions  </p> -->
+        <table class="table table-bordered mt-3">
+            <thead style="background-color:#343a3f">
+                <tr class="text-center">
+                    <th>Sr. No</th>
+                    <th>Script</th>
+                    <th>Buy Price </th>
+                    <th> QTY </th>
+                    <th> Return % </th>
+                    <th>No of Days</th>
+                    <th>Up/Down Trend</th>
+                    <th>Position</th>
+                    {% comment %} <th> Alerts </th> {% endcomment %}
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center">
+                    {% comment %} <td>1(example)</td>
+                    <td>AXIS</td>
+                    <td> 567.40 </td>
+                    <td> 24 </td>
+                    <td> 13 %</td>
+                    <td>5</td>
+                    <td>Up</td>
+                    <td>Open</td>
+                    <td><span class="badge badge-success">Buy</span></td>
+                    <td><button type="button" class="badge badge-danger" data-toggle="modal" data-target="#closePositionModal">Exit</button> </td> {% endcomment %}
+                </tr>
+                {% if portfolio_entries%}
+                  {% for entry in portfolio_entries %}
+                      <tr class="text-center">
+                          <td>{{ forloop.counter }}</td>
+                          <td><a href="#" onclick="showGraph('{{ entry.symbol }}');">{{ entry.symbol }}</a></td>
+
+                          <td>{{ entry.purchase_price }}</td>
+                          <td>{{ entry.quantity }}</td>
+                          <td>{{ entry.return_percentage }} %</td>
+                          <td>{{ entry.no_of_days }}</td>
+                          <td>{{ entry.trend }}</td>
+                          <td>{{ entry.position }}</td>
+                          
+                          <td>
+                              <button type="button" class="badge badge-danger" data-toggle="modal" data-target="#closePositionModal">Exit</button>
+                          </td>
+                      </tr>
+                  {% endfor %}
+                {% else%}
+                  <tr>
+                    <td colspan="10" style="background-color: #bec0c3; font-weight:bold" class="text-center">Portfolio is empty</td>
+                </tr>
+                {% endif%}
+            </tbody>
+        </table>
+
+        <a href="{% url 'closed_positions' %}" class="text-right">  Closed Positions  </a>
+
+   <!-- Modal for adding a stock -->
+   <div class="modal fade" id="addStockModal" tabindex="-1" role="dialog" aria-labelledby="addStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addStockModalLabel">Add Stock to Portfolio</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Stock addition form -->
+          <form method="post" action="{% url 'add_portfolio' %}">
+            {% csrf_token %}
+                     
+            <div class="form-group">
+              <label for="stockSymbol">Stock Symbol:</label>
+              <select class="form-control" id="symbol" name="symbol" required>
+                {% for sector in sector_data %}
+                    <option value="{{ sector.symbol }}">{{ sector.symbol }}</option>
+                {% endfor %}
+                {% for symbol in unique_symbols %}
+                    <option value="{{ symbol }}">{{ symbol }}</option>
+                {% endfor %}
+            </select>                
+          </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Enter quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="purchasePrice">Purchase Price:</label>
+                <input type="number" class="form-control" id="purchasePrice" name="purchase_price" placeholder="Enter purchase price" required>
+            </div>
+            <div class="form-group">
+                <label for="purchaseDate">Purchase Date:</label>
+                <input type="date" class="form-control" id="purchaseDate" name="purchase_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Portfolio</button>
+        </form>
+        
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Modal for closing a position -->
+    <div class="modal fade" id="closePositionModal" tabindex="-1" role="dialog" aria-labelledby="closePositionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="closePositionModalLabel">Close Position</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <!-- Position closing form -->
+              <form id="close_position_form">
+                <div class="form-group">
+                  <label for="stockSymbol">Stock Symbol:</label>
+                  <input type="text" class="form-control" id="sellsymbol" name="sellsymbol" required>
+              </div>
+                <div class="form-group">
+                    <label for="sellQuantity">Sell Quantity:</label>
+                    <input type="number" class="form-control" id="sellQuantity" placeholder="Enter sell quantity" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellPrice">Sell Price:</label>
+                    <input type="number" class="form-control" id="sellPrice" placeholder="Enter sell price" required>
+                </div>  
+                <div class="form-group">
+                    <label for="sellDate">Sell Date:</label>
+                    <input type="date" class="form-control" id="sellDate" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Close Position</button>
+            </form>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function showGraph(symbol) {
+          var type = 'stock';
+          if (symbol.startsWith('^')) {
+              type = 'sector';
+          }
+          localStorage.setItem("selectedDropdownValue1", type);
+          localStorage.setItem("selectedDropdownValue2", symbol);
+          localStorage.setItem("selectedDropdownValue3", '20');
+
+          var url = '/graph/' + type + '/' + encodeURIComponent(symbol) + '/20/'; 
+          window.location.href = url;
+      }
+      
+        
+        var $j = jQuery.noConflict();
+        $j(document).ready(function() {
+          $j('form[action="{% url 'add_portfolio' %}"]').submit(function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+            
+            // Serialize form data
+            var formData = $j(this).serialize();
+            
+            var $form = $j(this); // Cache the form element
+            
+            // Send a POST request to add portfolio
+            $j.ajax({
+              url: $form.attr('action'),
+              type: 'POST',
+              data: formData,
+              success: function(response) {
+                // Display success alert
+                alert(response.message);
+                
+                // Close the modal
+                $j('#addStockModal').find('[aria-hidden="true"]').click();
+                location.reload()
+              },
+              error: function(xhr, status, error) {
+                // Display error alert
+                alert('An error occurred while processing your request. Please try again.');
+              }
+            });
+          });
+        });
+        
+        </script>
+        
+  <script>
+    $j('#close_position_form').submit(function(event) {
+      event.preventDefault(); // Prevent the default form submission
+      
+      // Get form data
+      var sellsymbol = $j('#sellsymbol').val();
+      var sellQuantity = $j('#sellQuantity').val();
+      var sellPrice = $j('#sellPrice').val();
+      var sellDate = $j('#sellDate').val();
+      //alert(sellsymbol)
+      
+      // Send AJAX request to Django view
+      $j.ajax({
+          url: '{% url 'close_position' %}',
+          type: 'POST',
+
+          data: {
+              'sellsymbol': sellsymbol,
+              'sellQuantity': sellQuantity,
+              'sellPrice': sellPrice,
+              'sellDate': sellDate,
+              'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+          success: function(response) {
+            alert(response.message);
+                      
+            // Close the modal
+            $j('#closePositionModal').find('[aria-hidden="true"]').click();
+            location.reload()
+          },
+          error: function(xhr, status, error) {
+              // Handle error response, e.g., show an error message
+              alert('An error occurred while processing your request. Please try again.');
+            }
+      });
+  });
+</script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+{% endblock %}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Import Stocks Data</title>
+</head>
+<body>
+  <h1>Import Stocks Data</h1>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="data_file">Select CSV file:</label>
+    <input type="file" name="data_file" id="data_file">
+    <br>
+    <button type="submit">Upload</button>
+  </form>
+</body>
+</html>

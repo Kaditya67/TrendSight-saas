@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #348F50, #56B4D3);
+            padding: 20px;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .contact-details {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .contact-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .contact-card {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 300px;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .contact-card p {
+            margin: 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .contact-card strong {
+            font-weight: bold;
+            color: #56B4D3;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="contact-details">Contact Details</h1>
+    <div class="contact-container">
+        {% for contact in contact_info %}
+        <div class="contact-card">
+            <p><strong>Name:</strong> <span style="color: #348F50; font-size: 20px;">{{ contact.name }}</span></p>
+            <p><strong>Email:</strong> <span style="font-size: 14px;">{{ contact.email }}</span></p>
+            <p><strong>Message:</strong><br>{{ contact.message }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

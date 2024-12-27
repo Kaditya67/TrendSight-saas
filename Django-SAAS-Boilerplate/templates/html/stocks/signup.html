@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>StockTracker | Signup</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'images/logo1.png' %}" type="image/png">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('{% static "images/stock-market.png" %}') center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container h2 {
+            text-align: center;
+        }
+
+        .already-have-account {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                background-size: auto 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Signup Page -->
+    <div id="signup">
+        <h2>Sign Up</h2>
+        <form method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="signupEmail">Email address:</label>
+                <input type="email" class="form-control" id="signupEmail" name="email" aria-describedby="emailHelp"
+                       placeholder="Enter email" required>
+            </div>
+
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="signupUsername">Username:</label>
+                <input type="text" class="form-control" id="signupUsername" name="username"
+                       placeholder="Choose a username" required>
+            </div>
+
+            <!-- Password Fields -->
+            <div class="form-group">
+                <label for="signupPassword">Password:</label>
+                <input type="password" class="form-control" id="signupPassword" name="password1"
+                       placeholder="Password" required>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="form-group">
+                <label for="signupConfirmPassword">Confirm Password:</label>
+                <input type="password" class="form-control" id="signupConfirmPassword" name="password2"
+                       placeholder="Confirm password" required>
+            </div>
+
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-block" name="signup">Sign Up</button>
+        </form>
+
+        <!-- Already have an account? -->
+        <p class="already-have-account">Already have an account? <a href="{% url 'user_login' %}">Log in</a></p>
+    </div>
+</div>
+
+<!-- Bootstrap JavaScript Dependencies -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

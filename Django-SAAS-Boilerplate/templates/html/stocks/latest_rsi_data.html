@@ -1,0 +1,77 @@
+<!-- templates/latest_rsi_data.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latest RSI Data</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Stock Name</th>
+                <th>Stock Date</th>
+                <th>RSI Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in latest_rsi_data_list %}
+                <tr>
+                    <td>{{ data.symbol }}</td>
+                    <td>{{ data.date }}</td>
+                    <td>{{ data.rsi }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% with emaData=ema_data_json.0 %}
+        <canvas id="emaChart-{{ emaData.symbol }}" width="400" height="200"></canvas>
+    {% endwith %}
+
+    {% with rsiData=rsi_data_json.0 %}
+        <canvas id="rsiChart-{{ rsiData.symbol }}" width="400" height="200"></canvas>
+    {% endwith %}
+
+    <script>
+        var emaData = {{ ema_data_json|safe }};
+        var rsiData = {{ rsi_data_json|safe }};
+
+        // Assuming you want to display the graph for the first stock
+        var symbol = emaData[0].symbol;
+
+        var emaContext = document.getElementById('emaChart-' + symbol).getContext('2d');
+        var emaChart = new Chart(emaContext, {
+            type: 'line',
+            data: {
+                labels: emaData[0].values.map(function(_, index) { return index + 1; }),
+                datasets: [{
+                    label: 'EMA - ' + symbol,
+                    data: emaData[0].values,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            }
+        });
+
+        var rsiContext = document.getElementById('rsiChart-' + symbol).getContext('2d');
+        var rsiChart = new Chart(rsiContext, {
+            type: 'line',
+            data: {
+                labels: rsiData[0].values.map(function(_, index) { return index + 1; }),
+                datasets: [{
+                    label: 'RSI - ' + symbol,
+                    data: rsiData[0].values,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <title>Subscription</title>
+  {% load static %}
+  <link rel="icon" href="{% static 'images/logo1.png' %}" type="image/png">
+  <style>
+    /* Custom CSS for the landing page */
+    /* Add your styles here */
+
+    .card-img-top {
+      height: 200px; /* Adjust the height as needed */
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+<!-- Pricing Section -->
+<section id="pricing" class="bg-light py-5">
+  <div class="container">
+    <h2 class="text-center">Pricing Plans</h2> <br>
+    <div class="row">
+      <!-- Pricing Plan Box 1 -->
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h3 class="card-title">Monthly Plan</h3>
+            <p class="card-text">Perfect for beginners.</p>
+            <h4 class="card-subtitle mb-3">Rs. 599/Month</h4>
+            <ul class="list-unstyled">
+              <li>Real-time Data Access</li>
+              <li>Portfolio Tracking</li>
+              <li>Limited Analytics</li>
+            </ul>
+            <a href="#" class="btn btn-primary btn-block">Get Started</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Plan Box 2 -->
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h3 class="card-title">Yearly Plan</h3>
+            <p class="card-text">For serious investors.</p>
+            <h4 class="card-subtitle mb-3">Rs. 4999/month</h4>
+            <ul class="list-unstyled">
+              <li>Real-time Data Access</li>
+              <li>Portfolio Tracking</li>
+              <li>Advanced Analytics</li>
+            </ul>
+            <a href="#" class="btn btn-primary btn-block">Get Started</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

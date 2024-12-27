@@ -112,6 +112,7 @@ INSTALLED_APPS = [
     'blog',
     'inquiry',
     'transaction',
+    'stocks',
 ]
 
 if not DEBUG:
@@ -322,13 +323,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_ROOT = BASE_DIR.joinpath('staticfiles', 'static')
+# STATIC_ROOT = BASE_DIR.joinpath('staticfiles', 'static')
 STATICFILES_DIRS = [
-                        BASE_DIR.joinpath('templates'),
-                        # BASE_DIR.joinpath('templates', 'js'),
-                        # BASE_DIR.joinpath('templates', 'css'),
-                        BASE_DIR.joinpath('templates', 'assets'),
-                    ]
+    BASE_DIR.joinpath('staticfiles', 'static'),
+    BASE_DIR.joinpath('templates'),
+    BASE_DIR.joinpath('templates', 'assets'),
+] 
 
 MEDIA_ROOT = BASE_DIR.joinpath('media')
 

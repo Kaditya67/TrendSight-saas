@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMA Counts for Stocks</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        th {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>EMA Counts for Stocks</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Stock</th>
+                <th>EMA 20</th>
+                <th>EMA 50</th>
+                <th>EMA 100</th>
+                <th>EMA 200</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ema_count in ema_count_data %}
+            <tr>
+                <td>{{ ema_count.stock_data.symbol }}</td>
+                <td>{{ ema_count.ema20_output }}</td>
+                <td>{{ ema_count.ema50_output }}</td>
+                <td>{{ ema_count.ema100_output }}</td>
+                <td>{{ ema_count.ema200_output }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!-- templates/display_stock_data.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Data</title>
+</head>
+<body>
+    <h1>Stock Data</h1>
+    <form method="get" action="{% url 'display_stock_data' %}">
+        <label for="num_rows">Number of Rows:</label>
+        <select name="num_rows" id="num_rows">
+            {% for option in options %}
+            <option value="{{ option }}" {% if num_rows == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+
+        </select>
+        
+        <label for="stock">Select Stock:</label>
+        <select name="stock" id="stock">
+            {% for stock in stocks %}
+                <option value="{{ stock }}" {% if stock == selected_stock %}selected{% endif %}>{{ stock }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit">Show</button>
+    </form>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Date</th>
+                <th>Close Price</th>
+                <th>EMA 20</th>
+                <th>EMA 50</th>
+                <!-- Add more headers for other indicator values -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in stock_data %}
+                <tr>
+                    <td>{{ data.symbol }}</td>
+                    <td>{{ data.date }}</td>
+                    <td>{{ data.close_price }}</td>
+                    {% for indicators in indicator_values %}
+                        <td>{{ indicators.ema20 }}</td>
+                        <td>{{ indicators.ema50 }}</td>
+                        <!-- Add more cells for other indicator values -->
+                    {% empty %}
+                        <td colspan="2">No indicator values available</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

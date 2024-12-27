@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %} Stocks  {% endblock %}
+
+{% block content %}
+
+     <h2 class="text-center">Stocks Trends Last 20 days  </h2><br>
+
+     <div class="container mt-3 body-content">
+                <div class="d-flex justify-content-end">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="emaDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Select Sectors
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="emaDropdownMenuButton">
+                            <a class="dropdown-item" href="#"> Nifty Auto</a>
+                            <a class="dropdown-item" href="#"> Nifty Bank </a>
+                            <a class="dropdown-item" href="#"> Nifty Financial Service</a>
+                            <a class="dropdown-item" href="#"> Nifty FMCG </a>
+                            <a class="dropdown-item" href="#"> Nifty Healthcare </a>
+                            <a class="dropdown-item" href="#"> Nifty IT </a>
+                            <a class="dropdown-item" href="#"> Nifty Media</a>
+                            <a class="dropdown-item" href="#"> Nifty Metal </a>
+                            <a class="dropdown-item" href="#"> Nifty Pharma </a>
+                            <a class="dropdown-item" href="#"> Nifty Private Bank </a>
+                            <a class="dropdown-item" href="#"> Nifty PSU Bank </a>
+                            <a class="dropdown-item" href="#"> Nifty Realty </a>
+                            <a class="dropdown-item" href="#"> Nifty Consumer Durables </a>
+                            <a class="dropdown-item" href="#"> Nifty Oil and GaS </a>
+                        </div>
+                    </div>
+                </div>
+             </div> <br>
+    <div class="table-responsive table-bordered  body-content">
+      <table class="table ">
+        <thead>
+          <tr>
+            <th class="text-center"> Date </th>
+            <th class="text-center">Dec 20</th>
+            <th class="text-center">Dec 19</th>
+            <th class="text-center">Dec 18</th>
+            <th class="text-center">Dec 17</th>
+            <th class="text-center">Dec 16</th>
+            <th class="text-center">Dec 15</th>
+            <th class="text-center">Dec 14</th>
+            <th class="text-center">Dec 13</th>
+            <th class="text-center">Dec 12</th>
+            <th class="text-center">Dec 11</th>
+            <th class="text-center">Dec 10</th>
+            <th class="text-center">Dec 9</th>
+            <th class="text-center">Dec 8</th>
+            <th class="text-center">Dec 7</th>
+            <th class="text-center">Nov 6</th>
+            <th class="text-center">Nov 5</th>
+            <th class="text-center">Nov 4</th>
+            <th class="text-center">Nov 3</th>
+            <th class="text-center">Nov 2</th>
+            <th class="text-center">Nov 1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Sample Data - Replace with your data -->
+          <tr>
+            <td class="text-center"> <a href="https://www.tradingview.com/chart/?symbol=NSE:TCS&interval=1D" target="_blank"> TCS </a> </td>
+            <td class="positive text-center buy">13</td>
+            <td class="positive text-center buy">12</td>
+            <td class="positive text-center buy">11</td>
+            <td class="positive text-center buy">10</td>
+            <td class="positive text-center buy">9</td>
+            <td class="positive text-center buy">8</td>
+            <td class="positive text-center buy">7</td>
+            <td class="positive text-center buy">6</td>
+            <td class="positive text-center buy">5</td>
+            <td class="positive text-center buy">4</td>
+            <td class="positive text-center buy">3</td>
+            <td class="positive text-center buy">2</td>
+            <td class="positive text-center buy">1</td>
+            <td class="negative text-center sell">-12</td>
+            <td class="negative text-center sell">-11</td>
+            <td class="negative text-center sell">-10</td>
+            <td class="negative text-center sell">-9</td>
+            <td class="negative text-center sell">-8</td>
+            <td class="negative text-center sell">-7</td>
+            <td class="negative text-center sell">-6</td>
+          </tr>
+      
+          <tr>
+            <td class="text-center"> <a href="https://www.tradingview.com/chart/?symbol=NSE:INFY&interval=1D" target="_blank"> INFY </a> </td>
+            <td class="positive text-center buy">11</td>
+            <td class="positive text-center buy">10</td>
+            <td class="positive text-center buy ">9</td>
+            <td class="positive text-center buy ">8</td>
+            <td class="positive text-center buy">7</td>
+            <td class="positive text-center buy">6</td>
+            <td class="positive text-center buy ">5</td>
+            <td class="positive text-center buy ">4</td>
+            <td class="positive text-center buy ">3</td>
+            <td class="positive text-center buy">2</td>
+            <td class="positive text-center buy ">1</td>
+            <td class="negative text-center sell">-14</td>
+            <td class="negative text-center sell">-13</td>
+            <td class="negative text-center sell">-12</td>
+            <td class="negative text-center sell">-11</td>
+            <td class="negative text-center sell">-10</td>
+            <td class="negative text-center sell">-9</td>
+            <td class="negative text-center sell">-8</td>
+            <td class="negative text-center sell">-7</td>
+            <td class="negative text-center sell">-6</td>
+          </tr>
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+    </div>
+    <h1>
+      Stocks Available
+    </h1>
+    <div class="results-container">
+      {% for res in result %}
+          <div class="result-item"> 
+              <h2>Date: {{ res.0 }}</h2>
+              <h2>EMA20 Counter: {{ res.1 }}</h2>
+          </div>
+      {% endfor %}
+  </div>  
+  
+{% endblock %}

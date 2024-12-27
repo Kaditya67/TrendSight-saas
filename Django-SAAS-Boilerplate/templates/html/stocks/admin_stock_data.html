@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Data in Admin</title>
+</head>
+<body>
+    <h1>Stock Data in Admin</h1>
+    <ul>
+        {% for data in stock_data %}
+            <li>{{ data.symbol }} - {{ data.date }} - Close Price: {{ data.close_price }} - EMA: {{ data.ema }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
