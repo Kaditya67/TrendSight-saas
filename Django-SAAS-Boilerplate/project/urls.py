@@ -37,14 +37,14 @@ urlpatterns = [
     path('user/', include('user.urls')),
     path('blog/', include('blog.urls')),
     path('contact-us/', include('inquiry.urls')),
-    # path('payments/', include('payments.urls')),
+    path('payments/', include('payments.urls')),
 
     path('sitemap.xml', sitemap, sitemap_dict, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     path('ratelimit-error/', rate_limiter_view, name='ratelimit-error'),
 
     # add new path here
-    # path('', include('transaction.urls')),
+    path('', include('transaction.urls')),
 
     path('', home_view, name='home'),
 

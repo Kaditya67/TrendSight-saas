@@ -149,12 +149,12 @@ PAYMENT_VARIANTS = {
         # 'payments.stripe.StripeProviderV3',
         'payments.stripe.StripeProvider',
         {
-            # 'api_key': env('STRIPE_TEST_API_KEY'),
-            # 'use_token': True,
-            # 'secure_endpoint': False,
-            # 'secret_key': env('STRIPE_TEST_API_KEY'),
-            # 'public_key': env('STRIPE_PUB_TEST_KEY'),
-            # 'endpoint_secret': env('STRIPE_WEBHOOK_TEST_API_KEY'),
+            'api_key': env('STRIPE_TEST_API_KEY'),
+            'use_token': True,
+            'secure_endpoint': False,
+            'secret_key': env('STRIPE_TEST_API_KEY'),
+            'public_key': env('STRIPE_PUB_TEST_KEY'),
+            'endpoint_secret': env('STRIPE_WEBHOOK_TEST_API_KEY'),
         }
     )
 }
