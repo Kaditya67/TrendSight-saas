@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load custom_tags %}
 {% load tz %}
 {% load static %}
@@ -25,48 +24,39 @@
                 Signup
             </div>
          
-            <div id="signup-alert" class="{% if not errors %} tw-hidden {% endif %}
-                                error-container" role="alert">
+            <div id="signup-alert" class="{% if not errors %} tw-hidden {% endif %} error-container" role="alert">
                 {{ errors }}
             </div>
             
+            <!-- Full Name -->
             <div class="tw-flex tw-w-full">
-                <input type="text" class="input tw-w-full"
-                       placeholder="Full Name" name="full_name" maxlength="255" required>
+                <input type="text" class="input tw-w-full" 
+                       placeholder="Full Name" name="name" maxlength="255" required>
             </div>
 
+            <!-- Username (Email in this case) -->
             <div class="tw-flex tw-w-full">
-                <input type="text" class="input tw-w-full"
-                       placeholder="Username" name="username" maxlength="150" required>
+                <input type="email" class="input tw-w-full" 
+                       placeholder="Email" name="email" maxlength="200" required>
             </div>
 
-            <div class="tw-flex tw-w-full">
-                <input type="email" class="input tw-w-full"
-                       placeholder="Email" name="email" maxlength="2000" required>
-            </div>
-
+            <!-- Phone Number -->
             <div class="tw-flex tw-w-full tw-items-center">
                 <label for="phone_no" class="tw-mr-2 tw-text-gray-500">+91 </label>
-                <input 
-                    type="tel" 
-                    id="phone_no" 
-                    class="input tw-w-full" 
-                    placeholder="Phone Number" 
-                    name="phone_no" 
-                    maxlength="15" 
-                    pattern="[0-9]{10}" 
-                    required
-                    aria-label="Phone number"
-                >
+                <input type="tel" id="phone_no" class="input tw-w-full" 
+                       placeholder="Phone Number" name="phone_no" maxlength="15" 
+                       pattern="[0-9]{10}" required aria-label="Phone number">
             </div>
             
+            <!-- Password -->
             <div class="tw-flex tw-w-full input !tw-p-[2px]">
-                <input type="password" class="tw-w-full tw-p-[8px] tw-border-none tw-outline-none"
+                <input type="password" class="tw-w-full tw-p-[8px] tw-border-none tw-outline-none" 
                        placeholder="Password" name="password1" maxlength="30" required>
             </div>
             
+            <!-- Confirm Password -->
             <div class="tw-flex tw-w-full input !tw-p-[2px]">
-                <input type="password" class="tw-w-full tw-p-[8px] tw-border-none tw-outline-none"
+                <input type="password" class="tw-w-full tw-p-[8px] tw-border-none tw-outline-none" 
                        placeholder="Confirm Password" name="password2" maxlength="30" required>
             </div>
             

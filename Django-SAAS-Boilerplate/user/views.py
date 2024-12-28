@@ -60,30 +60,33 @@ def logout_view(request):
     return redirect('home')
 
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate
+from django.urls import reverse
+from .forms import CustomUserCreationForm
+from .models import User
+from utils.token_generator import send_token
+
 @require_http_methods(["GET", "POST"])
 def signup_view(request):
     if request.method == "GET":
         return render(request, 'html/authentication/signup.html')
     
-    else:   
-        form = CustomUserCreationForm(request.POST)
-       
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            
-            username = form.cleaned_data.get('email')
-            raw_password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=raw_password)
-            # login(request, user) # don't login user unless the user has verified their email
-            send_token(username)
+    form = CustomUserCreationForm(request.POST)
+    
+    if form.is_valid():
+        user = form.save(commit=False)
+        user.is_active = False  # Set user to inactive until email is verified
+        user.save()
+        
+        # Send verification token to email
+        send_token(user.email)
+        
+        # Redirect user to verification alert page
+        url = reverse('verification-alert') + f'?email={user.email}'
+        return redirect(url)
 
-            url = reverse('verification-alert') + f'?email={username}'
-            return redirect(url)
-
-       
-        return render(request, 'html/authentication/signup.html', context={'errors': form.errors})
+    return render(request, 'html/authentication/signup.html', context={'errors': form.errors})
 
 
 def verification_alert(request):
