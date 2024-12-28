@@ -21,13 +21,15 @@ def send_token(email):
     """
 
     token = create_verification_token(email)
-    print(token)
+    # print(token)
 
     name = get_name_from_email(email)
-    print(name)
+    # print(name)
 
     subject = f"Email confirmation link"
     message = f"""Hi {name},\nThanks for signing up. Follow the link to confirm your email {settings.DOMAIN}/user/email/verify/?token={token} \n\nregards, {settings.PROJECT_TITLE} Team"""
+    print(message)
 
-    send_mail(subject, message, from_email=None, recipient_list=[email])
+    from_email = settings.DEFAULT_FROM_EMAIL
+    send_mail(subject, message, from_email, recipient_list=[email])
 

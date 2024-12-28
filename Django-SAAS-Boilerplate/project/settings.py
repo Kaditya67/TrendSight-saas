@@ -34,12 +34,15 @@ env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # print(env('DEBUG'))
 
-cloud_platform = os.environ.setdefault('CLOUD_PLATFORM', '')
+# cloud_platform = os.environ.setdefault('CLOUD_PLATFORM', '')
 
 # FIREBASE_CRED_PATH = env('FIREBASE_CRED_PATH')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+
+DEBUG = False if env('DEBUG') == '0' else True
+# print(f"DEBUG: {DEBUG} and {False == DEBUG} and {True == DEBUG} and {bool(env('DEBUG'))}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if DEBUG:
@@ -49,15 +52,15 @@ else:
     SECRET_KEY = env.get_value('PORD_SECRET_KEY')
 
 
-if not DEBUG and cloud_platform in ['DIGITAL_OCEAN', 'RAILWAY']:
-    # since the firebase-cred cannot be uploaded manually 
-    # https://www.digitalocean.com/community/questions/how-to-upload-a-secret-credential-file
-    firebase_cred = env('FIREBASE_ENCODED')
-    decoded_bytes = base64.b64decode(firebase_cred)
-    decoded_json = json.loads(decoded_bytes.decode('utf-8'))
+# if not DEBUG and cloud_platform in ['DIGITAL_OCEAN', 'RAILWAY']:
+#     # since the firebase-cred cannot be uploaded manually 
+#     # https://www.digitalocean.com/community/questions/how-to-upload-a-secret-credential-file
+#     firebase_cred = env('FIREBASE_ENCODED')
+#     decoded_bytes = base64.b64decode(firebase_cred)
+#     decoded_json = json.loads(decoded_bytes.decode('utf-8'))
   
-    with open(FIREBASE_CRED_PATH, 'w') as f:
-        json.dump(decoded_json, f, indent=4)
+#     with open(FIREBASE_CRED_PATH, 'w') as f:
+#         json.dump(decoded_json, f, indent=4)
 
 if DEBUG:
     ALLOWED_HOSTS = []
@@ -189,39 +192,29 @@ MIDDLEWARE = [
     'django_ratelimit.middleware.RatelimitMiddleware',
 ]
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'project.urls' 
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+print(f"email host is: {EMAIL_HOST}, DEBUG is: {DEBUG}, EMAIL_HOST_USER is: {env('EMAIL_HOST_USER')}EMAIL_HOST_PASSWORD is: {env('EMAIL_HOST_PASSWORD')}")
 
 if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # This is only for development
-    # EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_PORT = 587
+    DEFAULT_FROM_EMAIL = env('EMAIL_HOST_USER')
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
 
-else: 
-    EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend' # This is only for development
-
-    # uncomment below for default production emailing
-    # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # for production
-
-    # EMAIL_HOST = env('EMAIL_HOST') #eg: smtpout.secureserver.net
-    # EMAIL_PORT = 465
-
-    # EMAIL_HOST_USER = env('EMAIL_HOST_USER') # eg: info@mail.com
-    # EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-
-    # DEFAULT_FROM_EMAIL = Address(display_name=env('EMAIL_HOST_USER'), addr_spec=EMAIL_HOST_USER)
-
-    # EMAIL_USE_SSL = True
-
-    # uncomment below for ESP, read: https://dev.to/paul_freeman/adding-esp-to-supercharge-your-django-email-4jkp
-
+    # Uncomment below if using Brevo or another ESP
     # EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
-        
     # BREVO_API_URL = "https://api.brevo.com/v3/"
-    
     # ANYMAIL = {
-    #         "BREVO_API_KEY": env('BREVO_API_KEY'), # use brevo api key instead of smtp key 
-    #         "IGNORE_RECIPIENT_STATUS": True,
-    #     }
-    # DEFAULT_FROM_EMAIL = env('EMAIL_HOST_USER')  # default from email
+    #     "BREVO_API_KEY": env('BREVO_API_KEY'),
+    #     "IGNORE_RECIPIENT_STATUS": True,
+    # }
 
 
 TEMPLATES = [
@@ -304,14 +297,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
+LANGUAGE_CODE = 'en-in'   
+TIME_ZONE = 'Asia/Kolkata'  
+USE_I18N = True  
+USE_TZ = True  
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
