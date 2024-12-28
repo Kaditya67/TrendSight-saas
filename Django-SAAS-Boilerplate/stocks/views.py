@@ -2,7 +2,14 @@ from django.shortcuts import render
 
 # Create your views here.
 def index(request):
-    return render(request, 'stocks/index.html')
+    if request.user.is_authenticated:
+        logged=True
+    else:
+        logged=False
+    context = {
+        'logged': logged
+    }
+    return render(request, 'stocks/index.html',context)
 
 def user_login(request):
     return render(request, 'stocks/user_login.html')

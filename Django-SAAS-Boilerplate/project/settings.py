@@ -194,7 +194,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'project.urls' 
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
-print(f"email host is: {EMAIL_HOST}, DEBUG is: {DEBUG}, EMAIL_HOST_USER is: {env('EMAIL_HOST_USER')}EMAIL_HOST_PASSWORD is: {env('EMAIL_HOST_PASSWORD')}")
+# print(f"email host is: {EMAIL_HOST}, DEBUG is: {DEBUG}, EMAIL_HOST_USER is: {env('EMAIL_HOST_USER')}EMAIL_HOST_PASSWORD is: {env('EMAIL_HOST_PASSWORD')}")
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

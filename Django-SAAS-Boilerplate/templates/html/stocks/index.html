@@ -31,7 +31,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'index' %}">      <img src="{% static 'images/TrendSight_logo.png' %}" alt="Stock Track Logo" style="width: 30%; height: auto;">
+        <a class="navbar-brand" href="{% url 'dashboard' %}">      <img src="{% static 'images/TrendSight_logo.png' %}" alt="Stock Track Logo" style="width: 30%; height: auto;">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -47,8 +47,13 @@
             <li class="nav-item">
               <a class="nav-link" href="#contact"><h6>Contact</h6></a>
             </li>
+            {% if not logged %}
             <li class="nav-item">
-              <a class="nav-link" href={% url "user_login" %}><h6>Login/SignUp</h6></a>
+              <a class="nav-link" href={% url "login" %}><h6>Login</h6></a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href={% url "signup" %}><h6>SignUp</h6></a>
             </li>
           </ul>
         </div>
@@ -178,7 +183,7 @@
           </ul>
         </div>
         <div class="col-md-6">
-          <form method="post" action="{% url 'index' %}">
+          <form method="post" action="{% url 'home' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="name">Your Name</label>

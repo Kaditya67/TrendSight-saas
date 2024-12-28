@@ -3,16 +3,16 @@ from django.shortcuts import resolve_url
 from . import views
 
 urlpatterns = [
-    path('',views.index,name="index"),
-    # # path('import_data/', views.import_data, name='import_sector_data'),
-    path('login/',views.user_login,name="user_login"),
+    path('',views.index,name="home"),
+    path('subscription/', views.subscription, name='subscription'),
     path('logout/',views.user_logout,name="user_logout"),
+    # # path('import_data/', views.import_data, name='import_sector_data'),
+    # path('login/',views.user_login,name="user_login"),
+    # path('signup/',views.signup,name="user_signup"),
     # path('verify/',views.verify,name="verify"),
     # path('verify_password/',views.verify_password,name="verify_password"),
-    path('subscription/', views.subscription, name='subscription'),
     # path('leave_page/', views.leave_page, name='leave_page'),
     # path('alerts/', views.alerts, name='alerts'),
-    path('signup/',views.signup,name="user_signup"),
     path('forgotpassword/',views.forget_password,name="forgetpassword"),
     # path('send_watchlist_email/',views.send_watchlist_email, name='send_watchlist_email'),
     # # path('home/',views.home,name="home"),
