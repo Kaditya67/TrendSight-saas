@@ -12,7 +12,8 @@
 {% block content %}
     <div class="tw-bg-[#fff9f9] tw-text-black tw-fixed tw-top-0 tw-z-[5000] 
                     tw-flex tw-place-content-center 
-                    tw-place-items-center tw-h-full tw-w-full">
+                    tw-place-items-center tw-h-full tw-w-full"
+                    style="background: url('{% static 'images/stock-market.png' %}') center center fixed;">
         
 
         <form action="{% url "login" %}{% if next_url %}?next={{next_url}}{% endif %}" 
