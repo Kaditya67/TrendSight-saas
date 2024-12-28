@@ -14,7 +14,7 @@ def index(request):
 def user_login(request):
     return render(request, 'stocks/user_login.html')
 
-def user_logout(request):
+def nuser_logout(request):
     return render(request, 'stocks/logout.html')
 
 def subscription(request):
