@@ -40,6 +40,7 @@ accessible_settings = [
                         'STATIC_URL',
                         'ANALYTICS_TAG_ID',
                         'PROJECT_TITLE',
+                        'DOMAIN'
                     ]
 
 accessible_settings = [x.lower() for x in accessible_settings]
