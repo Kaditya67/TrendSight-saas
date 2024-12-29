@@ -42,7 +42,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # DEBUG = True
 
 DEBUG = False if env('DEBUG') == '0' else True
-# print(f"DEBUG: {DEBUG} and {False == DEBUG} and {True == DEBUG} and {bool(env('DEBUG'))}")
+print(f"DEBUG: {DEBUG} and {False == DEBUG} and {True == DEBUG} and {bool(env('DEBUG'))}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if DEBUG:
