@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "unfold.contrib.forms",
 
     'django.contrib.admin',
+    'unfold.contrib.import_export',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -107,6 +108,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'payments',
     'django_browser_reload',
+    'import_export',
 
     'styling',
 

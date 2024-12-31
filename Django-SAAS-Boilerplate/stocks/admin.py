@@ -1,11 +1,33 @@
 from django.contrib import admin
-from .models import Stock, FinancialStockData, ComputedStockData, Sector, SectorStock, SectorFinancialData, ComputedSectorData
-from unfold.admin import ModelAdmin
+from django.db import models 
+from .models import Stock, FinancialStockData, ComputedStockData, Sector, SectorFinancialData, ComputedSectorData
+from unfold.admin import ModelAdmin 
+from import_export.admin import ImportExportModelAdmin
+from unfold.contrib.import_export.forms import ExportForm, ImportForm
+from django import forms
 
 # Stock Models Administration
-class StockAdmin(ModelAdmin):
-    list_display = ('id', 'symbol', 'name', 'last_updated')
+class StockAdmin(ModelAdmin, ImportExportModelAdmin):
+    import_form_class = ImportForm
+    export_form_class = ExportForm
+    list_display = ('id', 'symbol', 'name', 'get_sectors', 'last_updated')
     search_fields = ('symbol', 'name')
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'symbol', 'sectors')
+        }),
+    )
+    autocomplete_fields = ['sectors']
+
+    # formfield_overrides = {
+    # models.ManyToManyField: {'widget': forms.CheckboxSelectMultiple},
+    # }
+
+    def get_sectors(self, obj):
+        return ", ".join([sector.name for sector in obj.sectors.all()])
+    get_sectors.short_description = 'Sectors'
+
 
 class FinancialStockDataAdmin(ModelAdmin):
     list_display = ('stock', 'high', 'low', 'close', 'open', 'volume', 'last_updated')
@@ -18,13 +40,11 @@ class ComputedStockDataAdmin(ModelAdmin):
     search_fields = ('stock__symbol',)
 
 # Sector Models Administration
-class SectorAdmin(ModelAdmin):
+class SectorAdmin(ModelAdmin,ImportExportModelAdmin):
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     list_display = ('id', 'name','symbol','description', 'last_updated')
     search_fields = ('name',)
-
-class SectorStockAdmin(ModelAdmin):
-    list_display = ('sector', 'stock', 'last_updated')
-    list_filter = ('last_updated',)
 
 class SectorFinancialDataAdmin(ModelAdmin):
     list_display = ('sector', 'avg_high', 'avg_low', 'avg_close', 'avg_open', 'total_volume', 'last_updated')
@@ -40,7 +60,6 @@ class ComputedSectorDataAdmin(ModelAdmin):
 admin.site.register(Stock, StockAdmin)
 admin.site.register(FinancialStockData, FinancialStockDataAdmin)
 admin.site.register(ComputedStockData, ComputedStockDataAdmin)
-admin.site.register(Sector, SectorAdmin)
-admin.site.register(SectorStock, SectorStockAdmin)
+admin.site.register(Sector, SectorAdmin)  
 admin.site.register(SectorFinancialData, SectorFinancialDataAdmin)
 admin.site.register(ComputedSectorData, ComputedSectorDataAdmin)

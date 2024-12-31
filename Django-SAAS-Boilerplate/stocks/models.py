@@ -4,7 +4,7 @@ from django.db import models
 class Sector(models.Model):
     # Unique identifier for each sector
     id = models.AutoField(primary_key=True)  # Auto-incremented primary key
-    name = models.CharField(max_length=255, unique=True)  # Name of the sector (e.g., Technology)
+    name = models.CharField(max_length=255)  # Name of the sector (e.g., Technology)
     symbol = models.CharField(max_length=255, unique=True, null=True, blank=True)  # Symbol for the sector (e.g., TECH)
     description = models.TextField(blank=True, null=True)  # Optional description for the sector
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when the sector data was last updated
@@ -19,22 +19,11 @@ class Stock(models.Model):
     id = models.AutoField(primary_key=True)  # Auto-incremented primary key
     symbol = models.CharField(max_length=255, unique=True)  # Stock symbol (e.g., AAPL, MSFT)
     name = models.CharField(max_length=255)  # Name of the stock
+    sectors = models.ManyToManyField(Sector, related_name="stocks", blank=True)
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when the stock data was last updated
 
     def __str__(self):
         return self.symbol
-
-
-# Association table for many-to-many relationship between stocks and sectors
-class SectorStock(models.Model):
-    # Each record links a stock to a sector
-    id = models.AutoField(primary_key=True)  # Auto-incremented primary key
-    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name="stocks")  # Foreign Key to Sector
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name="sectors")  # Foreign Key to Stock
-    last_updated = models.DateTimeField(auto_now=True)  # Timestamp when the relationship was last updated
-
-    def __str__(self):
-        return f"{self.stock.symbol} in {self.sector.name}"
 
 
 # Fetch stock data from external sources like Yahoo Finance
