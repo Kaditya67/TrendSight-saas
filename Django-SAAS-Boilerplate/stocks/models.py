@@ -29,7 +29,8 @@ class Stock(models.Model):
 # Fetch stock data from external sources like Yahoo Finance
 class FinancialStockData(models.Model):
     # One-to-One relationship with the Stock model
-    stock = models.OneToOneField(Stock, on_delete=models.CASCADE, primary_key=True, related_name="financial_data")  # One-to-one with Stock
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name="financial_data", null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
     high = models.FloatField()  # Daily high price
     low = models.FloatField()  # Daily low price
     close = models.FloatField()  # Closing price
@@ -44,17 +45,18 @@ class FinancialStockData(models.Model):
 # Calculate computed metrics for each stock independently
 class ComputedStockData(models.Model):
     # One-to-One relationship with the Stock model
-    stock = models.OneToOneField(Stock, on_delete=models.CASCADE, primary_key=True, related_name="computed_data")  # One-to-one with Stock
-    rs = models.FloatField()  # Relative Strength value
-    rsi = models.FloatField()  # Relative Strength Index
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name="computed_data")  # One-to-one with Stock
+    date = models.DateField(null=True,blank=True)  # Date for which the data is computed
+    rs = models.FloatField(blank=True,null=True)  # Relative Strength value
+    rsi = models.FloatField(blank=True,null=True)  # Relative Strength Index
     ema10 = models.FloatField()  # Exponential Moving Average (10 days)
     ema20 = models.FloatField()  # Exponential Moving Average (20 days)
     ema30 = models.FloatField()  # Exponential Moving Average (30 days)
     ema50 = models.FloatField()  # Exponential Moving Average (50 days)
     ema100 = models.FloatField()  # Exponential Moving Average (100 days)
     ema200 = models.FloatField()  # Exponential Moving Average (200 days)
-    volume20 = models.CharField(max_length=255)  # Volume over 20 days (can be a string to represent trend, etc.)
-    volume50 = models.CharField(max_length=255)  # Volume over 50 days (same as above)
+    volume20 = models.CharField(max_length=255,blank=True,null=True)  # Volume over 20 days (can be a string to represent trend, etc.)
+    volume50 = models.CharField(max_length=255,blank=True,null=True)  # Volume over 50 days (same as above)
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when this data was last updated
 
     def __str__(self):

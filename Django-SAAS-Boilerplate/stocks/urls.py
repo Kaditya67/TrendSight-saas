@@ -2,6 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # fetch stock data
+    path('fetch/stocks/', views.fetch_stocks, name='fetch_stocks'),
+    path('compute/stock_indicators/', views.compute_stock_indicators, name='compute_stock_indicators'),
+
+
     path('',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
     # path('logout/',views.user_logout,name="user_logout"),
