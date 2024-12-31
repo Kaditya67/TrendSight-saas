@@ -143,6 +143,17 @@ if DEBUG:
     PAYMENT_USES_SSL = False
 
    
+import os
+from dotenv import load_dotenv
+
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Stripe keys
+STRIPE_TEST_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')
+STRIPE_TEST_PUBLISHABLE_KEY = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
 
 # Settings for Development
 PAYMENT_VARIANTS = {
