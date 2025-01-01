@@ -1,5 +1,6 @@
 from django.shortcuts import render
 
+
 # Create your views here.
 def index(request):
     if request.user.is_authenticated:
@@ -57,11 +58,13 @@ def about(request):
     return render(request, 'stocks/about.html')
 
 
-from .models import Stock, FinancialStockData 
-import yfinance as yf
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+
 import pandas_datareader as pdr
+import yfinance as yf
+
+from .models import FinancialStockData, Stock
 
 # Suppress informational logs from yfinance, urllib3 and sqlalchemy
 logging.getLogger('yfinance').setLevel(logging.WARNING)
@@ -70,52 +73,84 @@ logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
 # Suppress unnecessary logs
 logging.basicConfig(level=logging.ERROR)
-
 def fetch_stocks(request):
     # Override pandas datareader with yfinance
     yf.pdr_override()
     
     # Fetch all stock symbols and ids from the database
-    stocks = Stock.objects.values_list('symbol', 'id')
+    stocks = Stock.objects.all()
+    fetched_data = []  # To store the fetched stock data
 
-    for stock_symbol, stock_id in stocks: 
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=700)
+    if request.method == 'POST':
+        selected_stock_ids = request.POST.getlist('stocks')  # Get list of selected stock IDs
+        print(f"Selected Stock IDs: {selected_stock_ids}")
+        
+        if selected_stock_ids:
+            # Fetch selected stocks from the database
+            selected_stocks = Stock.objects.filter(id__in=selected_stock_ids).values('symbol', 'id')
+            print(f"Selected Stocks: {selected_stocks}")
+            
+            for stock in selected_stocks: 
+                end_date = datetime.now()
+                start_date = end_date - timedelta(days=700)
 
-        print(f"Fetching data for {stock_symbol} (ID: {stock_id})")
+                print(f"Fetching data for {stock['symbol']} (ID: {stock['id']})")
 
-        try:
-            try:
-                FinancialStockData.objects.filter(stock__symbol=stock_symbol).delete()
-            except Exception as error:
-                print(f"Error deleting data for {stock_symbol}: {error}")
+                try:
+                    try:
+                        FinancialStockData.objects.filter(stock__symbol=stock['symbol']).delete()
+                    except Exception as error:
+                        print(f"Error deleting data for {stock['symbol']}: {error}")
 
-            df_new = yf.download(stock_symbol, start=start_date, end=end_date)
- 
-            if df_new.empty:
-                print(f"No data found for {stock_symbol}")
-                continue
+                    df_new = yf.download(stock['symbol'], start=start_date, end=end_date)
+        
+                    if df_new.empty:
+                        print(f"No data found for {stock['symbol']}")
+                        continue
 
-            print(df_new)
- 
-            for idx, row in df_new.iterrows():
-                FinancialStockData.objects.create(
-                    stock_id=stock_id,
-                    date=row.name.date(),  
-                    open=row['Open'],
-                    high=row['High'],
-                    low=row['Low'],
-                    close=row['Close'],
-                    volume=row['Volume']
-                )
-        except Exception as error:
-            print(f"Error fetching data for {stock_symbol}: {error}")
-    return render(request, 'stocks/stockData/fetch_stocks.html')
+                    print(df_new)
+        
+                    for idx, row in df_new.iterrows():
+                        FinancialStockData.objects.create(
+                            stock_id=stock['id'],
+                            date=row.name.date(),  
+                            open=row['Open'],
+                            high=row['High'],
+                            low=row['Low'],
+                            close=row['Close'],
+                            volume=row['Volume']
+                        )
+                        # Store the fetched data for displaying in the template
+                        fetched_data.append({
+                            'symbol': stock['symbol'],
+                            'date': row.name.date(),
+                            'open': row['Open'],
+                            'high': row['High'],
+                            'low': row['Low'],
+                            'close': row['Close'],
+                            'volume': row['Volume']
+                        })
+                except Exception as error:
+                    print(f"Error fetching data for {stock['symbol']}: {error}")
 
-import pandas as pd
+            print("Selected Stocks: ", selected_stocks)
+        else:
+            print("No stocks were selected.")
+
+    context = {
+        'stocks': stocks,
+        'fetched_data': fetched_data  # Pass the fetched data to the template
+    }
+    return render(request, 'stocks/stockData/fetch_stocks.html', context)
+
+
 import numpy as np
+import pandas as pd
 from django.shortcuts import render
-from stocks.models import Stock, FinancialStockData, ComputedStockData, PrevVolumes
+
+from stocks.models import (ComputedStockData, FinancialStockData, PrevVolumes,
+                           Stock)
+
 
 def compute_stock_indicators(request):
     print("compute/stock_indicators/ running!!")
@@ -216,61 +251,89 @@ def compute_stock_indicators(request):
     return render(request, 'stocks/stockData/compute_stock_indicators.html')
 
 
+import logging
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from .models import Stock, FinancialStockData
+import yfinance as yf
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 def update_stocks(request):
     # Override pandas datareader with yfinance
     yf.pdr_override()
-    
-    # Fetch all stock symbols and ids from the database
-    stocks = Stock.objects.values_list('symbol', 'id')
 
-    end_date = datetime.now()
-    for stock_symbol, stock_id in stocks: 
+    stocks = Stock.objects.all()
+    updated_data = []  # To store data about updated stocks
 
-        print(f"Fetching data for {stock_symbol} (ID: {stock_id})")
+    if request.method == 'POST':
+        selected_stock_ids = request.POST.getlist('stocks')  # Get list of selected stock IDs
+        logger.info(f"Selected Stock IDs for update: {selected_stock_ids}")
 
-        try:
-            # Get the last updated date
-            last_updated = FinancialStockData.objects.filter(stock__symbol=stock_symbol).last()
-            print(last_updated.date)
+        if selected_stock_ids:
+            selected_stocks = Stock.objects.filter(id__in=selected_stock_ids).values('symbol', 'id')
+            logger.info(f"Selected Stocks for update: {selected_stocks}")
 
-            if last_updated:
-                start_date = last_updated.date + timedelta(days=1)
+            for stock in selected_stocks:
+                try:
+                    updated_stock_data = update_stock_data(stock)
+                    if updated_stock_data:
+                        updated_data.extend(updated_stock_data)
+                except Exception as error:
+                    logger.error(f"Error updating data for {stock['symbol']}: {error}")
+        else:
+            logger.warning("No stocks were selected for update.")
 
-            update = False
-            if last_updated and last_updated.date == end_date.date():
-                update = True
-                start_date = last_updated.date
-                print(f"Updating data for {stock_symbol}")
+    context = {
+        'stocks': stocks,
+        'updated_data': updated_data,
+    }
+    return render(request, 'stocks/stockData/update_stocks.html', context)
 
-            # Download stock data
-            df_new = yf.download(stock_symbol, start=start_date, end=end_date)
- 
-            if df_new.empty:
-                print(f"No data found for {stock_symbol}")
-                continue
+def update_stock_data(stock):
+    """Update stock data for a given stock."""
+    try:
+        end_date = datetime.now()
+        last_updated = FinancialStockData.objects.filter(stock__symbol=stock['symbol']).last()
+        start_date = last_updated.date + timedelta(days=1) if last_updated else end_date - timedelta(days=700)
 
-            # Delete outdated data if updating
-            if update:
-                FinancialStockData.objects.filter(stock__symbol=stock_symbol, date__gte=start_date).delete()
-                
-            # Insert new data
-            for idx, row in df_new.iterrows():
-                FinancialStockData.objects.create(
-                    stock_id=stock_id,
-                    date=row.name.date(),  
-                    open=row['Open'],
-                    high=row['High'],
-                    low=row['Low'],
-                    close=row['Close'],
-                    volume=row['Volume']
-                )
+        logger.info(f"Fetching data for {stock['symbol']} (ID: {stock['id']}) from {start_date} to {end_date}")
 
-        except Exception as error:
-            print(f"Error fetching data for {stock_symbol}: {error}")
-    
-    # Optionally, pass data back to the template (e.g., success message, processed stock symbols)
-    return render(request, 'stocks/stockData/update_stocks.html', {'status': 'Stock data update completed.'})
- 
+        df = yf.download(stock['symbol'], start=start_date, end=end_date)
+        if df.empty:
+            logger.warning(f"No new data found for {stock['symbol']}")
+            return []
+
+        if last_updated and last_updated.date == end_date.date():
+            logger.info(f"Updating existing data for {stock['symbol']}")
+            FinancialStockData.objects.filter(stock__symbol=stock['symbol'], date__gte=start_date).delete()
+
+        stock_data = []
+        for idx, row in df.iterrows():
+            FinancialStockData.objects.create(
+                stock_id=stock['id'],
+                date=row.name.date(),
+                open=row['Open'],
+                high=row['High'],
+                low=row['Low'],
+                close=row['Close'],
+                volume=row['Volume']
+            )
+            stock_data.append({
+                'symbol': stock['symbol'],
+                'date': row.name.date(),
+                'open': row['Open'],
+                'high': row['High'],
+                'low': row['Low'],
+                'close': row['Close'],
+                'volume': row['Volume']
+            })
+        return stock_data
+
+    except Exception as error:
+        logger.error(f"Error updating data for {stock['symbol']}: {error}")
+        return []
 
 def update_stock_indicators(request):
     print("compute/stock_indicators/ running!!")
