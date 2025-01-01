@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db import models 
-from .models import Stock, ComputedStockData, Sector, SectorFinancialData, ComputedSectorData,FinancialStockData
+from .models import Stock, ComputedStockData, Sector, SectorFinancialData, ComputedSectorData,FinancialStockData,PrevVolumes
 from unfold.admin import ModelAdmin 
 from import_export.admin import ImportExportModelAdmin
 from unfold.contrib.import_export.forms import ExportForm, ImportForm
@@ -34,6 +34,9 @@ class FinancialStockDataAdmin(ModelAdmin):
     list_filter = ('last_updated',)
     search_fields = ('stock__symbol',)
 
+class PrevVolumesAdmin(ModelAdmin):
+    list_display = ('stock','date','volume20', 'volume50') 
+
 class ComputedStockDataAdmin(ModelAdmin):
     list_display = ('stock','date','rs', 'rsi', 'ema10', 'ema20', 'ema30', 'ema50', 'ema100', 'ema200', 'volume20', 'volume50', 'last_updated')
     list_filter = ('last_updated',)
@@ -59,6 +62,7 @@ class ComputedSectorDataAdmin(ModelAdmin):
 # Registering the models and their custom admins
 admin.site.register(Stock, StockAdmin)
 admin.site.register(FinancialStockData, FinancialStockDataAdmin)
+admin.site.register(PrevVolumes, PrevVolumesAdmin)
 admin.site.register(ComputedStockData, ComputedStockDataAdmin)
 admin.site.register(Sector, SectorAdmin)  
 admin.site.register(SectorFinancialData, SectorFinancialDataAdmin)

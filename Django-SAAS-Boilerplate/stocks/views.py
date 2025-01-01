@@ -115,18 +115,17 @@ def fetch_stocks(request):
 import pandas as pd
 import numpy as np
 from django.shortcuts import render
-from stocks.models import Stock, FinancialStockData, ComputedStockData
+from stocks.models import Stock, FinancialStockData, ComputedStockData, PrevVolumes
 
 def compute_stock_indicators(request):
     print("compute/stock_indicators/ running!!")
     
     # Fetch first two stock symbols for testing
-    symbols = Stock.objects.values_list('symbol', 'id')[:2]
+    symbols = Stock.objects.values_list('symbol', 'id')
 
     for symbol, stock_id in symbols:
         print(f"Computing indicators for {symbol}")
-        ComputedStockData.objects.filter(stock__symbol=symbol).delete()
-
+        ComputedStockData.objects.filter(stock_id=stock_id).delete()
         # Fetch stock data for the symbol
         stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('date')
         if not stock_data.exists():
@@ -184,27 +183,34 @@ def compute_stock_indicators(request):
         df['volume50'] = df['volume'].rolling(window=50).mean()
         volume_50th = df['volume'].tail(50).iloc[0]
         print("Volume 50th : ",volume_50th)
-        print(df)
+        # print(df)
 
         # Store all computed rows for the stock in ComputedStockData
-        # for index, row in df.iterrows():
-        #     ComputedStockData.objects.create(
-        #         stock_id=stock_id,
-        #         date=row['date'],  # Use the actual date from the 'date' column
-        #         rs=row['rs'],
-        #         rsi=row['rsi'],
-        #         ema10=row['ema10'],
-        #         ema20=row['ema20'],
-        #         ema30=row['ema30'],
-        #         ema50=row['ema50'],
-        #         ema100=row['ema100'],
-        #         ema200=row['ema200'],
-        #         volume20=str(row['volume20']),  # Convert to string if necessary
-        #         volume50=str(row['volume50']),  # Convert to string if necessary
-        #     )
+        for index, row in df.iterrows():
+            ComputedStockData.objects.create(
+                stock_id=stock_id,
+                date=row['date'],  # Use the actual date from the 'date' column
+                rs=row['rs'],
+                rsi=row['rsi'],
+                ema10=row['ema10'],
+                ema20=row['ema20'],
+                ema30=row['ema30'],
+                ema50=row['ema50'],
+                ema100=row['ema100'],
+                ema200=row['ema200'],
+                volume20=str(row['volume20']),  
+                volume50=str(row['volume50']),  
+            )
 
         # update the 20th and 50th volumes for each stock
-        # PrevVolumes.objects.filter(stock_id=stock_id).create_or_update(stock_id=stock_id, date=datetime.now().date(), volume20th=volume_20th, volume20=volume_20th, volume50=volume_50th)
+        PrevVolumes.objects.update_or_create(
+        stock_id=stock_id,
+        date=stock_data.last().date,
+        defaults={
+            'volume20': volume_20th,
+            'volume50': volume_50th
+            }
+        )
 
     print("Stock indicators computation complete!")
     return render(request, 'stocks/stockData/compute_stock_indicators.html')
@@ -276,110 +282,90 @@ def update_stock_indicators(request):
         print(f"Computing indicators for {symbol}")
         
         # Get the last computed record
-        # last_computed = ComputedStockData.objects.filter(stock_id=stock_id).last()
-        # last_computed_50th_volume = FinancialStockData.objects.filter(stock_id=stock_id)[:50]
+        last_computed = ComputedStockData.objects.filter(stock_id=stock_id).last()
+        last_computed_stock = FinancialStockData.objects.filter(stock_id=stock_id).last()
+        last_computed_date = last_computed.date if last_computed else None
 
-        # if last_computed_50th_volume.exists():
-        #     print(last_computed_50th_volume.first().volume)
-        # else:
-        #     print(f"No data available for stock ID {stock_id}")
-        # last_computed_stock = FinancialStockData.objects.filter(stock_id=stock_id).last()
-        # last_computed_20th_volume = FinancialStockData.objects.filter(stock_id=stock_id).order_by('-date')[:20]
+        # Fetch new stock data
+        stock_data = FinancialStockData.objects.filter(stock_id=stock_id)
+        if last_computed_date:
+            stock_data = stock_data.filter(date__gt=last_computed_date)
 
-        # Access the first record, which will have the most recent volume from the last 20 records
-        # print(last_computed_20th_volume.first().volume)
+        if not stock_data.exists():
+            print(f"No new data available for {symbol}")
+            continue
 
-        # print(last_computed)
-        # last_computed_date = last_computed.date if last_computed else None
-
-        # # Print last_computed values
-        # if last_computed:
-        #     print(f"Last computed date: {last_computed.date}")
-        #     print(f"Last computed RSI: {last_computed.rsi}")
-        #     print(f"Last computed RS: {last_computed.rs}")
-        #     print(f"Last computed EMA10: {last_computed.ema10}")
-        #     print(f"Last computed EMA20: {last_computed.ema20}")
-        #     print(f"Last computed EMA30: {last_computed.ema30}")
-        #     print(f"Last computed EMA50: {last_computed.ema50}")
-        #     print(f"Last computed EMA100: {last_computed.ema100}")
-        #     print(f"Last computed EMA200: {last_computed.ema200}")
-        #     print(f"Last computed Volume20: {last_computed.volume20}")
-        #     print(f"Last computed Volume50: {last_computed.volume50}")
-        #     print(f"Last computed close price: {last_computed_stock.close}")
-        # else:
-        #     print("No last computed data found.")
-
-        # # Fetch new stock data
-        # stock_data = FinancialStockData.objects.filter(stock_id=stock_id)
-        # if last_computed_date:
-        #     stock_data = stock_data.filter(date__gt=last_computed_date)
-
-        # if not stock_data.exists():
-        #     print(f"No new data available for {symbol}")
-        #     continue
-
-        # # Convert new data to DataFrame
-        # df_new = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
-        # df_new['date'] = pd.to_datetime(df_new['date'])
-        # df_new.set_index('date', inplace=True)
-        # df_new.sort_index(inplace=True)
+        # Convert new data to DataFrame
+        df_new = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
+        df_new['date'] = pd.to_datetime(df_new['date'])
+        df_new.set_index('date', inplace=True)
+        df_new.sort_index(inplace=True)
 
         # print(df_new)
 
-        # # Initialize previous values
-        # prev_rsi = last_computed.rsi if last_computed else 0
-        # prev_avg_gain = last_computed.rs * (last_computed.rsi / 100) if last_computed else 0
-        # prev_avg_loss = prev_avg_gain / last_computed.rs if last_computed and last_computed.rs > 0 else 0
+        # Initialize previous values
+        prev_rsi = last_computed.rsi if last_computed else 0
+        prev_avg_gain = last_computed.rs * (last_computed.rsi / 100) if last_computed else 0
+        prev_avg_loss = prev_avg_gain / last_computed.rs if last_computed and last_computed.rs > 0 else 0
+        prevVolumes = PrevVolumes.objects.filter(id=stock_id).last()
+        if prevVolumes:
+            print(f"Volume 20: {prevVolumes.volume20}")
+            print(f"Volume 50: {prevVolumes.volume50}")
+            print(prevVolumes)
+        else:
+            print("No previous volume data found.")
 
         # print(prev_rsi, prev_avg_gain, prev_avg_loss)
 
-        # prev_ema_values = {
-        #     "ema10": last_computed.ema10 if last_computed else 0,
-        #     "ema20": last_computed.ema20 if last_computed else 0,
-        #     "ema30": last_computed.ema30 if last_computed else 0,
-        #     "ema50": last_computed.ema50 if last_computed else 0,
-        #     "ema100": last_computed.ema100 if last_computed else 0,
-        #     "ema200": last_computed.ema200 if last_computed else 0,
-        # }
+        prev_ema_values = {
+            "ema10": last_computed.ema10 if last_computed else 0,
+            "ema20": last_computed.ema20 if last_computed else 0,
+            "ema30": last_computed.ema30 if last_computed else 0,
+            "ema50": last_computed.ema50 if last_computed else 0,
+            "ema100": last_computed.ema100 if last_computed else 0,
+            "ema200": last_computed.ema200 if last_computed else 0,
+        }
 
         # print(prev_ema_values)
 
-        # # Prepare data for incremental computation
-        # computed_data = []
-        # for date, row in df_new.iterrows():
-        #     close = row['close']
-        #     volume = row['volume']
-        #     print(f"Processing data for {date} (Close: {close}, Volume: {volume})")
+        # Prepare data for incremental computation
+        computed_data = []
+        for date, row in df_new.iterrows():
+            close = row['close']
+            volume = row['volume']
+            print(f"Processing data for {date} (Close: {close}, Volume: {volume})")
 
-        #     # Compute RSI incrementally
-        #     change = close - (last_computed_stock.close if last_computed else close)
-        #     gain = max(change, 0)
-        #     loss = -min(change, 0)
+            # Compute RSI incrementally
+            change = close - (last_computed_stock.close if last_computed else close)
+            gain = max(change, 0)
+            loss = -min(change, 0)
 
-        #     avg_gain = (prev_avg_gain * 13 + gain) / 14
-        #     avg_loss = (prev_avg_loss * 13 + loss) / 14
-        #     rs = avg_gain / avg_loss if avg_loss > 0 else 0
-        #     rsi = 100 - (100 / (1 + rs)) 
+            avg_gain = (prev_avg_gain * 13 + gain) / 14
+            avg_loss = (prev_avg_loss * 13 + loss) / 14
+            rs = avg_gain / avg_loss if avg_loss > 0 else 0
+            rsi = 100 - (100 / (1 + rs)) 
 
-        #     # Compute EMAs incrementally
-        #     ema_values = {}
-        #     for span in [10, 20, 30, 50, 100, 200]:
-        #         key = f"ema{span}"
-        #         multiplier = 2 / (span + 1)
-        #         ema_values[key] = (close - prev_ema_values[key]) * multiplier + prev_ema_values[key]
+            # Compute EMAs incrementally
+            ema_values = {}
+            for span in [10, 20, 30, 50, 100, 200]:
+                key = f"ema{span}"
+                multiplier = 2 / (span + 1)
+                ema_values[key] = (close - prev_ema_values[key]) * multiplier + prev_ema_values[key]
 
-        #     print(date, close, gain, loss, avg_gain, avg_loss, rs, rsi, ema_values)
+            print(date, close, gain, loss, avg_gain, avg_loss, rs, rsi, ema_values)
 
-        #     # Compute volume moving averages
-        #     # volume20 = stock_data.filter(date__lte=date).order_by('-date')[:20].aggregate(avg=Avg('volume'))['avg']
-        #     # volume50 = stock_data.filter(date__lte=date).order_by('-date')[:50].aggregate(avg=Avg('volume'))['avg']
-        #     prev_volume20 = last_computed.volume20 if last_computed else 0
-        #     prev_volume50 = last_computed.volume50 if last_computed else 0
-            # volume20 = prev_volume20 + (last_computed_stock.volume - prev_volume20) / 20
+            # Compute volume moving averages
+            # volume20 = stock_data.filter(date__lte=date).order_by('-date')[:20].aggregate(avg=Avg('volume'))['avg']
+            # volume50 = stock_data.filter(date__lte=date).order_by('-date')[:50].aggregate(avg=Avg('volume'))['avg']
 
-            # print(volume20, volume50)
+            prev_volume20 = float(last_computed.volume20) if last_computed else 0
+            prev_volume50 = float(last_computed.volume50) if last_computed else 0
+            volume20 = prev_volume20 + (last_computed_stock.volume - float(prevVolumes.volume20)) / 20
+            volume50 = prev_volume50 + (last_computed_stock.volume - float(prevVolumes.volume50)) / 50
 
-        #     print("Appending computed data...")
+            print(volume20, volume50)
+
+            print("Appending computed data...")
         #     print(date, close, gain, loss, avg_gain, avg_loss, rs, rsi, ema_values, volume20, volume50)
             # Append to computed data
             # computed_data.append(
@@ -394,14 +380,14 @@ def update_stock_indicators(request):
             #         ema50=ema_values['ema50'],
             #         ema100=ema_values['ema100'],
             #         ema200=ema_values['ema200'],
-            #         volume20=volume20,
-            #         volume50=volume50,
+            #         volume20=str(volume20),
+            #         volume50=str(volume50),
             #     )
             # )
 
             # Update previous values
-            # prev_avg_gain, prev_avg_loss, prev_rsi = avg_gain, avg_loss, rsi
-            # prev_ema_values.update(ema_values)
+            prev_avg_gain, prev_avg_loss, prev_rsi = avg_gain, avg_loss, rsi
+            prev_ema_values.update(ema_values)
 
         # Bulk create new computed data
         # ComputedStockData.objects.bulk_create(computed_data)
