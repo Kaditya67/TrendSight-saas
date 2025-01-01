@@ -270,8 +270,8 @@ def update_stocks(request):
     
     # Optionally, pass data back to the template (e.g., success message, processed stock symbols)
     return render(request, 'stocks/stockData/update_stocks.html', {'status': 'Stock data update completed.'})
+ 
 
-from django.db.models import Avg
 def update_stock_indicators(request):
     print("compute/stock_indicators/ running!!")
     
@@ -353,11 +353,7 @@ def update_stock_indicators(request):
                 ema_values[key] = (close - prev_ema_values[key]) * multiplier + prev_ema_values[key]
 
             print(date, close, gain, loss, avg_gain, avg_loss, rs, rsi, ema_values)
-
-            # Compute volume moving averages
-            # volume20 = stock_data.filter(date__lte=date).order_by('-date')[:20].aggregate(avg=Avg('volume'))['avg']
-            # volume50 = stock_data.filter(date__lte=date).order_by('-date')[:50].aggregate(avg=Avg('volume'))['avg']
-
+  
             prev_volume20 = float(last_computed.volume20) if last_computed else 0
             prev_volume50 = float(last_computed.volume50) if last_computed else 0
             volume20 = prev_volume20 + (last_computed_stock.volume - float(prevVolumes.volume20)) / 20
@@ -368,29 +364,29 @@ def update_stock_indicators(request):
             print("Appending computed data...")
         #     print(date, close, gain, loss, avg_gain, avg_loss, rs, rsi, ema_values, volume20, volume50)
             # Append to computed data
-            # computed_data.append(
-            #     ComputedStockData(
-            #         stock_id=stock_id,
-            #         date=date,
-            #         rs=rs,
-            #         rsi=rsi,
-            #         ema10=ema_values['ema10'],
-            #         ema20=ema_values['ema20'],
-            #         ema30=ema_values['ema30'],
-            #         ema50=ema_values['ema50'],
-            #         ema100=ema_values['ema100'],
-            #         ema200=ema_values['ema200'],
-            #         volume20=str(volume20),
-            #         volume50=str(volume50),
-            #     )
-            # )
+            computed_data.append(
+                ComputedStockData(
+                    stock_id=stock_id,
+                    date=date,
+                    rs=rs,
+                    rsi=rsi,
+                    ema10=ema_values['ema10'],
+                    ema20=ema_values['ema20'],
+                    ema30=ema_values['ema30'],
+                    ema50=ema_values['ema50'],
+                    ema100=ema_values['ema100'],
+                    ema200=ema_values['ema200'],
+                    volume20=str(volume20),
+                    volume50=str(volume50),
+                )
+            )
 
             # Update previous values
             prev_avg_gain, prev_avg_loss, prev_rsi = avg_gain, avg_loss, rsi
             prev_ema_values.update(ema_values)
 
         # Bulk create new computed data
-        # ComputedStockData.objects.bulk_create(computed_data)
+        ComputedStockData.objects.bulk_create(computed_data)
 
     print("Stock indicators computation complete!")
     return render(request, 'stocks/stockData/update_stock_indicators.html')
