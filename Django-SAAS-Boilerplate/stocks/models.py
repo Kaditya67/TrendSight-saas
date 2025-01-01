@@ -38,6 +38,13 @@ class FinancialStockData(models.Model):
     volume = models.FloatField()  # Trading volume
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp for when this data was last updated
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['stock']),
+        ]
+
+
     def __str__(self):
         return f"Financial Data for {self.stock.symbol}"
 
