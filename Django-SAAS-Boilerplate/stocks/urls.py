@@ -3,7 +3,7 @@ from django.shortcuts import resolve_url
 from . import views
 
 urlpatterns = [
-    path('',views.index,name="index"),
+    # path('',views.index,name="index"),
     # # path('import_data/', views.import_data, name='import_sector_data'),
     path('login/',views.user_login,name="user_login"),
     path('logout/',views.user_logout,name="user_logout"),
@@ -30,7 +30,7 @@ urlpatterns = [
 
     path('graph/<str:type>/<str:symbol>/<int:ema_value>/', views.graph_partial, name='graph'),
     # path('symbols/', views.symbols_and_ema_counts, name='symbols_and_closing_prices'),
-    path('dashboard/', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
+    path('', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
     # path('dashboard/<int:ema>/', views.dashboard, name='dashboard_with_ema'),
     # # path('home_template/', views.home_temp, name='home_template'),
     # path('stock_template/', views.stock_temp, name='stock_template'),

@@ -20,7 +20,7 @@ def signup(request):
     return render(request, 'stocks/signup.html')
 
 def dashboard(request):
-    return render(request, 'stocks/dashboard.html')
+    return render(request, 'stocks/dashboard_new.html')
 
 def graph_partial(request):
     return render(request, 'stocks/graph_partial.html')
