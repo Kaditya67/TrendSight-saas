@@ -6,6 +6,7 @@ urlpatterns = [
     path('fetch/stocks/', views.fetch_stocks, name='fetch_stocks'),
     path('update/stocks/', views.update_stocks, name='update_stocks'),
     path('compute/stock_indicators/', views.compute_stock_indicators, name='compute_stock_indicators'),
+    path('update/stock_indicators/', views.update_stock_indicators, name='update_stock_indicators'),
 
 
     path('',views.index,name="home"),

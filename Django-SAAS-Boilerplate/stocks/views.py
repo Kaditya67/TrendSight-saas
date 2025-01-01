@@ -85,6 +85,11 @@ def fetch_stocks(request):
         print(f"Fetching data for {stock_symbol} (ID: {stock_id})")
 
         try:
+            try:
+                FinancialStockData.objects.filter(stock__symbol=stock_symbol).delete()
+            except Exception as error:
+                print(f"Error deleting data for {stock_symbol}: {error}")
+
             df_new = yf.download(stock_symbol, start=start_date, end=end_date)
  
             if df_new.empty:
@@ -195,7 +200,6 @@ def compute_stock_indicators(request):
     return render(request, 'stocks/stockData/compute_stock_indicators.html')
 
 
-
 def update_stocks(request):
     # Override pandas datareader with yfinance
     yf.pdr_override()
@@ -210,12 +214,11 @@ def update_stocks(request):
 
         try:
             # Get the last updated date
-            last_updated = FinancialStockData.objects.filter(stock__symbol=stock_symbol).order_by('-date').first()
+            last_updated = FinancialStockData.objects.filter(stock__symbol=stock_symbol).last()
+            print(last_updated.date)
 
             if last_updated:
                 start_date = last_updated.date + timedelta(days=1)
-            else:
-                start_date = end_date - timedelta(days=700)  # Fetch 2 year of data if no data found
 
             update = False
             if last_updated and last_updated.date == end_date.date():
@@ -255,43 +258,49 @@ def update_stocks(request):
 def update_stock_indicators(request):
     print("compute/stock_indicators/ running!!")
     
-    # Fetch first two stock symbols for testing
+    # Fetch stock symbols and IDs
     symbols = Stock.objects.values_list('symbol', 'id')
 
     for symbol, stock_id in symbols:
         print(f"Computing indicators for {symbol}")
+        
+        # Get the last computed date
+        last_updated = ComputedStockData.objects.filter(stock_id=stock_id).last()
 
-        # Fetch stock data for the symbol
-        stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('date')
+        # Fetch relevant stock data
+        stock_data = FinancialStockData.objects.filter(stock_id=stock_id).order_by('date')
+        if last_updated:
+            stock_data = stock_data.filter(date__gt=last_updated.date)
+
         if not stock_data.exists():
-            print(f"No data available for {symbol}")
+            print(f"No new data available for {symbol}")
             continue
 
-        # Convert QuerySet to DataFrame for processing
+        # Convert to DataFrame
         df = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
         df['date'] = pd.to_datetime(df['date'])
         df.set_index('date', inplace=True)
 
-        # Ensure the DataFrame has a sequential integer index
-        df.reset_index(drop=False, inplace=True)  # Keep 'date' as a column (instead of index)
+        # Ensure the DataFrame has a sequential index
+        df.reset_index(drop=False, inplace=True)  # Keep 'date' as a column
 
-        # Check if we have enough data (at least 14 rows)
-        if len(df) < 14:
-            print(f"Not enough data for {symbol} (less than 14 days). Skipping.")
+        # Check for minimum 200 rows of data
+        if len(df) < 200:
+            print(f"Not enough data for {symbol} (less than 200 days). Skipping.")
             continue
 
-        # Calculate RSI
+        # Calculate RSI (requires at least 14 days of data)
         df['change'] = df['close'].diff()
         df['gain'] = np.where(df['change'] > 0, df['change'], 0)
         df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
 
-        # Calculate average gain and loss
-        df['avg_gain'] = 0.0  # Make sure it's float
-        df['avg_loss'] = 0.0  # Make sure it's float
+        # Initialize average gain and loss
+        df['avg_gain'] = 0.0
+        df['avg_loss'] = 0.0
 
         # Calculate the first 14-period average gain and loss
-        df.loc[13, 'avg_gain'] = float(df['gain'][:14].mean())
-        df.loc[13, 'avg_loss'] = float(df['loss'][:14].mean())
+        df.loc[13, 'avg_gain'] = df['gain'][:14].mean()
+        df.loc[13, 'avg_loss'] = df['loss'][:14].mean()
 
         # Use smoothing formula for subsequent rows
         for i in range(14, len(df)):
@@ -302,7 +311,7 @@ def update_stock_indicators(request):
         df['rs'] = df['avg_gain'] / df['avg_loss']
         df['rsi'] = 100 - (100 / (1 + df['rs']))
 
-        # Calculate EMAs
+        # Calculate EMAs (requires up to 200 days of data)
         df['ema10'] = df['close'].ewm(span=10, adjust=False).mean()
         df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
         df['ema30'] = df['close'].ewm(span=30, adjust=False).mean()
@@ -310,15 +319,18 @@ def update_stock_indicators(request):
         df['ema100'] = df['close'].ewm(span=100, adjust=False).mean()
         df['ema200'] = df['close'].ewm(span=200, adjust=False).mean()
 
-        # Calculate Volume Moving Averages
+        # Calculate Volume Moving Averages (requires up to 50 days of data)
         df['volume20'] = df['volume'].rolling(window=20).mean()
         df['volume50'] = df['volume'].rolling(window=50).mean()
 
-        # Store all computed rows for the stock in ComputedStockData
-        for index, row in df.iterrows():
-            ComputedStockData.objects.create(
+        # Fill NaN values with 0 to avoid errors during database insertion
+        df.fillna(0, inplace=True)
+
+        # Prepare data for bulk insertion
+        computed_data = [
+            ComputedStockData(
                 stock_id=stock_id,
-                date=row['date'],  # Use the actual date from the 'date' column
+                date=row['date'],
                 rs=row['rs'],
                 rsi=row['rsi'],
                 ema10=row['ema10'],
@@ -327,9 +339,14 @@ def update_stock_indicators(request):
                 ema50=row['ema50'],
                 ema100=row['ema100'],
                 ema200=row['ema200'],
-                volume20=str(row['volume20']),  # Convert to string if necessary
-                volume50=str(row['volume50']),  # Convert to string if necessary
+                volume20=row['volume20'],
+                volume50=row['volume50'],
             )
+            for _, row in df.iterrows()
+        ]
+
+        # Bulk create computed stock data
+        ComputedStockData.objects.bulk_create(computed_data)
 
     print("Stock indicators computation complete!")
-    return render(request, 'stocks/stockData/compute_stock_indicators.html')
+    return render(request, 'stocks/stockData/update_stock_indicators.html')

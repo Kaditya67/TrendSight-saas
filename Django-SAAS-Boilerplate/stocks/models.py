@@ -43,6 +43,9 @@ class FinancialStockData(models.Model):
             models.Index(fields=['date']),
             models.Index(fields=['stock']),
         ]
+        constraints = [
+            models.UniqueConstraint(fields=['stock', 'date'], name='unique_stock_date'),  # Ensure unique records
+        ]
 
 
     def __str__(self):
