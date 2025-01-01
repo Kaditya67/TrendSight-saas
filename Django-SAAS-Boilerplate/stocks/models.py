@@ -69,6 +69,15 @@ class ComputedStockData(models.Model):
     volume50 = models.CharField(max_length=255,blank=True,null=True)  # Volume over 50 days (same as above)
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when this data was last updated
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['stock']),
+        ]
+        constraints = [
+            models.UniqueConstraint(fields=['stock', 'date'], name='unique_stockIndicator_date'),
+        ]
+
     def __str__(self):
         return f"Computed Data for {self.stock.symbol}"
 

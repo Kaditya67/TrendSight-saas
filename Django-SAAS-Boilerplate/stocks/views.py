@@ -264,89 +264,94 @@ def update_stock_indicators(request):
     for symbol, stock_id in symbols:
         print(f"Computing indicators for {symbol}")
         
-        # Get the last computed date
-        last_updated = ComputedStockData.objects.filter(stock_id=stock_id).last()
+        # Get the last computed record
+        last_computed = ComputedStockData.objects.filter(stock_id=stock_id).last()
+        last_computed_date = last_computed.date if last_computed else None
 
-        # Fetch relevant stock data
-        stock_data = FinancialStockData.objects.filter(stock_id=stock_id).order_by('date')
-        if last_updated:
-            stock_data = stock_data.filter(date__gt=last_updated.date)
+        # Fetch new stock data
+        stock_data = FinancialStockData.objects.filter(stock_id=stock_id)
+        if last_computed_date:
+            stock_data = stock_data.filter(date__gt=last_computed_date)
+            print(stock_data)
 
         if not stock_data.exists():
             print(f"No new data available for {symbol}")
             continue
 
-        # Convert to DataFrame
-        df = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
-        df['date'] = pd.to_datetime(df['date'])
-        df.set_index('date', inplace=True)
+        # # Convert new data to DataFrame
+        # df_new = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
+        # df_new['date'] = pd.to_datetime(df_new['date'])
+        # df_new.set_index('date', inplace=True)
+        # df_new.sort_index(inplace=True)
 
-        # Ensure the DataFrame has a sequential index
-        df.reset_index(drop=False, inplace=True)  # Keep 'date' as a column
+        # # Initialize previous values
+        # prev_rsi = last_computed.rsi if last_computed else 0
+        # prev_avg_gain = last_computed.rs * (last_computed.rsi / 100) if last_computed else 0
+        # prev_avg_loss = prev_avg_gain / last_computed.rs if last_computed and last_computed.rs > 0 else 0
 
-        # Check for minimum 200 rows of data
-        if len(df) < 200:
-            print(f"Not enough data for {symbol} (less than 200 days). Skipping.")
-            continue
+        # prev_ema_values = {
+        #     "ema10": last_computed.ema10 if last_computed else 0,
+        #     "ema20": last_computed.ema20 if last_computed else 0,
+        #     "ema30": last_computed.ema30 if last_computed else 0,
+        #     "ema50": last_computed.ema50 if last_computed else 0,
+        #     "ema100": last_computed.ema100 if last_computed else 0,
+        #     "ema200": last_computed.ema200 if last_computed else 0,
+        # }
 
-        # Calculate RSI (requires at least 14 days of data)
-        df['change'] = df['close'].diff()
-        df['gain'] = np.where(df['change'] > 0, df['change'], 0)
-        df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
+        # # Prepare data for incremental computation
+        # computed_data = []
+        # for date, row in df_new.iterrows():
+        #     close = row['close']
+        #     volume = row['volume']
 
-        # Initialize average gain and loss
-        df['avg_gain'] = 0.0
-        df['avg_loss'] = 0.0
+        #     # Compute RSI incrementally
+        #     change = close - (last_computed.close if last_computed else close)
+        #     gain = max(change, 0)
+        #     loss = -min(change, 0)
 
-        # Calculate the first 14-period average gain and loss
-        df.loc[13, 'avg_gain'] = df['gain'][:14].mean()
-        df.loc[13, 'avg_loss'] = df['loss'][:14].mean()
+        #     avg_gain = (prev_avg_gain * 13 + gain) / 14
+        #     avg_loss = (prev_avg_loss * 13 + loss) / 14
+        #     rs = avg_gain / avg_loss if avg_loss > 0 else 0
+        #     rsi = 100 - (100 / (1 + rs))
 
-        # Use smoothing formula for subsequent rows
-        for i in range(14, len(df)):
-            df.loc[i, 'avg_gain'] = ((df.loc[i - 1, 'avg_gain'] * 13) + df.loc[i, 'gain']) / 14
-            df.loc[i, 'avg_loss'] = ((df.loc[i - 1, 'avg_loss'] * 13) + df.loc[i, 'loss']) / 14
+        #     # Compute EMAs incrementally
+        #     ema_values = {}
+        #     for span in [10, 20, 30, 50, 100, 200]:
+        #         key = f"ema{span}"
+        #         multiplier = 2 / (span + 1)
+        #         ema_values[key] = (close - prev_ema_values[key]) * multiplier + prev_ema_values[key]
 
-        # Calculate RS and RSI
-        df['rs'] = df['avg_gain'] / df['avg_loss']
-        df['rsi'] = 100 - (100 / (1 + df['rs']))
+        #     # Compute volume moving averages
+        #     volume20 = stock_data.filter(date__lte=date).order_by('-date')[:20].aggregate(avg=Avg('volume'))['avg']
+        #     volume50 = stock_data.filter(date__lte=date).order_by('-date')[:50].aggregate(avg=Avg('volume'))['avg']
 
-        # Calculate EMAs (requires up to 200 days of data)
-        df['ema10'] = df['close'].ewm(span=10, adjust=False).mean()
-        df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
-        df['ema30'] = df['close'].ewm(span=30, adjust=False).mean()
-        df['ema50'] = df['close'].ewm(span=50, adjust=False).mean()
-        df['ema100'] = df['close'].ewm(span=100, adjust=False).mean()
-        df['ema200'] = df['close'].ewm(span=200, adjust=False).mean()
 
-        # Calculate Volume Moving Averages (requires up to 50 days of data)
-        df['volume20'] = df['volume'].rolling(window=20).mean()
-        df['volume50'] = df['volume'].rolling(window=50).mean()
+        #     print("Appending computed data...")
+        #     print(date, close, gain, loss, avg_gain, avg_loss, rs, rsi, ema_values, volume20, volume50)
+            # Append to computed data
+            # computed_data.append(
+            #     ComputedStockData(
+            #         stock_id=stock_id,
+            #         date=date,
+            #         rs=rs,
+            #         rsi=rsi,
+            #         ema10=ema_values['ema10'],
+            #         ema20=ema_values['ema20'],
+            #         ema30=ema_values['ema30'],
+            #         ema50=ema_values['ema50'],
+            #         ema100=ema_values['ema100'],
+            #         ema200=ema_values['ema200'],
+            #         volume20=volume20,
+            #         volume50=volume50,
+            #     )
+            # )
 
-        # Fill NaN values with 0 to avoid errors during database insertion
-        df.fillna(0, inplace=True)
+            # Update previous values
+            # prev_avg_gain, prev_avg_loss, prev_rsi = avg_gain, avg_loss, rsi
+            # prev_ema_values.update(ema_values)
 
-        # Prepare data for bulk insertion
-        computed_data = [
-            ComputedStockData(
-                stock_id=stock_id,
-                date=row['date'],
-                rs=row['rs'],
-                rsi=row['rsi'],
-                ema10=row['ema10'],
-                ema20=row['ema20'],
-                ema30=row['ema30'],
-                ema50=row['ema50'],
-                ema100=row['ema100'],
-                ema200=row['ema200'],
-                volume20=row['volume20'],
-                volume50=row['volume50'],
-            )
-            for _, row in df.iterrows()
-        ]
-
-        # Bulk create computed stock data
-        ComputedStockData.objects.bulk_create(computed_data)
+        # Bulk create new computed data
+        # ComputedStockData.objects.bulk_create(computed_data)
 
     print("Stock indicators computation complete!")
     return render(request, 'stocks/stockData/update_stock_indicators.html')
