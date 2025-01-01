@@ -251,89 +251,108 @@ def compute_stock_indicators(request):
     return render(request, 'stocks/stockData/compute_stock_indicators.html')
 
 
-import logging
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from .models import Stock, FinancialStockData
 import yfinance as yf
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
 def update_stocks(request):
     # Override pandas datareader with yfinance
     yf.pdr_override()
+    end_date = datetime.now()
 
+    # Fetch all stocks from the database
     stocks = Stock.objects.all()
-    updated_data = []  # To store data about updated stocks
+    need_update = []
+    upto_date = []
+
+    # Helper function to categorize stocks
+    def categorize_stocks():
+        nonlocal need_update, upto_date
+        need_update = []
+        upto_date = []
+        for stock in stocks:
+            try:
+                last_record = FinancialStockData.objects.filter(stock=stock).order_by('-date').first()
+                if last_record and last_record.date >= end_date.date():
+                    upto_date.append(stock)
+                else:
+                    need_update.append(stock)
+            except Exception as e:
+                print(f"Error processing stock {stock.symbol}: {e}")
+                need_update.append(stock)
+
+    # Initial categorization
+    categorize_stocks()
+
+    fetched_data = []  # To store the fetched stock data
+    msg = f"Stocks separated into Need Update: {len(need_update)} and Upto Date: {len(upto_date)}"
+    color = 'red' if len(need_update) > 0 else 'green'
 
     if request.method == 'POST':
-        selected_stock_ids = request.POST.getlist('stocks')  # Get list of selected stock IDs
-        logger.info(f"Selected Stock IDs for update: {selected_stock_ids}")
-
+        selected_stock_ids = request.POST.getlist('stocks')  # Get selected stock IDs
         if selected_stock_ids:
-            selected_stocks = Stock.objects.filter(id__in=selected_stock_ids).values('symbol', 'id')
-            logger.info(f"Selected Stocks for update: {selected_stocks}")
+            selected_stocks = Stock.objects.filter(id__in=selected_stock_ids)
 
             for stock in selected_stocks:
                 try:
-                    updated_stock_data = update_stock_data(stock)
-                    if updated_stock_data:
-                        updated_data.extend(updated_stock_data)
-                except Exception as error:
-                    logger.error(f"Error updating data for {stock['symbol']}: {error}")
+                    # Determine the start date for fetching data
+                    last_record = FinancialStockData.objects.filter(stock=stock).order_by('-date').first()
+                    start_date = last_record.date + timedelta(days=1) if last_record else end_date - timedelta(days=700)
+
+                    print(f"Fetching data for {stock.symbol} from {start_date} to {end_date}")
+
+                    # Download stock data
+                    df_new = yf.download(stock.symbol, start=start_date, end=end_date)
+
+                    if df_new.empty:
+                        print(f"No data found for {stock.symbol}")
+                        continue
+                    
+                    msg = f"{len(df_new)} records fetched for {stock.symbol}"
+                    color = 'green' if len(df_new) > 0 else 'red'
+                    # Delete existing data if updating the same dates
+                    FinancialStockData.objects.filter(stock=stock, date__gte=start_date).delete()
+
+                    # Save new data
+                    for idx, row in df_new.iterrows():
+                        FinancialStockData.objects.create(
+                            stock=stock,
+                            date=row.name.date(),
+                            open=row['Open'],
+                            high=row['High'],
+                            low=row['Low'],
+                            close=row['Close'],
+                            volume=row['Volume']
+                        )
+                        fetched_data.append({
+                            'symbol': stock.symbol,
+                            'date': row.name.date(),
+                            'open': row['Open'],
+                            'high': row['High'],
+                            'low': row['Low'],
+                            'close': row['Close'],
+                            'volume': row['Volume']
+                        })
+                except Exception as e:
+                    print(f"Error fetching data for {stock.symbol}: {e}")
         else:
-            logger.warning("No stocks were selected for update.")
+            print("No stocks were selected for update.")
+
+        # Re-categorize stocks after processing the POST request
+        categorize_stocks()
 
     context = {
-        'stocks': stocks,
-        'updated_data': updated_data,
+        'fetched_data': fetched_data,
+        'status': 'Stock data update completed.' if fetched_data else 'No data updated.',
+        'need_update': need_update,
+        'upto_date': upto_date,
+        'msg': msg,
+        'color': color
     }
     return render(request, 'stocks/stockData/update_stocks.html', context)
 
-def update_stock_data(stock):
-    """Update stock data for a given stock."""
-    try:
-        end_date = datetime.now()
-        last_updated = FinancialStockData.objects.filter(stock__symbol=stock['symbol']).last()
-        start_date = last_updated.date + timedelta(days=1) if last_updated else end_date - timedelta(days=700)
 
-        logger.info(f"Fetching data for {stock['symbol']} (ID: {stock['id']}) from {start_date} to {end_date}")
-
-        df = yf.download(stock['symbol'], start=start_date, end=end_date)
-        if df.empty:
-            logger.warning(f"No new data found for {stock['symbol']}")
-            return []
-
-        if last_updated and last_updated.date == end_date.date():
-            logger.info(f"Updating existing data for {stock['symbol']}")
-            FinancialStockData.objects.filter(stock__symbol=stock['symbol'], date__gte=start_date).delete()
-
-        stock_data = []
-        for idx, row in df.iterrows():
-            FinancialStockData.objects.create(
-                stock_id=stock['id'],
-                date=row.name.date(),
-                open=row['Open'],
-                high=row['High'],
-                low=row['Low'],
-                close=row['Close'],
-                volume=row['Volume']
-            )
-            stock_data.append({
-                'symbol': stock['symbol'],
-                'date': row.name.date(),
-                'open': row['Open'],
-                'high': row['High'],
-                'low': row['Low'],
-                'close': row['Close'],
-                'volume': row['Volume']
-            })
-        return stock_data
-
-    except Exception as error:
-        logger.error(f"Error updating data for {stock['symbol']}: {error}")
-        return []
 
 def update_stock_indicators(request):
     print("compute/stock_indicators/ running!!")

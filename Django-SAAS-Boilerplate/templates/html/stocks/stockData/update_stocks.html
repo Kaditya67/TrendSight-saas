@@ -2,48 +2,60 @@
 {% block title %}Update Stocks{% endblock %}
 {% block content %}
 <div class="max-w-7xl mx-auto mt-10 p-6 bg-gray-50 shadow-lg rounded-lg">
+    <div class="container mx-auto mt-6">
+        {% if msg %}
+            <div id="status-message" class="bg-{{color}}-100 border border-{{color}}-400 text-{{color}}-700 px-4 py-3 rounded mb-4">
+                {{ msg }}
+            </div>
+        {% endif %}
+    </div>
     <h1 class="text-2xl font-bold text-center mb-8">Update Stock Data</h1>
 
-    <form method="POST" class="space-y-6">
-        {% csrf_token %}
-        <div>
-            <h3 class="text-lg font-semibold mb-4">Select Stocks to Update Data</h3>
-            <div>
-                <label class="flex items-center space-x-3 mb-4">
-                    <input 
-                        type="checkbox" 
-                        id="select-all" 
-                        class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span class="text-gray-800 font-bold">Select All</span>
-                </label>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {% for stock in stocks %}
-                <label class="flex items-center space-x-3">
-                    <input 
-                        type="checkbox" 
-                        name="stocks" 
-                        value="{{ stock.id }}" 
-                        class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 stock-checkbox"
-                    >
-                    <span class="text-gray-800">{{ stock.symbol }}</span>
-                </label>
+    <div class="flex flex-wrap justify-between gap-6">
+        <!-- Left: Needs Update Section -->
+        <div class="w-full lg:w-5/12 p-4 bg-red-50 border border-red-300 shadow-md rounded-lg">
+            <h3 class="text-lg font-bold text-red-600 mb-4">Needs Update</h3>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div class="space-y-2">
+                    {% for stock in need_update %}
+                    <label class="flex items-center space-x-3">
+                        <input 
+                            type="checkbox" 
+                            name="stocks" 
+                            value="{{ stock.id }}" 
+                            class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                        >
+                        <span class="text-gray-800 font-semibold">{{ stock.symbol }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <button 
+                    type="submit" 
+                    class="mt-4 px-6 py-2 text-white bg-red-600 rounded-lg shadow-md hover:bg-red-700 transition"
+                >
+                    Update Selected
+                </button>
+            </form>
+        </div>
+
+        <!-- Right: Up-to-date Section -->
+         {% if uptoDate %}
+        <div class="w-full lg:w-5/12 p-4 bg-green-50 border border-green-300 shadow-md rounded-lg">
+            <h3 class="text-lg font-bold text-green-600 mb-4">Up-to-date</h3>
+            <div class="space-y-2">
+                {% for stock in uptoDate %}
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-800 font-semibold">{{ stock.symbol }}</span>
+                </div>
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
+    </div>
 
-        <div class="flex justify-center">
-            <button 
-                type="submit" 
-                class="px-6 py-2 text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition"
-            >
-                Update Data
-            </button>
-        </div>
-    </form>
-
-    {% if updated_data %}
+    <!-- Fetched Data Table -->
+    {% if fetched_data %}
     <h3 class="text-xl font-bold mt-10 mb-4">Updated Stock Data</h3>
     <div class="overflow-x-auto">
         <table class="min-w-full border-collapse border border-gray-200 text-left bg-white shadow-md">
@@ -59,7 +71,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for data in updated_data %}
+                {% for data in fetched_data %}
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-2 border border-gray-200">{{ data.symbol }}</td>
                     <td class="px-4 py-2 border border-gray-200">{{ data.date }}</td>
@@ -78,12 +90,13 @@
         <p>No updates available.</p>
     </div>
     {% endif %}
+    <script> 
+        const statusMessage = document.getElementById('status-message');
+        if (statusMessage) { 
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 10000);
+        }
+    </script>
 </div>
-
-<script>
-    document.getElementById('select-all').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.stock-checkbox');
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-    });
-</script>
 {% endblock %}
