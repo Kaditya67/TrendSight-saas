@@ -8,13 +8,15 @@
 
         <form method="POST" class="space-y-6">
             {% csrf_token %}
+            
+            <!-- Section for Updated Stocks -->
             <div>
                 <div class="flex justify-between items-center mb-4 pr-10">
-                    <h3 class="text-lg font-semibold">Select Stocks to Update Indicators</h3>
+                    <h3 class="text-lg font-semibold">Stocks Already Up-to-Date</h3>
                     <label class="flex items-center space-x-3">
                         <input 
                             type="checkbox" 
-                            id="select-all" 
+                            id="select-all-updated" 
                             class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         >
                         <span class="font-bold text-xl text-blue-700">Select All</span>
@@ -22,13 +24,42 @@
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {% for stock in stocks %}
+                    {% for stock in uptoDate %}
                         <label class="flex items-center space-x-3">
                             <input 
                                 type="checkbox" 
                                 name="stocks" 
                                 value="{{ stock.id }}" 
-                                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 stock-checkbox"
+                                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 updated-stock-checkbox"
+                            >
+                            <span class="text-gray-800">{{ stock.symbol }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Section for Stocks that Need Update -->
+            <div>
+                <div class="flex justify-between items-center mb-4 pr-10">
+                    <h3 class="text-lg font-semibold">Stocks Needing Updates</h3>
+                    <label class="flex items-center space-x-3">
+                        <input 
+                            type="checkbox" 
+                            id="select-all-need-update" 
+                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        >
+                        <span class="font-bold text-xl text-blue-700">Select All</span>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {% for stock in need_update %}
+                        <label class="flex items-center space-x-3">
+                            <input 
+                                type="checkbox" 
+                                name="stocks" 
+                                value="{{ stock.id }}" 
+                                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 needupdate-stock-checkbox"
                             >
                             <span class="text-gray-800">{{ stock.symbol }}</span>
                         </label>
@@ -46,7 +77,7 @@
             </div>
         </form>
 
-        {% if computed_stocks %}
+        {% if updated_stocks %}
             <h3 class="text-xl font-bold mt-10 mb-4">Updated Stock Indicators</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full border-collapse border border-gray-200 text-left bg-white shadow-md">
@@ -63,9 +94,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for data in computed_stocks %}
+                        {% for data in updated_stocks %}
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 border border-gray-200">{{ data.stock.symbol }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.symbol }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.date }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.rsi }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.ema10 }}</td>
@@ -83,12 +114,29 @@
                 <p>No indicators updated yet.</p>
             </div>
         {% endif %}
+
+        {% if failed_stocks %}
+            <h3 class="text-xl font-bold mt-10 mb-4 text-red-600">Failed to Update Stock Indicators</h3>
+            <ul class="list-disc pl-5">
+                {% for stock in failed_stocks %}
+                    <li>{{ stock }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
 
     <script>
-        document.getElementById('select-all').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.stock-checkbox');
+        // Select All for Updated Stocks
+        document.getElementById('select-all-updated').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.updated-stock-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+    
+        // Select All for Stocks Needing Update
+        document.getElementById('select-all-need-update').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.needupdate-stock-checkbox');
             checkboxes.forEach(checkbox => checkbox.checked = this.checked);
         });
     </script>
+    
 {% endblock %}

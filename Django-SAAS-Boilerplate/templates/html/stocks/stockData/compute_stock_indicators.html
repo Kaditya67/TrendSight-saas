@@ -83,6 +83,17 @@
                 <p>No indicators computed yet.</p>
             </div>
         {% endif %}
+        {% if no_data %}
+        <h2 class="text-xl text-red-700 font-bold mb-4">No Data Available</h2>
+        <div class="space-y-2">
+            {% for stock in no_data %}
+                <div>
+                    <p class="text-gray-800">{{ stock }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     </div>
 
     <script>
