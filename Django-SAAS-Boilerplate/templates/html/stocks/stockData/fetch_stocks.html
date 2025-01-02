@@ -1,5 +1,7 @@
 {% extends 'stocks/stockData/base.html' %}
+
 {% block title %}Fetch Stocks{% endblock %}
+
 {% block content %}
     <div class="max-w-7xl mx-auto mt-10 p-6 bg-gray-50 shadow-lg rounded-lg">
         <h1 class="text-2xl font-bold text-center mb-8">Fetch Stock Data</h1>
@@ -27,8 +29,16 @@
                                 name="stocks" 
                                 value="{{ stock.id }}" 
                                 class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 stock-checkbox"
+                                {% if stock in need_update %} checked {% endif %}
                             >
-                            <span class="text-gray-800">{{ stock.symbol }}</span>
+                            <span class="text-gray-800">
+                                {{ stock.symbol }}
+                                {% if stock in need_update %}
+                                    <span class="text-red-500 font-bold">(Needs Update)</span>
+                                {% else %}
+                                    <span class="text-green-500 font-bold">(Up-to-Date)</span>
+                                {% endif %}
+                            </span>
                         </label>
                     {% endfor %}
                 </div>

@@ -80,6 +80,28 @@ def fetch_stocks(request):
     # Fetch all stock symbols and ids from the database
     stocks = Stock.objects.all()
     fetched_data = []  # To store the fetched stock data
+    need_update = []   # List to store stocks needing update
+    upto_date = []     # List to store up-to-date stocks
+
+    # Helper function to categorize stocks
+    def categorize_stocks():
+        nonlocal need_update, upto_date
+        need_update = []
+        upto_date = []
+        for stock in stocks:
+            try:
+                # Fetch the last record of stock data
+                last_record = FinancialStockData.objects.filter(stock=stock).last()
+                if last_record and last_record.date == datetime.now().date():
+                    upto_date.append(stock)  # Stock is up-to-date
+                else:
+                    need_update.append(stock)  # Stock needs update
+            except Exception as e:
+                print(f"Error processing stock {stock.symbol}: {e}")
+                need_update.append(stock)  # Default to needing update
+
+    # Initial categorization
+    categorize_stocks()
 
     if request.method == 'POST':
         selected_stock_ids = request.POST.getlist('stocks')  # Get list of selected stock IDs
@@ -97,49 +119,62 @@ def fetch_stocks(request):
                 print(f"Fetching data for {stock['symbol']} (ID: {stock['id']})")
 
                 try:
-                    try:
-                        FinancialStockData.objects.filter(stock__symbol=stock['symbol']).delete()
-                    except Exception as error:
-                        print(f"Error deleting data for {stock['symbol']}: {error}")
+                    # First, delete existing records for the selected stock symbol
+                    FinancialStockData.objects.filter(stock__symbol=stock['symbol']).delete()
 
+                    # Download new stock data
                     df_new = yf.download(stock['symbol'], start=start_date, end=end_date)
         
                     if df_new.empty:
                         print(f"No data found for {stock['symbol']}")
                         continue
 
-                    print(df_new)
-        
+                    print(f"Fetched data for {stock['symbol']}: {df_new}")
+
+                    # Prepare a list for bulk creation of stock data
+                    stock_data_to_create = []
                     for idx, row in df_new.iterrows():
-                        FinancialStockData.objects.create(
-                            stock_id=stock['id'],
-                            date=row.name.date(),  
-                            open=row['Open'],
-                            high=row['High'],
-                            low=row['Low'],
-                            close=row['Close'],
-                            volume=row['Volume']
+                        stock_data_to_create.append(
+                            FinancialStockData(
+                                stock_id=stock['id'],
+                                date=row.name.date(),
+                                open=row['Open'],
+                                high=row['High'],
+                                low=row['Low'],
+                                close=row['Close'],
+                                volume=row['Volume']
+                            )
                         )
-                        # Store the fetched data for displaying in the template
+                    
+                    # Bulk create records to improve performance
+                    FinancialStockData.objects.bulk_create(stock_data_to_create)
+
+                    # Store the fetched data for displaying in the template
+                    for row in df_new.iterrows():
                         fetched_data.append({
                             'symbol': stock['symbol'],
-                            'date': row.name.date(),
-                            'open': row['Open'],
-                            'high': row['High'],
-                            'low': row['Low'],
-                            'close': row['Close'],
-                            'volume': row['Volume']
+                            'date': row[0].date(),
+                            'open': row[1]['Open'],
+                            'high': row[1]['High'],
+                            'low': row[1]['Low'],
+                            'close': row[1]['Close'],
+                            'volume': row[1]['Volume']
                         })
+
                 except Exception as error:
                     print(f"Error fetching data for {stock['symbol']}: {error}")
 
-            print("Selected Stocks: ", selected_stocks)
+            # Re-categorize stocks after processing the POST request
+            categorize_stocks()
+
         else:
             print("No stocks were selected.")
 
     context = {
         'stocks': stocks,
-        'fetched_data': fetched_data  # Pass the fetched data to the template
+        'fetched_data': fetched_data,  # Pass the fetched data to the template
+        'need_update': need_update,    # Pass the list of stocks needing update
+        'upto_date': upto_date,       # Pass the list of up-to-date stocks
     }
     return render(request, 'stocks/stockData/fetch_stocks.html', context)
 
@@ -151,88 +186,104 @@ from django.shortcuts import render
 from stocks.models import (ComputedStockData, FinancialStockData, PrevVolumes,
                            Stock)
 
-# Compute stock indicators function
+
 def compute_stock_indicators(request):
+    print("compute/stock_indicators/ running!!")
+    
+    # Fetch first two stock symbols for testing
     symbols = Stock.objects.values_list('symbol', 'id')
 
-    if request.method == 'POST':
-        selected_stock_ids = request.POST.getlist('stocks')
-        print(f"Selected Stock IDs for Indicator Computation: {selected_stock_ids}")
+    for symbol, stock_id in symbols:
+        print(f"Computing indicators for {symbol}")
+        ComputedStockData.objects.filter(stock_id=stock_id).delete()
+        # Fetch stock data for the symbol
+        stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('date')
+        if not stock_data.exists():
+            print(f"No data available for {symbol}")
+            continue
 
-        if selected_stock_ids:
-            selected_symbols = Stock.objects.filter(id__in=selected_stock_ids).values_list('symbol', 'id')
+        # Convert QuerySet to DataFrame for processing
+        df = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
+        df['date'] = pd.to_datetime(df['date'])
+        df.set_index('date', inplace=True)
 
-            for symbol, stock_id in selected_symbols:
-                print(f"Computing indicators for {symbol}")
-                ComputedStockData.objects.filter(stock_id=stock_id).delete()
-                stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('date')
-                
-                if not stock_data.exists():
-                    print(f"No data available for {symbol}")
-                    continue
+        # Ensure the DataFrame has a sequential integer index
+        df.reset_index(drop=False, inplace=True)  # Keep 'date' as a column (instead of index)
 
-                df = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
-                df['date'] = pd.to_datetime(df['date'])
-                df.set_index('date', inplace=True)
-                df.reset_index(drop=False, inplace=True)
+        # Check if we have enough data (at least 14 rows)
+        if len(df) < 14:
+            print(f"Not enough data for {symbol} (less than 14 days). Skipping.")
+            continue
 
-                if len(df) < 14:
-                    print(f"Not enough data for {symbol}. Skipping.")
-                    continue
+        # Calculate RSI
+        df['change'] = df['close'].diff()
+        df['gain'] = np.where(df['change'] > 0, df['change'], 0)
+        df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
 
-                df['change'] = df['close'].diff()
-                df['gain'] = np.where(df['change'] > 0, df['change'], 0)
-                df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
-                df['avg_gain'] = 0.0
-                df['avg_loss'] = 0.0
-                df.loc[13, 'avg_gain'] = df['gain'][:14].mean()
-                df.loc[13, 'avg_loss'] = df['loss'][:14].mean()
+        # Calculate average gain and loss
+        df['avg_gain'] = 0.0  # Make sure it's float
+        df['avg_loss'] = 0.0  # Make sure it's float
 
-                for i in range(14, len(df)):
-                    df.loc[i, 'avg_gain'] = ((df.loc[i - 1, 'avg_gain'] * 13) + df.loc[i, 'gain']) / 14
-                    df.loc[i, 'avg_loss'] = ((df.loc[i - 1, 'avg_loss'] * 13) + df.loc[i, 'loss']) / 14
+        # Calculate the first 14-period average gain and loss
+        df.loc[13, 'avg_gain'] = float(df['gain'][:14].mean())
+        df.loc[13, 'avg_loss'] = float(df['loss'][:14].mean())
 
-                df['rs'] = df['avg_gain'] / df['avg_loss']
-                df['rsi'] = 100 - (100 / (1 + df['rs']))
-                df['ema10'] = df['close'].ewm(span=10, adjust=False).mean()
-                df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
-                df['ema30'] = df['close'].ewm(span=30, adjust=False).mean()
-                df['ema50'] = df['close'].ewm(span=50, adjust=False).mean()
-                df['ema100'] = df['close'].ewm(span=100, adjust=False).mean()
-                df['ema200'] = df['close'].ewm(span=200, adjust=False).mean()
-                df['volume20'] = df['volume'].rolling(window=20).mean()
-                df['volume50'] = df['volume'].rolling(window=50).mean()
+        # Use smoothing formula for subsequent rows
+        for i in range(14, len(df)):
+            df.loc[i, 'avg_gain'] = ((df.loc[i - 1, 'avg_gain'] * 13) + df.loc[i, 'gain']) / 14
+            df.loc[i, 'avg_loss'] = ((df.loc[i - 1, 'avg_loss'] * 13) + df.loc[i, 'loss']) / 14
 
-                for index, row in df.iterrows():
-                    ComputedStockData.objects.create(
-                        stock_id=stock_id,
-                        date=row['date'],
-                        rs=row['rs'],
-                        rsi=row['rsi'],
-                        ema10=row['ema10'],
-                        ema20=row['ema20'],
-                        ema30=row['ema30'],
-                        ema50=row['ema50'],
-                        ema100=row['ema100'],
-                        ema200=row['ema200'],
-                        volume20=str(row['volume20']),
-                        volume50=str(row['volume50']),
-                    )
+        # Calculate RS and RSI
+        df['rs'] = df['avg_gain'] / df['avg_loss']
+        df['rsi'] = 100 - (100 / (1 + df['rs']))
 
-                volume_20th = df['volume'].tail(20).iloc[0]
-                volume_50th = df['volume'].tail(50).iloc[0]
-                PrevVolumes.objects.update_or_create(
-                    stock_id=stock_id,
-                    date=stock_data.last().date,
-                    defaults={
-                        'volume20': volume_20th,
-                        'volume50': volume_50th
-                    }
-                )
+        # Calculate EMAs
+        df['ema10'] = df['close'].ewm(span=10, adjust=False).mean()
+        df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
+        df['ema30'] = df['close'].ewm(span=30, adjust=False).mean()
+        df['ema50'] = df['close'].ewm(span=50, adjust=False).mean()
+        df['ema100'] = df['close'].ewm(span=100, adjust=False).mean()
+        df['ema200'] = df['close'].ewm(span=200, adjust=False).mean()
 
-    stocks = Stock.objects.all()
-    context = {'stocks': stocks}
-    return render(request, 'stocks/stockData/compute_stock_indicators.html', context)
+        # Calculate Volume Moving Averages
+        df['volume20'] = df['volume'].rolling(window=20).mean()
+        volume_20th = df['volume'].tail(20).iloc[0]
+        print("Volume 20th : ",volume_20th)
+
+        df['volume50'] = df['volume'].rolling(window=50).mean()
+        volume_50th = df['volume'].tail(50).iloc[0]
+        print("Volume 50th : ",volume_50th)
+        # print(df)
+
+        # Store all computed rows for the stock in ComputedStockData
+        for index, row in df.iterrows():
+            ComputedStockData.objects.create(
+                stock_id=stock_id,
+                date=row['date'],  # Use the actual date from the 'date' column
+                rs=row['rs'],
+                rsi=row['rsi'],
+                ema10=row['ema10'],
+                ema20=row['ema20'],
+                ema30=row['ema30'],
+                ema50=row['ema50'],
+                ema100=row['ema100'],
+                ema200=row['ema200'],
+                volume20=str(row['volume20']),  
+                volume50=str(row['volume50']),  
+            )
+
+        # update the 20th and 50th volumes for each stock
+        PrevVolumes.objects.update_or_create(
+        stock_id=stock_id,
+        date=stock_data.last().date,
+        defaults={
+            'volume20': volume_20th,
+            'volume50': volume_50th
+            }
+        )
+
+    print("Stock indicators computation complete!")
+    return render(request, 'stocks/stockData/compute_stock_indicators.html')
 
 
 from datetime import datetime, timedelta
@@ -257,8 +308,8 @@ def update_stocks(request):
         upto_date = []
         for stock in stocks:
             try:
-                last_record = FinancialStockData.objects.filter(stock=stock).order_by('-date').first()
-                if last_record and last_record.date >= end_date.date():
+                last_record = FinancialStockData.objects.filter(stock=stock).last()
+                if last_record and last_record.date == end_date.date():
                     upto_date.append(stock)
                 else:
                     need_update.append(stock)
@@ -281,9 +332,11 @@ def update_stocks(request):
             for stock in selected_stocks:
                 try:
                     # Determine the start date for fetching data
-                    last_record = FinancialStockData.objects.filter(stock=stock).order_by('-date').first()
-                    start_date = last_record.date + timedelta(days=1) if last_record else end_date - timedelta(days=700)
+                    last_record = FinancialStockData.objects.filter(stock=stock).last()
+                    start_date = last_record.date + timedelta(days=1)  
 
+                    if last_record and last_record.date == end_date.date():
+                        start_date = last_record.date
                     print(f"Fetching data for {stock.symbol} from {start_date} to {end_date}")
 
                     # Download stock data
@@ -330,7 +383,7 @@ def update_stocks(request):
         'fetched_data': fetched_data,
         'status': 'Stock data update completed.' if fetched_data else 'No data updated.',
         'need_update': need_update,
-        'upto_date': upto_date,
+        'uptoDate': upto_date,
         'msg': msg,
         'color': color
     }

@@ -14,7 +14,17 @@
     <div class="flex flex-wrap justify-between gap-6">
         <!-- Left: Needs Update Section -->
         <div class="w-full lg:w-5/12 p-4 bg-red-50 border border-red-300 shadow-md rounded-lg">
-            <h3 class="text-lg font-bold text-red-600 mb-4">Needs Update</h3>
+            <div class="flex justify-between items-center mb-4 pr-10">
+                <h3 class="text-lg font-bold text-red-600">Needs Update</h3>
+                <label class="flex items-center space-x-3">
+                    <input 
+                        type="checkbox" 
+                        id="select-all-need-update" 
+                        class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                    >
+                    <span class="font-bold text-xl text-red-700">Select All</span>
+                </label>
+            </div>
             <form method="POST" class="space-y-4">
                 {% csrf_token %}
                 <div class="space-y-2">
@@ -24,7 +34,7 @@
                             type="checkbox" 
                             name="stocks" 
                             value="{{ stock.id }}" 
-                            class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                            class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 need-update-checkbox"
                         >
                         <span class="text-gray-800 font-semibold">{{ stock.symbol }}</span>
                     </label>
@@ -40,16 +50,41 @@
         </div>
 
         <!-- Right: Up-to-date Section -->
-         {% if uptoDate %}
+        {% if uptoDate %}
         <div class="w-full lg:w-5/12 p-4 bg-green-50 border border-green-300 shadow-md rounded-lg">
-            <h3 class="text-lg font-bold text-green-600 mb-4">Up-to-date</h3>
-            <div class="space-y-2">
-                {% for stock in uptoDate %}
-                <div class="flex items-center space-x-3">
-                    <span class="text-gray-800 font-semibold">{{ stock.symbol }}</span>
-                </div>
-                {% endfor %}
+            <div class="flex justify-between items-center mb-4 pr-10">
+                <h3 class="text-lg font-bold text-green-600">Up-to-date</h3>
+                <label class="flex items-center space-x-3">
+                    <input 
+                        type="checkbox" 
+                        id="select-all-uptodate" 
+                        class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    >
+                    <span class="font-bold text-xl text-green-700">Select All</span>
+                </label>
             </div>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div class="space-y-2">
+                    {% for stock in uptoDate %}
+                    <label class="flex items-center space-x-3">
+                        <input 
+                            type="checkbox" 
+                            name="stocks" 
+                            value="{{ stock.id }}" 
+                            class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 uptodate-checkbox"
+                        >
+                        <span class="text-gray-800 font-semibold">{{ stock.symbol }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <button 
+                    type="submit" 
+                    class="mt-4 px-6 py-2 text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700 transition"
+                >
+                    Update Again
+                </button>
+            </form>
         </div>
         {% endif %}
     </div>
@@ -97,6 +132,16 @@
                 statusMessage.style.display = 'none';
             }, 10000);
         }
+
+        document.getElementById('select-all-need-update').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.need-update-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        document.getElementById('select-all-uptodate').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.uptodate-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
     </script>
 </div>
 {% endblock %}
