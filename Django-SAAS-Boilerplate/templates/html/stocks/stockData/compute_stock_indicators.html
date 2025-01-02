@@ -46,7 +46,7 @@
             </div>
         </form>
 
-        {% if fetched_data %}
+        {% if computed_data %}
             <h3 class="text-xl font-bold mt-10 mb-4">Computed Stock Indicators</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full border-collapse border border-gray-200 text-left bg-white shadow-md">
@@ -63,7 +63,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for data in fetched_data %}
+                        {% for data in computed_data %}
                             <tr class="hover:bg-gray-50">
                                 <td class="px-4 py-2 border border-gray-200">{{ data.symbol }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.date }}</td>
