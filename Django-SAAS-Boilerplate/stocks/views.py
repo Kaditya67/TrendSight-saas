@@ -151,104 +151,88 @@ from django.shortcuts import render
 from stocks.models import (ComputedStockData, FinancialStockData, PrevVolumes,
                            Stock)
 
-
+# Compute stock indicators function
 def compute_stock_indicators(request):
-    print("compute/stock_indicators/ running!!")
-    
-    # Fetch first two stock symbols for testing
     symbols = Stock.objects.values_list('symbol', 'id')
 
-    for symbol, stock_id in symbols:
-        print(f"Computing indicators for {symbol}")
-        ComputedStockData.objects.filter(stock_id=stock_id).delete()
-        # Fetch stock data for the symbol
-        stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('date')
-        if not stock_data.exists():
-            print(f"No data available for {symbol}")
-            continue
+    if request.method == 'POST':
+        selected_stock_ids = request.POST.getlist('stocks')
+        print(f"Selected Stock IDs for Indicator Computation: {selected_stock_ids}")
 
-        # Convert QuerySet to DataFrame for processing
-        df = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
-        df['date'] = pd.to_datetime(df['date'])
-        df.set_index('date', inplace=True)
+        if selected_stock_ids:
+            selected_symbols = Stock.objects.filter(id__in=selected_stock_ids).values_list('symbol', 'id')
 
-        # Ensure the DataFrame has a sequential integer index
-        df.reset_index(drop=False, inplace=True)  # Keep 'date' as a column (instead of index)
+            for symbol, stock_id in selected_symbols:
+                print(f"Computing indicators for {symbol}")
+                ComputedStockData.objects.filter(stock_id=stock_id).delete()
+                stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('date')
+                
+                if not stock_data.exists():
+                    print(f"No data available for {symbol}")
+                    continue
 
-        # Check if we have enough data (at least 14 rows)
-        if len(df) < 14:
-            print(f"Not enough data for {symbol} (less than 14 days). Skipping.")
-            continue
+                df = pd.DataFrame(list(stock_data.values('date', 'close', 'volume')))
+                df['date'] = pd.to_datetime(df['date'])
+                df.set_index('date', inplace=True)
+                df.reset_index(drop=False, inplace=True)
 
-        # Calculate RSI
-        df['change'] = df['close'].diff()
-        df['gain'] = np.where(df['change'] > 0, df['change'], 0)
-        df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
+                if len(df) < 14:
+                    print(f"Not enough data for {symbol}. Skipping.")
+                    continue
 
-        # Calculate average gain and loss
-        df['avg_gain'] = 0.0  # Make sure it's float
-        df['avg_loss'] = 0.0  # Make sure it's float
+                df['change'] = df['close'].diff()
+                df['gain'] = np.where(df['change'] > 0, df['change'], 0)
+                df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
+                df['avg_gain'] = 0.0
+                df['avg_loss'] = 0.0
+                df.loc[13, 'avg_gain'] = df['gain'][:14].mean()
+                df.loc[13, 'avg_loss'] = df['loss'][:14].mean()
 
-        # Calculate the first 14-period average gain and loss
-        df.loc[13, 'avg_gain'] = float(df['gain'][:14].mean())
-        df.loc[13, 'avg_loss'] = float(df['loss'][:14].mean())
+                for i in range(14, len(df)):
+                    df.loc[i, 'avg_gain'] = ((df.loc[i - 1, 'avg_gain'] * 13) + df.loc[i, 'gain']) / 14
+                    df.loc[i, 'avg_loss'] = ((df.loc[i - 1, 'avg_loss'] * 13) + df.loc[i, 'loss']) / 14
 
-        # Use smoothing formula for subsequent rows
-        for i in range(14, len(df)):
-            df.loc[i, 'avg_gain'] = ((df.loc[i - 1, 'avg_gain'] * 13) + df.loc[i, 'gain']) / 14
-            df.loc[i, 'avg_loss'] = ((df.loc[i - 1, 'avg_loss'] * 13) + df.loc[i, 'loss']) / 14
+                df['rs'] = df['avg_gain'] / df['avg_loss']
+                df['rsi'] = 100 - (100 / (1 + df['rs']))
+                df['ema10'] = df['close'].ewm(span=10, adjust=False).mean()
+                df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
+                df['ema30'] = df['close'].ewm(span=30, adjust=False).mean()
+                df['ema50'] = df['close'].ewm(span=50, adjust=False).mean()
+                df['ema100'] = df['close'].ewm(span=100, adjust=False).mean()
+                df['ema200'] = df['close'].ewm(span=200, adjust=False).mean()
+                df['volume20'] = df['volume'].rolling(window=20).mean()
+                df['volume50'] = df['volume'].rolling(window=50).mean()
 
-        # Calculate RS and RSI
-        df['rs'] = df['avg_gain'] / df['avg_loss']
-        df['rsi'] = 100 - (100 / (1 + df['rs']))
+                for index, row in df.iterrows():
+                    ComputedStockData.objects.create(
+                        stock_id=stock_id,
+                        date=row['date'],
+                        rs=row['rs'],
+                        rsi=row['rsi'],
+                        ema10=row['ema10'],
+                        ema20=row['ema20'],
+                        ema30=row['ema30'],
+                        ema50=row['ema50'],
+                        ema100=row['ema100'],
+                        ema200=row['ema200'],
+                        volume20=str(row['volume20']),
+                        volume50=str(row['volume50']),
+                    )
 
-        # Calculate EMAs
-        df['ema10'] = df['close'].ewm(span=10, adjust=False).mean()
-        df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
-        df['ema30'] = df['close'].ewm(span=30, adjust=False).mean()
-        df['ema50'] = df['close'].ewm(span=50, adjust=False).mean()
-        df['ema100'] = df['close'].ewm(span=100, adjust=False).mean()
-        df['ema200'] = df['close'].ewm(span=200, adjust=False).mean()
+                volume_20th = df['volume'].tail(20).iloc[0]
+                volume_50th = df['volume'].tail(50).iloc[0]
+                PrevVolumes.objects.update_or_create(
+                    stock_id=stock_id,
+                    date=stock_data.last().date,
+                    defaults={
+                        'volume20': volume_20th,
+                        'volume50': volume_50th
+                    }
+                )
 
-        # Calculate Volume Moving Averages
-        df['volume20'] = df['volume'].rolling(window=20).mean()
-        volume_20th = df['volume'].tail(20).iloc[0]
-        print("Volume 20th : ",volume_20th)
-
-        df['volume50'] = df['volume'].rolling(window=50).mean()
-        volume_50th = df['volume'].tail(50).iloc[0]
-        print("Volume 50th : ",volume_50th)
-        # print(df)
-
-        # Store all computed rows for the stock in ComputedStockData
-        for index, row in df.iterrows():
-            ComputedStockData.objects.create(
-                stock_id=stock_id,
-                date=row['date'],  # Use the actual date from the 'date' column
-                rs=row['rs'],
-                rsi=row['rsi'],
-                ema10=row['ema10'],
-                ema20=row['ema20'],
-                ema30=row['ema30'],
-                ema50=row['ema50'],
-                ema100=row['ema100'],
-                ema200=row['ema200'],
-                volume20=str(row['volume20']),  
-                volume50=str(row['volume50']),  
-            )
-
-        # update the 20th and 50th volumes for each stock
-        PrevVolumes.objects.update_or_create(
-        stock_id=stock_id,
-        date=stock_data.last().date,
-        defaults={
-            'volume20': volume_20th,
-            'volume50': volume_50th
-            }
-        )
-
-    print("Stock indicators computation complete!")
-    return render(request, 'stocks/stockData/compute_stock_indicators.html')
+    stocks = Stock.objects.all()
+    context = {'stocks': stocks}
+    return render(request, 'stocks/stockData/compute_stock_indicators.html', context)
 
 
 from datetime import datetime, timedelta
