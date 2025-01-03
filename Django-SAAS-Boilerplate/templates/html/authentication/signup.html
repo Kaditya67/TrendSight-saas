@@ -41,12 +41,28 @@
             </div>
 
             <!-- Phone Number -->
-            <div class="tw-flex tw-w-full tw-items-center">
-                <label for="phone_no" class="tw-mr-2 tw-text-gray-500">+91 </label>
-                <input type="tel" id="phone_no" class="input tw-w-full" 
-                       placeholder="Phone Number" name="phone_no" maxlength="15" 
-                       pattern="[0-9]{10}" required aria-label="Phone number">
+            <div class="tw-flex tw-w-full tw-flex-col tw-gap-1">
+                <div class="tw-flex tw-items-center">
+                    <label for="phone_no" class="tw-mr-2 tw-text-gray-500" aria-label="Country Code">+91</label>
+                    <input 
+                        type="tel" 
+                        id="phone_no" 
+                        class="input tw-w-full" 
+                        placeholder="Phone Number" 
+                        name="phone_no" 
+                        maxlength="10" 
+                        pattern="[0-9]{10}" 
+                        title="Enter a 10-digit phone number" 
+                        required 
+                        aria-describedby="phone_no_note">
+                </div>
+                <span id="phone_no_note" 
+                    class="tw-text-xs tw-text-gray-400 tw-text-left" 
+                    style="color: #a3a3a3; font-size: 0.75rem; text-align: left;">
+                    *Note: Must be 10 <b>digits</b> only!
+                </span>
             </div>
+            
             
             <!-- Password -->
             <div class="tw-flex tw-w-full input !tw-p-[2px]">

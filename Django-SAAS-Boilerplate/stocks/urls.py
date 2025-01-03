@@ -8,6 +8,7 @@ urlpatterns = [
     path('compute/stock_indicators/', views.compute_stock_indicators, name='compute_stock_indicators'),
     path('update/stock_indicators/', views.update_stock_indicators, name='update_stock_indicators'),
 
+    path('profile/', views.profile, name='profile'),
 
     path('',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),

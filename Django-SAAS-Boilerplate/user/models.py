@@ -57,6 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=False, blank=False)
     dp = ContentTypeRestrictedFileField(upload_to='dp/', content_types=['image/png', 'image/jpeg'], 
                                         max_upload_size=5242880,  null=True, blank=True)  # Profile picture
+    phone_no = models.CharField(max_length=15, null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)  # User's IP address
     
     # User flags

@@ -57,3 +57,7 @@ def watchlist(request):
 
 def about(request):
     return render(request, 'stocks/about.html')
+
+
+def profile(request):
+    return render(request, 'stocks/stock_users/profile.html')

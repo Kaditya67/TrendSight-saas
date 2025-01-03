@@ -52,7 +52,7 @@ class CustomUserAdmin(UserAdmin, ModelAdmin):
     readonly_fields = ['id', 'date_joined', 'last_login']
 
     fieldsets = (
-        ('User details', {'fields': ('id', 'email', 'name',  "dp", 
+        ('User details', {'fields': ('id', 'email', 'name',  "dp",'phone_no', 
                                      'date_joined', 
                                      'password')}), # displays hashed password
         ('Status', {'fields': ('is_active', 'is_staff', 'is_admin', 'is_superuser')}),

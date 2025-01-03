@@ -34,6 +34,8 @@ class CustomUserCreationForm(UserCreationForm):
         phone_no = self.cleaned_data.get("phone_no")
         if not phone_no.isdigit():
             raise forms.ValidationError("Phone number must be numeric")
+        if len(phone_no) != 10:
+            raise forms.ValidationError("Phone number must be 10 digits")
         return phone_no
 
     def clean_password2(self):
