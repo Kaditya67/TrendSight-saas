@@ -73,6 +73,7 @@ def signup_view(request):
         return render(request, 'html/authentication/signup.html')
     
     form = CustomUserCreationForm(request.POST)
+    print(form)
     
     if form.is_valid():
         user = form.save(commit=False)

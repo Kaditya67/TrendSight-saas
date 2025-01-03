@@ -65,10 +65,11 @@ from .forms import UserProfileForm
 def profile(request):
     user = request.user
     if request.method == 'POST':
-        form = UserProfileForm(request.POST,request.FILES, instance=user)
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect to profile after saving
+            return redirect('profile')  # Optionally redirect to profile page after successful save
     else:
         form = UserProfileForm(instance=user)
+
     return render(request, 'stocks/stock_users/profile.html', {'form': form})

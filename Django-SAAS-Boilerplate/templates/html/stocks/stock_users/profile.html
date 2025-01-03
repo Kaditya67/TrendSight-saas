@@ -12,13 +12,13 @@
         <!-- Email Field -->
         <div>
             <label for="id_email" class="text-lg font-medium text-gray-700">Email:</label>
-            <input type="text" name="email" id="id_email" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none bg-gray-100 cursor-not-allowed" value="{{ form.email.value }}" placeholder="Enter your email" disabled>
+            {{ form.email }}  <!-- Use form.email to properly render the field with any validations -->
         </div>
         
         <!-- Name Field -->
         <div>
             <label for="id_name" class="text-lg font-medium text-gray-700">Name:</label>
-            <input type="text" name="name" id="id_name" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" value="{{ form.name.value }}" placeholder="Enter your full name">
+            {{ form.name }}  <!-- Use form.name to properly render the name field -->
         </div>
         
         <!-- Profile Picture Section -->
@@ -33,11 +33,27 @@
                         <span class="text-sm text-gray-400">{{ user.dp.name }}</span>
                     </div>
                     <div class="ml-auto">
-                        <input type="file" name="dp" id="id_dp" class="w-32 border border-gray-300 rounded-lg py-2 px-4 text-sm font-medium text-gray-600 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-4 mt-2 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition duration-300">
-                            Update Picture
-                        </button>
+                        <input type="file" name="dp" id="id_dp" class="w-auto border border-gray-300 rounded-lg py-2 px-4 text-sm font-medium text-gray-600 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" onchange="previewImage(event)">
                     </div>
+                    <div id="imagePreview" class="mt-4">
+                        <img id="previewImg" src="" alt="Image Preview" class="h-24 w-24 object-cover rounded-full border-2 border-gray-300" style="display: none;">
+                    </div>
+                    
+                    <script>
+                        function previewImage(event) {
+                            const file = event.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const imgElement = document.getElementById('previewImg');
+                                    imgElement.src = e.target.result;
+                                    imgElement.style.display = 'block';  // show the preview
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        }
+                    </script>
+                    
                 {% else %}
                     <div class="w-full">
                         <input type="file" name="dp" id="id_dp" class="w-full border border-gray-300 rounded-lg py-2 px-4 text-sm font-medium text-gray-600 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600">
@@ -49,7 +65,7 @@
         <!-- Phone Number Field -->
         <div>
             <label for="id_phone_no" class="text-lg font-medium text-gray-700">Phone Number:</label>
-            <input type="tel" name="phone_no" id="id_phone_no" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" value="{{ form.phone_no.value }}" placeholder="Enter your phone number">
+            {{ form.phone_no }}  <!-- Use form.phone_no to properly render the phone number field -->
         </div>
         
         <!-- Submit Button -->
