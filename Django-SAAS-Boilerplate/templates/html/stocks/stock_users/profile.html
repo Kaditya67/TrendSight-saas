@@ -3,4 +3,95 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+<div class="max-w-4xl mx-auto bg-white p-10 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800">Edit Profile</h2>
+    
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Email Field -->
+        <div>
+            <label for="id_email" class="text-lg font-medium text-gray-700">Email:</label>
+            <input type="text" name="email" id="id_email" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none bg-gray-100 cursor-not-allowed" value="{{ form.email.value }}" placeholder="Enter your email" disabled>
+        </div>
+        
+        <!-- Name Field -->
+        <div>
+            <label for="id_name" class="text-lg font-medium text-gray-700">Name:</label>
+            <input type="text" name="name" id="id_name" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" value="{{ form.name.value }}" placeholder="Enter your full name">
+        </div>
+        
+        <!-- Profile Picture Section -->
+        <div>
+            <label for="id_dp" class="text-lg font-medium text-gray-700">Profile Picture:</label>
+            <div class="mt-4 flex items-center gap-6">
+                {% if user.dp %}
+                    <img src="{{ user.dp.url }}" alt="Profile Picture" 
+                         class="h-24 w-24 object-cover rounded-full border-2 border-gray-300">
+                    <div class="flex flex-col justify-center">
+                        <span class="text-sm font-medium text-gray-600">Current Picture</span>
+                        <span class="text-sm text-gray-400">{{ user.dp.name }}</span>
+                    </div>
+                    <div class="ml-auto">
+                        <input type="file" name="dp" id="id_dp" class="w-32 border border-gray-300 rounded-lg py-2 px-4 text-sm font-medium text-gray-600 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-4 mt-2 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition duration-300">
+                            Update Picture
+                        </button>
+                    </div>
+                {% else %}
+                    <div class="w-full">
+                        <input type="file" name="dp" id="id_dp" class="w-full border border-gray-300 rounded-lg py-2 px-4 text-sm font-medium text-gray-600 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Phone Number Field -->
+        <div>
+            <label for="id_phone_no" class="text-lg font-medium text-gray-700">Phone Number:</label>
+            <input type="tel" name="phone_no" id="id_phone_no" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" value="{{ form.phone_no.value }}" placeholder="Enter your phone number">
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="mt-8 text-center">
+            <button type="submit" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition duration-300">
+                Update Profile
+            </button>
+        </div>
+    </form>
+
+    <!-- Password Update Section -->
+    <div class="mt-12 space-y-8">
+        <h3 class="text-2xl font-semibold text-gray-800">Change Password</h3>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Current Password Field -->
+            <div class='pb-5'>
+                <label for="id_current_password" class="text-lg font-medium text-gray-700">Current Password:</label>
+                <input type="password" name="current_password" id="id_current_password" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" required placeholder="Enter your current password">
+            </div>
+
+            <!-- New Password Field -->
+            <div class='pb-5'>
+                <label for="id_new_password" class="text-lg font-medium text-gray-700">New Password:</label>
+                <input type="password" name="new_password" id="id_new_password" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" required placeholder="Enter your new password">
+            </div>
+
+            <!-- Confirm New Password Field -->
+            <div class='pb-5'>
+                <label for="id_confirm_new_password" class="text-lg font-medium text-gray-700">Confirm New Password:</label>
+                <input type="password" name="confirm_new_password" id="id_confirm_new_password" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" required placeholder="Confirm your new password">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-8 text-center">
+                <button type="submit" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition duration-300">
+                    Change Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

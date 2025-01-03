@@ -58,6 +58,17 @@ def watchlist(request):
 def about(request):
     return render(request, 'stocks/about.html')
 
+from user.models import User
+from django.shortcuts import render, redirect
+from .forms import UserProfileForm
 
 def profile(request):
-    return render(request, 'stocks/stock_users/profile.html')
+    user = request.user
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST,request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # Redirect to profile after saving
+    else:
+        form = UserProfileForm(instance=user)
+    return render(request, 'stocks/stock_users/profile.html', {'form': form})
