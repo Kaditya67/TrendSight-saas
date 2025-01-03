@@ -69,45 +69,18 @@
         </div>
         
         <!-- Submit Button -->
-        <div class="mt-8 text-center">
-            <button type="submit" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition duration-300">
+        <div class="mt-8 flex justify-between space-x-4">
+            <!-- Update Profile Button -->
+            <button type="submit" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105">
                 Update Profile
             </button>
-        </div>
-    </form>
-
-    <!-- Password Update Section -->
-    <div class="mt-12 space-y-8">
-        <h3 class="text-2xl font-semibold text-gray-800">Change Password</h3>
-        
-        <form method="post">
-            {% csrf_token %}
             
-            <!-- Current Password Field -->
-            <div class='pb-5'>
-                <label for="id_current_password" class="text-lg font-medium text-gray-700">Current Password:</label>
-                <input type="password" name="current_password" id="id_current_password" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" required placeholder="Enter your current password">
-            </div>
-
-            <!-- New Password Field -->
-            <div class='pb-5'>
-                <label for="id_new_password" class="text-lg font-medium text-gray-700">New Password:</label>
-                <input type="password" name="new_password" id="id_new_password" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" required placeholder="Enter your new password">
-            </div>
-
-            <!-- Confirm New Password Field -->
-            <div class='pb-5'>
-                <label for="id_confirm_new_password" class="text-lg font-medium text-gray-700">Confirm New Password:</label>
-                <input type="password" name="confirm_new_password" id="id_confirm_new_password" class="w-full border border-gray-300 rounded-lg p-4 text-sm text-gray-700 focus:ring-2 focus:ring-blue-600 focus:outline-none" required placeholder="Confirm your new password">
-            </div>
-
-            <!-- Submit Button -->
-            <div class="mt-8 text-center">
-                <button type="submit" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition duration-300">
-                    Change Password
-                </button>
-            </div>
-        </form>
-    </div>
+            <!-- Request Password Reset Button -->
+            <a href="{% url 'password-reset' %}" class="bg-red-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105">
+                Request Password Reset
+            </a>
+        </div>
+        
+    </form> 
 </div>
 {% endblock %}
