@@ -1,35 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 
+    {% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Market Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{% static 'images/TrendSight_logo.png' %}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <title>Navbar with Logo and Name</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .navbar {
+            background-color: black;
+            color: white;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            width: 100%; /* Make sure it spans the full width */
+            z-index: 1000; /* Ensure it stays on top of other content */
+        }
+
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo img {
+            height: 30px;
+            width: 30px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .navbar .logo span {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .navbar .menu {
+            margin-left: auto;
+            padding: 20px;
+            display: flex; /* Ensure the items are laid out in a row */
+            gap: 20px; /* Add a gap between the links */
+        }
+        
+        .navbar .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .navbar .menu a:hover {
+            color: #f4f4f9;
+        }
+        
+
+        .stock {
+            background-color: #151e28;
+            height: 220px;
+            padding-top: 3px;
+            display: flex;
+            justify-content: space-between; /* Align content to the left and rectangles to the right */
+            align-items: center; /* Vertically center the content */
+            padding-right: 20px;
+        }
+        
+
+        .stock h2 {
+            font-size: 30px;
+            font-weight: bold;
+            color: white
+        }
+
+        .stock p {
+            font-size: 20px;
+            margin-top: 10px;
+            color: white;
+        }
+        .quote {
+            font-size: 18px;
+            margin-top: 15px;
+            font-style: italic;
+            color: #d1d1d1;
+        }
+
+        .rectangles {
+            display: flex;
+            gap: 10px;
+            margin-right: 40px;
+            margin-bottom:20px;
+            justify-content: center; /* Center the rectangles vertically */
+            align-items: flex-end; /* Align the rectangles to the right */
+        }
+        
+        .rectangle {
+            width: 140px;
+            height: 30px;
+            background-color: #f4f4f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Features Section */
+        /* Features Section */
+        #features {
+            background-color: #f9f9f9; /* Light background color */
+            padding: 60px 0; /* Add padding around the section */
+            width: 100%; /* Ensure the container takes full width */
+            text-align: center; /* Center align the content */
+            display:center;
+            margin-left:90px;
+        }
+        
+        /* Use Flexbox to align the cards side by side */
+        .row {
+            display: flex;
+            justify-content: space-between; /* Distribute the cards evenly */
+            gap: 20px; /* Add some space between the cards */
+        }
+        
+        /* Card styling */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            flex: 1 1 30%; /* Ensure cards take 30% of the row width */
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column; /* Align content vertically */
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Slightly larger shadow on hover */
+            transform: translateY(-5px); /* Lift the card a little */
+        }
+        
+        .card-img-top {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            height: 100px; /* Adjust the height as needed */
+            object-fit: cover; /* Ensure the image covers the area without distortion */
+        }
+        
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Ensure equal spacing for text */
+            height: 100%;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .card-text {
+            font-size: 16px;
+            
+            line-height: 1.5;
+        }
+        
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            /* For medium screens */
+            .card {
+                flex: 1 1 45%; /* Adjust cards to take 45% of width */
+            }
+        
+            .card-img-top {
+                height: 180px; /* Adjust image height for mobile */
+            }
+        }
+        
+        @media (max-width: 576px) {
+            /* For small screens */
+            .card {
+                flex: 1 1 100%; /* Cards take full width */
+            }
+        
+            .card-body {
+                padding: 15px; /* Reduce padding for small screens */
+            }
+        
+            .card-title {
+                font-size: 18px; /* Reduce card title font size */
+            }
+        
+            .card-text {
+                font-size: 14px; /* Reduce text size for small screens */
+            }
+        }
+
+
+        
+        
+          
     </style>
-
 </head>
 
 <body>
-    
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="logo">
+        <img src="https://via.placeholder.com/50" alt="Logo">
+        <span>Stock Guard</span>
+    </div>
+    <div class="menu">
+        <a href="#">Home</a>
+        <a href="#">Blogs</a>
+        <a href="#">About</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Sign Up</a>
+    </div>
+</div>
+
+    {% comment %} <!-- Video Background -->
+    <video class="video-background" autoplay loop muted>
+        <source src="image/video/body.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video> {% endcomment %}
+
+
+   <!-- Stock Section -->
+   <div class="stock">
+    <div class="content">
+        <h2>Stock Guard</h2>
+        <p>StockGuard is a new and efficient way to use market data with ease.</p>
+        <div class="quote" id="random-quote"></div>
+    </div>
+    <div class="rectangles">
+        <div class="rectangle flex items-center justify-center">Nifty</div>
+        <div class="rectangle flex items-center justify-center">Sensex</div>
+    </div>
+</div>
+
+  <!-- Features Section -->
+  <section id="features" class="py-5">
+    <h2 class="text-4xl font-bold text-left mb-10">Why StockGuard?</h2>
+
     <div class="container">
-        <div class="intro">
-            <div class="stock"> </div>
+      <div class="row">
+        <!-- Feature Card 1 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <img src="{% static 'images/image1.jpg' %}" class="card-img-top" alt="Feature 1 Image">
+            <div class="card-body">
+              <h5 class="card-title text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Effortless Stock Analysis</h5>
+              <p class="card-text">Search for stocks, choose analysis periods, and gain insights through clear visualizations of trends and technical indicators - all within a user-friendly interface.</p>
+            </div>
+          </div>
         </div>
 
-        <div class="features"> </div>
+        <!-- Feature Card 2 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <img src="{% static 'images/image2.jpg' %}" class="card-img-top" alt="Feature 2 Image">
+            <div class="card-body">
+              <h5 class="card-title text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Data-Driven Decisions</h5>
+              <p class="card-text">Leverage TrendSight's calculations of technical indicators like EMAs and potentially RSI to understand market behavior and make informed investment choices</p>
+            </div>
+          </div>
+        </div>
 
-        <div class="reviews"></div>
-        <div class="About"></div>
-        
-
+        <!-- Feature Card 3 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <img src="{% static 'images/image3.jpg' %}" class="card-img-top" alt="Feature 3 Image">
+            <div class="card-body">
+              <h5 class="card-title text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Customizable Alerts</h5>
+              <p class="card-text">Set personalized alerts based on user-defined criteria, empowering users to stay informed about significant market developments and potential investment opportunities.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
+
+
+  <div class="start w-[60%] h-[250px] bg-[#1f2937] mx-auto flex flex-col items-center justify-center rounded-3xl mt-15 p-6">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold mb-4 text-white">Track Your Stock with Benefits:</h1>
+        <ul class="list-disc list-inside text-left text-white text-lg">
+            <li><i class="fas fa-briefcase mr-2"></i><strong>Portfolio:</strong> Easily manage and analyze your stock investments.</li>
+            <li><i class="fas fa-bell mr-2"></i><strong>Alerts:</strong> Get real-time notifications for stock movements.</li>
+            <li><i class="fas fa-chart-line mr-2"></i><strong>Charts:</strong> Visualize data with detailed stock performance charts.</li>
+        </ul>
+        <button class="mt-6 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">Get Started</button>
+    </div>
+</div>
+
+
+<!-- Newsletter Signup Section -->
+<section class="newsletter-signup py-10 bg-gray-100 mt-10 mb-10">
+    <div class="container mx-auto text-center">
+      <h2 class="text-3xl font-semibold mb-4">Special Newsletter Signup</h2>
+      <p class="mb-6">Get to know about our future templates</p>
+      <form action="#" method="POST" class="flex justify-center">
+        <input type="email" name="email" placeholder="Enter your email" class="p-2 rounded-l-md border border-gray-300" required>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded-r-md">Signup</button>
+      </form>
+    </div>
+  </section>
+  
+  <!-- Footer Section -->
+  <footer class="footer bg-gray-800 text-white py-8">
+    <div class="container mx-auto text-center">
+      <div class="mb-4">
+        <img src="path/to/logo.png" alt="Logo" class="mx-auto mb-2">
+        <p>2 Lord Edward St, D02 P634, United States</p>
+      </div>
+      <div class="social-links mb-4">
+        <a href="#" class="text-white mx-2">Facebook</a>
+        <a href="#" class="text-white mx-2">Twitter</a>
+        <a href="#" class="text-white mx-2">Instagram</a>
+      </div>
+      <div class="footer-links">
+        <a href="#" class="text-white mx-2">Resources</a>
+        <a href="#" class="text-white mx-2">About Us</a>
+        <a href="#" class="text-white mx-2">FAQ</a>
+        <a href="#" class="text-white mx-2">Contact Us</a>
+        <a href="#" class="text-white mx-2">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+  
+
+
+  <script>
+    // Array of stock-related quotes
+    const quotes = [
+        "“An investment in knowledge pays the best interest.” – Benjamin Franklin",
+        "“The stock market is filled with individuals who know the price of everything, but the value of nothing.” – Philip Fisher",
+        "“Investing should be more like watching paint dry or watching grass grow. If you want excitement, take $800 and go to Las Vegas.” – Paul Samuelson",
+        "“Do not be embarrassed by your failures, learn from them and start again.” – Richard Branson",
+        "“Know what you own, and know why you own it.” – Peter Lynch",
+        "“In investing, what is comfortable is rarely profitable.” – Robert Arnott"
+    ];
+
+    // Get a random quote
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+    // Display the quote in the div
+    const quoteElement = document.getElementById('random-quote');
+    quoteElement.textContent = randomQuote;
+
+    // Apply golden color to the quote text
+    quoteElement.style.color = '#FFD700';  // Golden color
+</script>
+
+
 </body>
+
 </html>
