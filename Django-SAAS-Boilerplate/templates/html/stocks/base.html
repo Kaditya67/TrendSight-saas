@@ -5,6 +5,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    
     <!-- Include CSRF token -->
     <script>
         // Set CSRF token for AJAX requests
@@ -44,7 +46,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
-    <link rel="stylesheet" href="{% static 'stocks/styles.css' %}">
+    
+    {% comment %} <link rel="stylesheet" href="{% static 'stocks/styles.css' %}"> {% endcomment %}
     <script src="https://kit.fontawesome.com/d26dd432c1.js" crossorigin="anonymous"></script>
     <style>
       #toggleButton {
@@ -310,7 +313,7 @@
             </a>
           </li> {% endcomment %}
 
-          <!-- Portfolio -->
+          {% comment %} <!-- Portfolio -->
           <li
             class="nav-item {% if current_path == 'portfolio' %}active{% endif %}"
           >
@@ -318,7 +321,7 @@
               <i class="fas fa-briefcase"></i>
               <span class="nav-text">Portfolio</span>
             </a>
-          </li>
+          </li> {% endcomment %}
 
           <!-- Settings -->
           <li
@@ -500,6 +503,7 @@
         // Call the function to display the welcome box
         window.onload = displayWelcomeBox;
     </script>
+    
     <script>
       function confirmLogout() {
           if (confirm("Are you sure you want to logout?")) {

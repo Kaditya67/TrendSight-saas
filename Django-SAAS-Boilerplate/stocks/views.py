@@ -29,7 +29,7 @@ def sectors(request):
     return render(request, 'stocks/sectors.html')
 
 def stocks(request):
-    return render(request, 'stocks/sotcks.html')
+    return render(request, 'stocks/stocks.html')
 
 def main_alerts(request):
     return render(request, 'stocks/main_alerts.html')
@@ -48,3 +48,6 @@ def watchlist(request):
 
 def about(request):
     return render(request, 'stocks/about.html')
+
+def main_page(request):
+    return render(request,'stocks/main_page.html')
