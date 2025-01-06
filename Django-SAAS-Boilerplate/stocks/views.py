@@ -28,8 +28,8 @@ def graph_partial(request):
 def sectors(request):
     return render(request, 'stocks/sectors.html')
 
-def stocks(request):
-    return render(request, 'stocks/stocks.html')
+def stock(request):
+    return render(request, 'stocks/stock.html')
 
 def main_alerts(request):
     return render(request, 'stocks/main_alerts.html')
@@ -51,3 +51,8 @@ def about(request):
 
 def main_page(request):
     return render(request,'stocks/main_page.html')
+
+def sidebar(request):
+    return render(request,'stocks/sidebar.html')
+def navbarr(request):
+    return render(request,'stocks/navbar    r.html')

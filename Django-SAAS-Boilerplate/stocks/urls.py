@@ -2,7 +2,7 @@ from django.urls import path
 from django.shortcuts import resolve_url
 from . import views
 
-urlpatterns = [
+urlpatterns = [                                                                                         
     # path('',views.index,name="index"),
     # # path('import_data/', views.import_data, name='import_sector_data'),
     path('login/',views.user_login,name="user_login"),
@@ -16,8 +16,11 @@ urlpatterns = [
     path('forgotpassword/',views.forget_password,name="forgetpassword"),
     # path('send_watchlist_email/',views.send_watchlist_email, name='send_watchlist_email'),
     # # path('home/',views.home,name="home"),
-    path('stocks', views.stocks, name='stocks'),
-    path('',views.main_page,name='main_page'),
+    path('stock', views.stock, name='stock'),
+    path('main_page',views.main_page,name='main_page'),
+    path('sidebar',views.sidebar,name='sidebar'),
+    path('navbarr',views.navbarr,name='navbarr'),
+
     path('sectors/', views.sectors, name='sectors'),
     # path('add_portfolio/', views.add_portfolio, name='add_portfolio'),
     # path('close_position/', views.close_position, name='close_position'),
@@ -31,7 +34,7 @@ urlpatterns = [
 
     path('graph/<str:type>/<str:symbol>/<int:ema_value>/', views.graph_partial, name='graph'),
     # path('symbols/', views.symbols_and_ema_counts, name='symbols_and_closing_prices'),
-    path('dashboard_new/', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
+    path('', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
     # path('dashboard/<int:ema>/', views.dashboard, name='dashboard_with_ema'),
     # # path('home_template/', views.home_temp, name='home_template'),
     # path('stock_template/', views.stock_temp, name='stock_template'),
