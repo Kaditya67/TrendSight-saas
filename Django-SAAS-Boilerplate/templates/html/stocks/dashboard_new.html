@@ -3,16 +3,15 @@
 
 {% block content %} 
 
-<body class="font-sans bg-gray-100">
+<body class="font-sans bg-gray-100 top-16">
     <div class="container mx-auto my-4">
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-4xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+            <h1 class="text-4xl bg-clip-text text-transparent bg-[#151e28]  mt-16 mb-6">
                 Stock Market Dashboard
-            </h1>
-            <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Logout</a>
+            </h1>            
+        
         </div>
-
         <!-- EMA Trend Analysis -->
         <div class="row mb-4">
             <h5 class="mb-4 text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 text-center">
@@ -41,13 +40,13 @@
         </div>
 
         <!-- Broader Market Trend Table -->
-        <div class="card mb-6 mt-20 shadow-lg rounded-lg">
-            <div class="card-body p-6">
+        <div class="card mb-6 mt-20 shadow-2xl rounded-lg ">
+            <div class="card-body p-6 bg-white">
                 <h5 class="text-2xl font-semibold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
                     Broader Market Trends - Daily
                 </h5>
                 <div class="mb-4">
-                    <input type="search" id="search-bar" class="form-control mb-4 p-2 border rounded" placeholder="Search..." aria-label="Search">
+                    <input type="search" id="search-bar" class="w-full form-control mb-4 p-2 border rounded" placeholder="Search..." aria-label="Search">
                 </div>
                 <table id="broaderMarketTable" class="min-w-full border-collapse text-sm text-gray-700">
                     <thead>
@@ -89,7 +88,7 @@
         </div>
 
         <!-- Sectoral Indices Table -->
-        <div class="card mb-4 mt-24 shadow-lg rounded-lg">
+        <div class="card mb-6 mt-24 shadow-2xl rounded-lg bg-white">
             <div class="card-body p-6">
                 <h5 class="card-title text-2xl font-semibold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
                     Sectoral Indices - Daily
@@ -160,7 +159,7 @@
             
         </div>
                 <!-- Sectoral Indices Bar Graph -->
-        <div class="card mb-4 w-full">
+        <div class="card mb-4 w-full bg-white">
             <div class="card-body p-6">
                 <h5 class="text-xl font-semibold text-gray-800 mb-4">Sectoral EMA Performance</h5>
                 <div class="relative">
