@@ -1,14 +1,9 @@
-# Import yfinance library
 import yfinance as yf
 
-# Define stock symbol and date range
-stock = {'symbol': '^CNXAUTO'}  # Example stock symbol
-start_date = '2023-01-01'
-end_date = '2023-12-31'
+# Example ticker
+ticker = yf.Ticker("AAPL")  # Apple Inc.
 
-# Download stock data
-df_new = yf.download(stock['symbol'], start=start_date, end=end_date)
-
-# Display the downloaded data
-print(df_new)
-print(stock['symbol'])
+# Fetch company info
+info = ticker.info
+print(info.get("sector"))  # Prints the sector (e.g., 'Technology')
+print(info.get("industry"))  # Prints the industry (e.g., 'Consumer Electronics')

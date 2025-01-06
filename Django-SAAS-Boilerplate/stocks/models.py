@@ -104,12 +104,13 @@ class ComputedStockData(models.Model):
 # Aggregated sector data (e.g., averages for a given sector)
 class SectorFinancialData(models.Model):
     # One-to-One relationship with the Sector model
-    sector = models.OneToOneField(Sector, on_delete=models.CASCADE, primary_key=True, related_name="financial_data")  # One-to-one with Sector
-    avg_high = models.FloatField()  # Average high price for the sector
-    avg_low = models.FloatField()  # Average low price for the sector
-    avg_close = models.FloatField()  # Average close price for the sector
-    avg_open = models.FloatField()  # Average open price for the sector
-    total_volume = models.IntegerField()  # Total trading volume for the sector
+    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name="financial_data_sector",null=True, blank=True)  # One-to-one with Sector
+    date = models.DateField(null=True,blank=True)
+    high = models.FloatField()  # Average high price for the sector
+    low = models.FloatField()  # Average low price for the sector
+    close = models.FloatField()  # Average close price for the sector
+    open = models.FloatField()  # Average open price for the sector
+    volume = models.IntegerField()  # Total trading volume for the sector
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when this data was last updated
 
     def __str__(self):

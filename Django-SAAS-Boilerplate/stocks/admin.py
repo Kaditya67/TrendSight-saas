@@ -50,7 +50,7 @@ class SectorAdmin(ModelAdmin,ImportExportModelAdmin):
     search_fields = ('name',)
 
 class SectorFinancialDataAdmin(ModelAdmin):
-    list_display = ('sector', 'avg_high', 'avg_low', 'avg_close', 'avg_open', 'total_volume', 'last_updated')
+    list_display = ('sector', 'high', 'low', 'close', 'open', 'volume', 'last_updated')
     list_filter = ('last_updated',)
     search_fields = ('sector__name',)
 

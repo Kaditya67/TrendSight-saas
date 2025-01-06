@@ -514,30 +514,29 @@ def update_stock_indicators(request):
     }
     return render(request, 'stocks/stockData/update_stock_indicators.html', context)
 
-
 def fetch_sectors(request):
     # Override pandas datareader with yfinance
     yf.pdr_override()
     
-    # Fetch all stock symbols and ids from the database
+    # Fetch all sector symbols and ids from the database
     sectors = Sector.objects.all()
-    fetched_data = []  # To store the fetched stock data
-    need_update = []   # List to store stocks needing update
-    upto_date = []     # List to store up-to-date stocks
+    fetched_data = []  # To store the fetched sector data
+    need_update = []   # List to store sectors needing update
+    upto_date = []     # List to store up-to-date sectors
 
-    # Helper function to categorize stocks
+    # Helper function to categorize sectors
     def categorize_sectors():
         nonlocal need_update, upto_date
         need_update = []
         upto_date = []
         for sector in sectors:
             try:
-                # Fetch the last record of stock data
+                # Fetch the last record of sector data
                 last_record = SectorFinancialData.objects.filter(sector=sector).last()
                 if last_record and last_record.date == datetime.now().date():
-                    upto_date.append(sector)  # Stock is up-to-date
+                    upto_date.append(sector)  # Sector is up-to-date
                 else:
-                    need_update.append(sector)  # Stock needs update
+                    need_update.append(sector)  # Sector needs update
             except Exception as e:
                 print(f"Error processing sector {sector.symbol}: {e}")
                 need_update.append(sector)  # Default to needing update
@@ -546,11 +545,11 @@ def fetch_sectors(request):
     categorize_sectors()
 
     if request.method == 'POST':
-        selected_sector_ids = request.POST.getlist('sector')  # Get list of selected stock IDs
-        print(f"Selected Stock IDs: {selected_sector_ids}")
+        selected_sector_ids = request.POST.getlist('sector')  # Get list of selected sector IDs
+        print(f"Selected Sector IDs: {selected_sector_ids}")
         
         if selected_sector_ids:
-            # Fetch selected stocks from the database
+            # Fetch selected sectors from the database
             selected_sectors = Sector.objects.filter(id__in=selected_sector_ids).values('symbol', 'id')
             print(f"Selected Sectors: {selected_sectors}")
             
@@ -561,23 +560,24 @@ def fetch_sectors(request):
                 print(f"Fetching data for {sector['symbol']} (ID: {sector['id']})")
 
                 try:
-                    # First, delete existing records for the selected stock symbol
+                    # First, delete existing records for the selected sector symbol
                     SectorFinancialData.objects.filter(sector__symbol=sector['symbol']).delete()
 
-                    # Download new stock data
+                    # Download new sector data
                     df_new = yf.download(sector['symbol'], start=start_date, end=end_date)
         
                     if df_new.empty:
                         print(f"No data found for {sector['symbol']}")
                         continue
 
-                    print(f"Fetched data for {sector['symbol']}: {df_new}")
+                    print(f"Fetched data for {sector['symbol']}: ")
+                    print(df_new)
 
-                    # Prepare a list for bulk creation of stock data
+                    # Prepare a list for bulk creation of sector data
                     sector_data_to_create = []
                     for idx, row in df_new.iterrows():
                         sector_data_to_create.append(
-                            FinancialStockData(
+                            SectorFinancialData(
                                 sector_id=sector['id'],
                                 date=row.name.date(),
                                 open=row['Open'],
@@ -606,16 +606,16 @@ def fetch_sectors(request):
                 except Exception as error:
                     print(f"Error fetching data for {sector['symbol']}: {error}")
 
-            # Re-categorize stocks after processing the POST request
+            # Re-categorize sectors after processing the POST request
             categorize_sectors()
 
         else:
-            print("No stocks were selected.")
+            print("No sectors were selected.")
 
     context = {
         'sectors': sectors,
         'fetched_data': fetched_data,  # Pass the fetched data to the template
-        'need_update': need_update,    # Pass the list of stocks needing update
-        'upto_date': upto_date,       # Pass the list of up-to-date stocks
+        'need_update': need_update,    # Pass the list of sectors needing update
+        'upto_date': upto_date,       # Pass the list of up-to-date sectors
     }
     return render(request, 'stocks/sectorData/fetch_sectors.html', context)
