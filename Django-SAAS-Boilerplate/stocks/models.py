@@ -61,6 +61,16 @@ class PrevVolumes(models.Model):
     def __str__(self):
         return f"Prev Volumes for {self.stock.symbol}"
 
+class PrevVolumesSector(models.Model):
+    # One-to-One relationship with the Stock model
+    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name="prev_volumes_sector", null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    volume20 = models.CharField(max_length=255,blank=True,null=True) 
+    volume50 = models.CharField(max_length=255,blank=True,null=True)  
+
+    def __str__(self):
+        return f"Prev Volumes Sector for {self.sector.symbol}"
+
 # Calculate computed metrics for each stock independently
 class ComputedStockData(models.Model):
     # One-to-One relationship with the Stock model

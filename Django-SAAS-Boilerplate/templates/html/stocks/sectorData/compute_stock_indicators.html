@@ -1,0 +1,105 @@
+{% extends 'stocks/stockData/base.html' %}
+
+{% block title %}Compute Stock Indicators{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto mt-10 p-6 bg-gray-50 shadow-lg rounded-lg">
+        <h1 class="text-2xl font-bold text-center mb-8">Compute Stock Indicators</h1>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <div class="flex justify-between items-center mb-4 pr-10">
+                    <h3 class="text-lg font-semibold">Select Stocks to Compute Indicators</h3>
+                    <label class="flex items-center space-x-3">
+                        <input 
+                            type="checkbox" 
+                            id="select-all" 
+                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        >
+                        <span class="font-bold text-xl text-blue-700">Select All</span>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {% for stock in stocks %}
+                        <label class="flex items-center space-x-3">
+                            <input 
+                                type="checkbox" 
+                                name="stocks" 
+                                value="{{ stock.id }}" 
+                                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 stock-checkbox"
+                            >
+                            <span class="text-gray-800">{{ stock.symbol }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button 
+                    type="submit" 
+                    class="px-6 py-2 text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition"
+                >
+                    Compute Indicators
+                </button>
+            </div>
+        </form>
+
+        {% if computed_data %}
+            <h3 class="text-xl font-bold mt-10 mb-4">Computed Stock Indicators</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border-collapse border border-gray-200 text-left bg-white shadow-md">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-2 border border-gray-200">Stock Symbol</th>
+                            <th class="px-4 py-2 border border-gray-200">Date</th>
+                            <th class="px-4 py-2 border border-gray-200">RSI</th>
+                            <th class="px-4 py-2 border border-gray-200">EMA10</th>
+                            <th class="px-4 py-2 border border-gray-200">EMA20</th>
+                            <th class="px-4 py-2 border border-gray-200">EMA30</th>
+                            <th class="px-4 py-2 border border-gray-200">Volume20</th>
+                            <th class="px-4 py-2 border border-gray-200">Volume50</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in computed_data %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-2 border border-gray-200">{{ data.symbol }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.date }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.rsi }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.ema10 }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.ema20 }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.ema30 }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.volume20 }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ data.volume50 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="mt-10 text-center text-gray-600">
+                <p>No indicators computed yet.</p>
+            </div>
+        {% endif %}
+        {% if no_data %}
+        <h2 class="text-xl text-red-700 font-bold mb-4">No Data Available</h2>
+        <div class="space-y-2">
+            {% for stock in no_data %}
+                <div>
+                    <p class="text-gray-800">{{ stock }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    </div>
+
+    <script>
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.stock-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+    </script>
+{% endblock %}
