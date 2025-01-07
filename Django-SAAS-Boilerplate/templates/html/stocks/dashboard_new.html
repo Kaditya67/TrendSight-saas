@@ -1,0 +1,311 @@
+{% extends "stocks/base.html" %} 
+{% block title %} Stocks {% endblock %}
+
+{% block content %} 
+
+<body class="font-sans bg-gray-100 top-16">
+    <div class="container mx-auto my-4">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-4xl bg-clip-text text-transparent bg-[#151e28]  mt-16 mb-6">
+                Stock Market Dashboard
+            </h1>            
+        
+        </div>
+        <!-- EMA Trend Analysis -->
+        <div class="row mb-4">
+            <h5 class="mb-4 text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 text-center">
+                Nifty 50 Trends
+            </h5>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="card bg-white shadow-lg hover:scale-105 transition-all">
+                    <div class="text-center p-4">
+                        <h5 class="text-lg font-semibold text-gray-800 hover:text-green-500">Short-Term Trend (10 EMA)</h5>
+                        <p class="text-gray-600 hover:text-blue-500">Above (Days: +3)</p>
+                    </div>
+                </div>
+                <div class="card bg-white shadow-lg hover:scale-105 transition-all">
+                    <div class="text-center p-4">
+                        <h5 class="text-lg font-semibold text-gray-800 hover:text-green-500">Medium-Term Trend (20 EMA)</h5>
+                        <p class="text-gray-600 hover:text-blue-500">Below (Days: -2)</p>
+                    </div>
+                </div>
+                <div class="card bg-white shadow-lg hover:scale-105 transition-all">
+                    <div class="text-center p-4">
+                        <h5 class="text-lg font-semibold text-gray-800 hover:text-green-500">Long-Term Trend (30 EMA)</h5>
+                        <p class="text-gray-600 hover:text-blue-500">Above (Days: +5)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Broader Market Trend Table -->
+        <div class="card mb-6 mt-20 shadow-2xl rounded-lg ">
+            <div class="card-body p-6 bg-white">
+                <h5 class="text-2xl font-semibold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+                    Broader Market Trends - Daily
+                </h5>
+                <div class="mb-4">
+                    <input type="search" id="search-bar" class="w-full form-control mb-4 p-2 border rounded" placeholder="Search..." aria-label="Search">
+                </div>
+                <table id="broaderMarketTable" class="min-w-full border-collapse text-sm text-gray-700">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                            <th class="py-3 px-6 font-medium text-left">Index</th>
+                            <th class="py-3 px-6 font-medium text-left">10 EMA</th>
+                            <th class="py-3 px-6 font-medium text-left">20 EMA</th>
+                            <th class="py-3 px-6 font-medium text-left">30 EMA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                            <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty 50</td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+3 <span class="text-green-600">&#8593;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 negative font-bold hover:text-red-800">-2 <span class="text-red-600">&#8595;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+5 <span class="text-green-600">&#8593;</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                            <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty 500</td>
+                            <td class="py-3 px-6 border-b border-gray-300 negative font-bold hover:text-red-800">-1 <span class="text-red-600">&#8595;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+2 <span class="text-green-600">&#8593;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+4 <span class="text-green-600">&#8593;</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                            <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty Small Cap</td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 negative font-bold hover:text-red-800">-3 <span class="text-red-600">&#8595;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+7 <span class="text-green-600">&#8593;</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                            <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty Mid Cap</td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 negative font-bold hover:text-red-800">-3 <span class="text-red-600">&#8595;</span></td>
+                            <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+7 <span class="text-green-600">&#8593;</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sectoral Indices Table -->
+        <div class="card mb-6 mt-24 shadow-2xl rounded-lg bg-white">
+            <div class="card-body p-6">
+                <h5 class="card-title text-2xl font-semibold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+                    Sectoral Indices - Daily
+                </h5>
+                <div class="mb-4">
+                    <input type="search" id="search-bar" class="form-control mb-4 p-2 border rounded" placeholder="Search..." aria-label="Search">
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="sectoralMarketTable" class="table-auto w-full text-center border-collapse text-sm text-gray-700">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                                <th class="py-3 px-6 font-medium text-left">Sector</th>
+                                <th class="py-3 px-6 font-medium text-left">10 EMA</th>
+                                <th class="py-3 px-6 font-medium text-left">20 EMA</th>
+                                <th class="py-3 px-6 font-medium text-left">30 EMA</th>
+                                <th class="py-3 px-6 font-medium text-left">Outperforming?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                                <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty IT</td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+4 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 negative font-bold hover:text-red-800">-2 <span class="text-red-600">&#8595;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 text-green-600 font-semibold">Yes</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                                <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty Pharma</td>
+                                <td class="py-3 px-6 border-b border-gray-300 negative font-bold hover:text-red-800">-3 <span class="text-red-600">&#8595;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+2 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+5 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 text-red-600 font-semibold">No</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                                <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty Auto</td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+5 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+7 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 text-green-600 font-semibold">Yes</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                                <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty Banks</td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+5 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+7 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 text-green-600 font-semibold">Yes</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                                <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty FMCG</td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+5 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+7 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 text-green-600 font-semibold">Yes</td>
+                            </tr>
+                            </tr>
+                            <tr class="hover:bg-gray-100 hover:scale-105 transition-all duration-300">
+                                <td class="py-3 px-6 border-b border-gray-300 font-medium">Nifty Oil&Gas</td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+6 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+5 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 positive font-bold hover:text-green-800">+7 <span class="text-green-600">&#8593;</span></td>
+                                <td class="py-3 px-6 border-b border-gray-300 text-green-600 font-semibold">Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+            
+        </div>
+                <!-- Sectoral Indices Bar Graph -->
+        <div class="card mb-4 w-full bg-white">
+            <div class="card-body p-6">
+                <h5 class="text-xl font-semibold text-gray-800 mb-4">Sectoral EMA Performance</h5>
+                <div class="relative">
+                    <canvas id="sectorBarChart" class="w-full h-96"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+        
+
+            
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var table = $('#broaderMarketTable').DataTable({
+                paging: false,        // Disable pagination
+                ordering: true,       // Enable sorting
+                info: false ,
+                dom: 'lrtip'            
+            });
+    
+            // Connect the search bar to the DataTable search
+            $('#search-bar').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+    
+    <script>
+        $(document).ready(function () {
+    
+            // Attach the search input to the DataTable search
+            $('#search-bar').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+    <script>
+        // Data for the bar chart
+        const sectorLabels = [
+            "Banks", "Auto", "Commodities", "Consumption", 
+            "Energy", "Finance", "FMCG", 
+            "IT", "Media", "Metal", "Pharma", "PSE", "Realty", "Services", "CPSE", "Infra", "Private Bank", "Public Bank", "PSU Bank"
+        ];
+        const performanceCounts = [2,-4,5,6,23,-5,-30,6,3,4,5,-5,3,-7,32,10,22,32,-21]; // Replace with actual sector performance values
+    
+        const ctx = document.getElementById('sectorBarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sectorLabels,
+                datasets: [
+                    {
+                        label: 'EMA Performance',
+                        data: performanceCounts,
+                        backgroundColor: performanceCounts.map(value => value >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)'), // Green for positive, Red for negative
+                        borderColor: performanceCounts.map(value => value >= 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'), // Green for positive, Red for negative
+                        borderWidth: 1,
+                        hoverBackgroundColor: performanceCounts.map(value => value >= 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'),
+                        hoverBorderColor: performanceCounts.map(value => value >= 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'),
+                        hoverBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#ccc',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Sectors',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Arial, sans-serif'
+                            },
+                            color: '#333'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Arial, sans-serif'
+                            },
+                            color: '#555'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Performance Count',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Arial, sans-serif'
+                            },
+                            color: '#333'
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            font: {
+                                size: 12,
+                                family: 'Arial, sans-serif'
+                            },
+                            color: '#555'
+                        },
+                        grid: {
+                            borderColor: '#ccc',
+                            borderWidth: 1,
+                            tickColor: '#ccc'
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 20,
+                        bottom: 20,
+                        left: 20,
+                        right: 20
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>
+
+{%endblock%} 

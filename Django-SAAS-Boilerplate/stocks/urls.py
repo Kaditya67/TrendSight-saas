@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('profile/', views.profile, name='profile'),
 
-    path('',views.index,name="home"),
+    path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
     # path('logout/',views.user_logout,name="user_logout"),
     # # path('import_data/', views.import_data, name='import_sector_data'),
@@ -24,12 +24,12 @@ urlpatterns = [
     # path('alerts/', views.alerts, name='alerts'),
     # path('send_watchlist_email/',views.send_watchlist_email, name='send_watchlist_email'),
     # # path('home/',views.home,name="home"),
-    path('stocks/', views.stocks, name='stocks'),
+    # path('stocks/', views.stocks, name='stocks'),
     path('sectors/', views.sectors, name='sectors'),
     # path('add_portfolio/', views.add_portfolio, name='add_portfolio'),
     # path('close_position/', views.close_position, name='close_position'),
     # path('closed-positions/', views.closed_positions, name='closed_positions'),
-    path('dashboard/', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
+    path('dashboard_new/', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
     path('graph/<str:type>/<str:symbol>/<int:ema_value>/', views.graph_partial, name='graph'),
     path('portfolio/', views.portfolio, name='portfolio'),
     path('watchlist/', views.watchlist, name='watchlist'),
@@ -37,6 +37,11 @@ urlpatterns = [
     path('help/', views.help, name='help'),
     path('about/', views.about, name='about'),
     path('main_alerts/', views.main_alerts, name='main_alerts'),
+    path('stock/', views.stock, name='stock'),
+    path('',views.main_page,name='main_page'),
+    path('sidebar',views.sidebar,name='sidebar'),
+    path('navbarr',views.navbarr,name='navbarr'),
+
     
     # path('log/', views.log, name='log'),
 

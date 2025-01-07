@@ -1,80 +1,79 @@
-{% extends "base.html" %}
+{% extends "stocks/base.html" %}
 {% block title %} Settings {% endblock %}
 {% block content %}
-<p class="h1 text-center">Settings</p>
 
-<div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h4>User Profile</h4>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <div class="form-group">
-                                <label for="username">Username</label>
-                                <input type="text" class="form-control" id="username" placeholder="Enter username">
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email address</label>
-                                <input type="email" class="form-control" id="email" placeholder="Enter email">
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="Password">
-                                <label for="password">Confirm Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="Password">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-6">
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h4>Email Alerts Settings</h4>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" id="marketUpdates">
-                                <label class="form-check-label" for="marketUpdates">Market Updates</label>
-                            </div>
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" id="newFeatures">
-                                <label class="form-check-label" for="newFeatures">Information on New Features</label>
-                            </div>
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" id="personalizedOffers">
-                                <label class="form-check-label" for="personalizedOffers">Personalized Offers</label>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </form>
-                    </div>
-                </div>
+<div class="container mt-12">
+    <p class="text-3xl text-center font-semibold mt-[6rem]">Settings</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 ml-[8rem]">
+        <!-- User Profile Section -->
+        <div class="card mt-12 bg-white shadow-lg rounded-lg">
+            <div class="card-header bg-gray-200 p-4 rounded-t-lg">
+                <h4 class="text-xl font-semibold">User Profile</h4>
             </div>
-            <div class="col-md-6">
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h4>Ema Alerts Settings</h4>
+            <div class="card-body p-6">
+                <form>
+                    <div class="form-group mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" class="form-control mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" id="username" placeholder="Enter username">
                     </div>
-                    <form method="GET" action="{% url 'dashboard' %}" style="padding:10px">
-                        <span class="select" style="border:2px solid #0d6efd;background:#0d6efd;color:white;padding:7px;border-radius:8px;">
-                          <label for="selected_ema">Choose : </label>
-                          <select name="ema" id="selected_ema" onchange="this.form.submit()" style="background-color:#0d6efd;border-radius:8px;color:white;">
-                            <option value="20" {% if selected_ema == '20' %}selected{% endif %}>Ema 20</option>
-                            <option value="50" {% if selected_ema == '50' %}selected{% endif %}>Ema 50</option>
-                            <option value="100" {% if selected_ema == '100' %}selected{% endif %}>Ema 100</option>
-                            <option value="200" {% if selected_ema == '200' %}selected{% endif %}>Ema 200</option>
-                          </select>
-                        </span>
-                      </form>
-                </div>
+                    <div class="form-group mb-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                        <input type="email" class="form-control mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" id="email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" class="form-control mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" id="password" placeholder="Password">
+                        <label for="password" class="block text-sm font-medium text-gray-700 mt-4">Confirm Password</label>
+                        <input type="password" class="form-control mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" id="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-primary bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Update Profile</button>
+                </form>
             </div>
         </div>
+
+        <!-- Email Alerts Settings Section -->
+        <div class="card mt-12 bg-white shadow-lg rounded-lg">
+            <div class="card-header bg-gray-200 p-4 rounded-t-lg">
+                <h4 class="text-xl font-semibold">Email Alerts Settings</h4>
+            </div>
+            <div class="card-body p-6">
+                <form>
+                    <div class="form-group form-check mb-4">
+                        <input type="checkbox" class="form-check-input" id="marketUpdates">
+                        <label class="form-check-label text-sm text-gray-700" for="marketUpdates">Market Updates</label>
+                    </div>
+                    <div class="form-group form-check mb-4">
+                        <input type="checkbox" class="form-check-input" id="newFeatures">
+                        <label class="form-check-label text-sm text-gray-700" for="newFeatures">Information on New Features</label>
+                    </div>
+                    <div class="form-group form-check mb-4">
+                        <input type="checkbox" class="form-check-input" id="personalizedOffers">
+                        <label class="form-check-label text-sm text-gray-700" for="personalizedOffers">Personalized Offers</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Save Settings</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- EMA Alerts Settings Section -->
+        <div class="card mt-5 bg-white shadow-lg rounded-lg">
+            <div class="card-header bg-gray-200 p-4 rounded-t-lg">
+                <h4 class="text-xl font-semibold">EMA Alerts Settings</h4>
+            </div>
+            <form method="GET" action="{% url 'dashboard' %}" class="p-6">
+                <span class="select bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    <label for="selected_ema" class="text-sm">Choose:</label>
+                    <select name="ema" id="selected_ema" onchange="this.form.submit()" class="bg-blue-600 text-white px-4 py-2 rounded-md">
+                        <option value="20" {% if selected_ema == '20' %}selected{% endif %}>Ema 20</option>
+                        <option value="50" {% if selected_ema == '50' %}selected{% endif %}>Ema 50</option>
+                        <option value="100" {% if selected_ema == '100' %}selected{% endif %}>Ema 100</option>
+                        <option value="200" {% if selected_ema == '200' %}selected{% endif %}>Ema 200</option>
+                    </select>
+                </span>
+            </form>
+        </div>
     </div>
+</div>
 
 {% endblock %}

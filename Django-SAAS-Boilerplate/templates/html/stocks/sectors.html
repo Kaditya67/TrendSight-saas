@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "stocks/base.html" %}
     {% block title %} Sectors {% endblock %}
 
     {% block content %}
@@ -104,109 +104,6 @@
 
 
   </style>
-
- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create Alerts</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <button type="button" class="btn btn-outline-primary active" id="first">Settings</button>
-                    <button type="button" class="btn btn-outline-primary" id="sec">Notification</button>
-                </div>
-
-                <div class="content-container">
-                    <div id="settingsContent">
-                        <!-- Content for Settings -->
-                        <div class="accordion" id="accordionExample">
-                            <div class="accordion-item">
-                                <h3 class="accordion-header" id="headingOne">
-                                    <button class="Modal-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        Create Alert On
-                                    </button>
-                                </h3>
-                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                  <div class="accordion-body">
-                                      <!-- Wrap the select inside a div with Bootstrap grid classes -->
-                                      <div class="row">
-                                          <div class="col">
-                                            <label for="symbolDropdown"></label>
-                                              <select class="form-select" id="symbolDropdown" name="create_alert">
-                                                  <!-- Loop through symbols and populate dropdown options -->
-                                                  {% for symbol in symbols %}
-                                                      <option class="dropdown-option">{{ symbol }}</option>
-                                                  {% endfor %}
-                                                  {% for symbol in unique_symbols %}
-                                                      <option class="dropdown-option">{{ symbol }}</option>
-                                                  {% endfor %}
-                                              </select>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-
-                            </div>
-                            <div class="accordion-item">
-                                <h3 class="accordion-header" id="headingTwo">
-                                    <button class="Modal-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                        Select Trend
-                                    </button>
-                                </h3>
-                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                                  <div class="accordion-body">
-                                    <label for="trendDropdown"></label>
-                                    <select class="form-select1" name="trend" id="trendDropdown">
-                                        <option value="UP">UP</option>
-                                        <option value="Down">Down</option>
-                                    </select>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                        <br>
-                        <label for="integerInput"><h6>Price :</h6></label>
-                        <input type="number" id="integerInput" name="price" min="0" step="1" placeholder="21782.50">
-                        <br>
-                        <hr>
-                        {% comment %} <h6>Trigger</h6> {% endcomment %}
-                        <br>
-                        <br>
-                        <div id="displayText"></div>
-                        <br>
-                        <div class="input-container">
-                            <h6>Expiration :</h6>
-                            <label for="expirationDate"></label><input type="date" id="expirationDate" name="expirationDate">
-                        </div>
-                        <br>
-                        <hr>
-                        <div class="name-container">
-                            <label for="exampleFormControlInput1" class="form-label" id="name"><br><h6>Alert Name :</h6></label>
-                            <input type="text" class="form-control" id="exampleFormControlInput1" name="name" placeholder="eg: Nifty Alert">
-                        </div>
-                        <div class="message-container">
-                            {% comment %} <label for="exampleFormControlTextarea1" class="form-label"><h6>Message</h6></label> {% endcomment %}
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="message" name="message"></textarea>
-                        </div>
-                    </div>
-
-                    <div id="notificationContent" style="display: none;">
-                        <!-- Content for Notification -->
-                        <h4>Notification Content</h4>
-                        <p>This is the content for Notification.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" id="save">Save changes</button>
-            </div>
-        </div>
-    </div>
-  </div>
-
 
 
   <!-- Bootstrap Bundle with Popper.js and Bootstrap JS -->
@@ -330,8 +227,8 @@
             jQuery(document).ready(function($) {
                 $('.add-to-watchlist').click(function() {
                     var symbol = $(this).data('symbol');
-                    $.ajax({
-                        url: '{% url "fetch_sector_data" %}',
+                    {% comment %} $.ajax({
+                        url: '{% url "fetch_sector_data" %}', {% endcomment %}
                         type: 'POST',
                         headers: {
                             'X-CSRFToken': '{{ csrf_token }}'
@@ -367,7 +264,7 @@
             // Function to trigger email sending process
             function sendWatchlistEmail() {
                 $.ajax({
-                    url: '{% url "send_watchlist_email" %}',
+                    {% comment %} url: '{% url "send_watchlist_email" %}', {% endcomment %}
                     type: 'GET',
                     success: function(data) {
                         alert("Email sent successfully.");

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "stocks/base.html" %}
 {% block title %} Dashboard {% endblock %}
 
 {% block content %}
@@ -88,7 +88,7 @@
             </tbody>
         </table>
 
-        <a href="{% url 'closed_positions' %}" class="text-right">  Closed Positions  </a>
+        {% comment %} <a href="{% url 'closed_positions' %}" class="text-right">  Closed Positions  </a> {% endcomment %}
 
    <!-- Modal for adding a stock -->
    <div class="modal fade" id="addStockModal" tabindex="-1" role="dialog" aria-labelledby="addStockModalLabel" aria-hidden="true">
@@ -102,7 +102,7 @@
         </div>
         <div class="modal-body">
           <!-- Stock addition form -->
-          <form method="post" action="{% url 'add_portfolio' %}">
+          {% comment %} <form method="post" action="{% url 'add_portfolio' %}"> {% endcomment %}
             {% csrf_token %}
                      
             <div class="form-group">
@@ -191,7 +191,7 @@
         
         var $j = jQuery.noConflict();
         $j(document).ready(function() {
-          $j('form[action="{% url 'add_portfolio' %}"]').submit(function(event) {
+          {% comment %} $j('form[action="{% url 'add_portfolio' %}"]').submit(function(event) { {% endcomment %}
             event.preventDefault(); // Prevent the form from submitting normally
             
             // Serialize form data
@@ -235,7 +235,7 @@
       
       // Send AJAX request to Django view
       $j.ajax({
-          url: '{% url 'close_position' %}',
+          {% comment %} url: '{% url 'close_position' %}', {% endcomment %}
           type: 'POST',
 
           data: {
