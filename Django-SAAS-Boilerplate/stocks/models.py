@@ -61,15 +61,6 @@ class PrevVolumes(models.Model):
     def __str__(self):
         return f"Prev Volumes for {self.stock.symbol}"
 
-class PrevVolumesSector(models.Model):
-    # One-to-One relationship with the Stock model
-    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name="prev_volumes_sector", null=True, blank=True)
-    date = models.DateField(null=True, blank=True)
-    volume20 = models.CharField(max_length=255,blank=True,null=True) 
-    volume50 = models.CharField(max_length=255,blank=True,null=True)  
-
-    def __str__(self):
-        return f"Prev Volumes Sector for {self.sector.symbol}"
 
 # Calculate computed metrics for each stock independently
 class ComputedStockData(models.Model):
@@ -110,7 +101,6 @@ class SectorFinancialData(models.Model):
     low = models.FloatField()  # Average low price for the sector
     close = models.FloatField()  # Average close price for the sector
     open = models.FloatField()  # Average open price for the sector
-    volume = models.IntegerField()  # Total trading volume for the sector
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when this data was last updated
 
     def __str__(self):
@@ -120,16 +110,16 @@ class SectorFinancialData(models.Model):
 # Aggregated computed metrics for a sector (e.g., average RS, RSI)
 class ComputedSectorData(models.Model):
     # One-to-One relationship with the Sector model
-    sector = models.OneToOneField(Sector, on_delete=models.CASCADE, primary_key=True, related_name="computed_data")  # One-to-one with Sector
-    avg_rs = models.FloatField()  # Average relative strength (RS) for the sector
-    avg_rsi = models.FloatField()  # Average relative strength index (RSI) for the sector
-    avg_ema10 = models.FloatField()  # Average EMA (10 days) for the sector
-    avg_ema20 = models.FloatField()  # Average EMA (20 days) for the sector
-    avg_ema30 = models.FloatField()  # Average EMA (30 days) for the sector
-    avg_ema50 = models.FloatField()  # Average EMA (50 days) for the sector
-    avg_ema100 = models.FloatField()  # Average EMA (100 days) for the sector
-    avg_ema200 = models.FloatField()  # Average EMA (200 days) for the sector
-    volume_trend = models.CharField(max_length=255)  # Trend of the volume in the sector (e.g., 'up', 'down', 'steady')
+    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name="computed_sector_data")# One-to-one with Sector
+    date = models.DateField(null=True,blank=True)
+    rs = models.FloatField(null=True,blank=True)  # Average relative strength (RS) for the sector
+    rsi = models.FloatField(null=True,blank=True)  # Average relative strength index (RSI) for the sector
+    ema10 = models.FloatField()  # Average EMA (10 days) for the sector
+    ema20 = models.FloatField()  # Average EMA (20 days) for the sector
+    ema30 = models.FloatField()  # Average EMA (30 days) for the sector
+    ema50 = models.FloatField()  # Average EMA (50 days) for the sector
+    ema100 = models.FloatField()  # Average EMA (100 days) for the sector
+    ema200 = models.FloatField()  # Average EMA (200 days) for the sector
     last_updated = models.DateTimeField(auto_now=True)  # Timestamp when this data was last updated
 
     def __str__(self):

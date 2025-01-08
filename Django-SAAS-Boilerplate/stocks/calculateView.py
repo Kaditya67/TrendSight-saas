@@ -584,7 +584,6 @@ def fetch_sectors(request):
                                 high=row['High'],
                                 low=row['Low'],
                                 close=row['Close'],
-                                volume=row['Volume']
                             )
                         )
                     
@@ -599,8 +598,7 @@ def fetch_sectors(request):
                             'open': row[1]['Open'],
                             'high': row[1]['High'],
                             'low': row[1]['Low'],
-                            'close': row[1]['Close'],
-                            'volume': row[1]['Volume']
+                            'close': row[1]['Close'], 
                         })
 
                 except Exception as error:
@@ -619,3 +617,322 @@ def fetch_sectors(request):
         'upto_date': upto_date,       # Pass the list of up-to-date sectors
     }
     return render(request, 'stocks/sectorData/fetch_sectors.html', context)
+
+def update_sectors(request):
+    yf.pdr_override()
+    end_date = datetime.now()
+
+    sectors = Sector.objects.all()
+    need_update = []
+    upto_date = []
+
+    def categorize_sectors():
+        nonlocal need_update, upto_date
+        need_update = []
+        upto_date = []
+        for sector in sectors:
+            try:
+                last_record = SectorFinancialData.objects.filter(sector=sector).last()
+                if last_record and last_record.date == datetime.now().date():
+                    upto_date.append(sector)
+                else:
+                    need_update.append(sector)
+            except Exception as e:
+                print(f"Error processing sector {sector.symbol}: {e}")
+                need_update.append(sector)
+
+    categorize_sectors()
+
+    fetched_data = []
+    msg = f"Sectors separated into Need Update: {len(need_update)} and Up-to-date: {len(upto_date)}"
+    color = 'red' if need_update else 'green'
+
+    if request.method == 'POST':
+        selected_sector_ids = request.POST.getlist('sectors')
+        if selected_sector_ids:
+            selected_sectors = Sector.objects.filter(id__in=selected_sector_ids)
+            for sector in selected_sectors:
+                try:
+                    last_record = SectorFinancialData.objects.filter(sector=sector).last()
+                    start_date = last_record.date + timedelta(days=1) if last_record else None
+
+                    if last_record and last_record.date == end_date.date():
+                        continue  # Already up-to-date
+
+                    print(f"Fetching data for {sector.symbol} from {start_date} to {end_date}")
+                    df_new = yf.download(sector.symbol, start=start_date, end=end_date)
+
+                    if df_new.empty:
+                        print(f"No data found for {sector.symbol}")
+                        continue
+
+                    SectorFinancialData.objects.filter(sector=sector, date__gte=start_date).delete()
+
+                    for idx, row in df_new.iterrows():
+                        SectorFinancialData.objects.create(
+                            sector=sector,
+                            date=row.name.date(),
+                            open=row['Open'],
+                            high=row['High'],
+                            low=row['Low'],
+                            close=row['Close'],
+                        )
+                        fetched_data.append({
+                            'symbol': sector.symbol,
+                            'date': row.name.date(),
+                            'open': row['Open'],
+                            'high': row['High'],
+                            'low': row['Low'],
+                            'close': row['Close'],
+                        })
+
+                except Exception as e:
+                    print(f"Error fetching data for {sector.symbol}: {e}")
+        else:
+            print("No sectors selected for update.")
+
+        categorize_sectors()
+        msg = "Data updated successfully." if fetched_data else "No data was updated."
+        color = 'green' if fetched_data else 'red'
+
+    context = {
+        'fetched_data': fetched_data,
+        'status': 'Stock data update completed.' if fetched_data else 'No data updated.',
+        'need_update': need_update,
+        'upto_date': upto_date,
+        'msg': msg,
+        'color': color,
+    }
+    return render(request, 'stocks/sectorData/update_sectors.html', context)
+
+def compute_sector_indicators(request):
+    print("compute/sector_indicators/ running!!")
+    
+    # Fetch all sectors for display
+    sectors = Sector.objects.all()
+    computed_data = []
+    no_data = []
+    if request.method == 'POST':
+        selected_sector_ids = request.POST.getlist('sectors')  # Get list of selected sector IDs
+        print(f"Selected Sector IDs: {selected_sector_ids}")
+        
+        if selected_sector_ids:
+            # Fetch selected sectors from the database
+            selected_sectors = sectors.filter(id__in=selected_sector_ids).values('symbol', 'id')
+            print(f"Selected Sectors: {selected_sectors}")
+            
+            for sector in selected_sectors: 
+                print(f"Computing indicators for {sector['symbol']} (ID: {sector['id']})")
+
+                try:
+                    # Fetch financial data for the sector
+                    sector_data = SectorFinancialData.objects.filter(sector__symbol=sector['symbol']).order_by('date')
+                    ComputedSectorData.objects.filter(sector__symbol=sector['symbol']).delete()
+                    
+                    if not sector_data.exists():
+                        print(f"No data available for {sector['symbol']}")
+                        no_data.append(sector['symbol'])
+                        continue
+
+                    # Convert QuerySet to DataFrame
+                    df = pd.DataFrame(list(sector_data.values('date', 'close')))
+                    df['date'] = pd.to_datetime(df['date'])
+                    df.set_index('date', inplace=True)
+                    df.reset_index(drop=False, inplace=True)
+
+                    if len(df) < 14:
+                        print(f"Not enough data for {sector['symbol']} (less than 14 rows). Skipping.")
+                        continue
+
+                    # RSI Calculation
+                    df['change'] = df['close'].diff()
+                    df['gain'] = np.where(df['change'] > 0, df['change'], 0)
+                    df['loss'] = np.where(df['change'] < 0, -df['change'], 0)
+                    df['avg_gain'] = df['gain'].rolling(window=14).mean()
+                    df['avg_loss'] = df['loss'].rolling(window=14).mean()
+                    df['rs'] = df['avg_gain'] / df['avg_loss']
+                    df['rsi'] = 100 - (100 / (1 + df['rs']))
+                    print(f"Computed RS for {sector['symbol']} (ID: {sector['id']})")
+                    print(df['rs'])
+                    # EMA Calculation
+                    for span in [10, 20, 30, 50, 100, 200]:
+                        df[f'ema{span}'] = df['close'].ewm(span=span, adjust=False).mean()
+
+                    # Populate ComputedSectorData
+                    for index, row in df.iterrows():
+                        ComputedSectorData.objects.create(
+                            sector_id=sector['id'],
+                            date=row['date'], 
+                            rs=row['rs'],
+                            rsi=row['rsi'],
+                            ema10=row['ema10'],
+                            ema20=row['ema20'],
+                            ema30=row['ema30'],
+                            ema50=row['ema50'],
+                            ema100=row['ema100'],
+                            ema200=row['ema200'], 
+                        )
+                        computed_data.append({
+                            'symbol': sector['symbol'],
+                            'date': row['date'],
+                            'rs': row['rs'],
+                            'rsi': row['rsi'],
+                            'ema10': row['ema10'],
+                            'ema20': row['ema20'],
+                            'ema30': row['ema30'],
+                            'ema50': row['ema50'],
+                            'ema100': row['ema100'],
+                            'ema200': row['ema200'],
+                        })
+
+                except Exception as error:
+                    print(f"Error processing sector {sector['symbol']}: {error}")
+                    import traceback
+                    print("Traceback:", traceback.format_exc())
+
+    context = {
+        'sectors': sectors,
+        'computed_data': computed_data,
+        'no_data': no_data
+    }
+
+    print("Sector indicators computation complete!")
+    return render(request, 'stocks/sectorData/compute_sector_indicators.html', context)
+
+def update_sector_indicators(request):
+    print("update_sector_indicators/ running!!")
+
+    # Fetch all sectors
+    sectors = Sector.objects.all()
+    updated_sectors = []  # Successfully updated sectors
+    failed_sectors = []   # Sectors that failed to update
+    need_update = []      # Sectors needing an update
+    uptoDate = []         # Sectors that are already up-to-date
+
+    # Helper function to categorize sectors into 'need_update' and 'uptoDate'
+    def categorize_sectors():
+        current_date = datetime.now().date()
+        need_update = []
+        uptoDate = []
+        for sector in sectors:
+            try:
+                last_record = ComputedSectorData.objects.filter(sector=sector).last()
+                if last_record and last_record.date == current_date:
+                    uptoDate.append(sector)  # Sector is up-to-date
+                else:
+                    need_update.append(sector)  # Sector needs update
+            except Exception as e:
+                print(f"Error categorizing sector {sector.symbol}: {e}")
+                need_update.append(sector)
+        return need_update, uptoDate
+
+    # Categorize sectors
+    need_update, uptoDate = categorize_sectors()
+
+    if request.method == 'POST':
+        selected_sector_ids = request.POST.getlist('sectors')  # Get selected sectors
+        if selected_sector_ids:
+            selected_sectors = Sector.objects.filter(id__in=selected_sector_ids)  # Don't use .values(), just fetch full objects
+
+            for sector in selected_sectors:
+                update_needed = True
+                try:
+                    print(f"Updating indicators for {sector.symbol} (ID: {sector.id})")
+                    
+                    # Check if the sector is up-to-date
+                    last_computed = ComputedSectorData.objects.filter(sector_id=sector.id).last()
+                    if last_computed:
+                        last_computed_date = last_computed.date
+                    else:
+                        last_computed_date = None
+
+                    current_date = datetime.now().date()
+                    if last_computed_date and last_computed_date >= current_date:
+                        print(f"Sector {sector.symbol} is already up-to-date.")
+                        continue
+
+                    # Fetch new sector data
+                    sector_data = SectorFinancialData.objects.filter(sector_id=sector.id)
+                    if last_computed_date:
+                        sector_data = sector_data.filter(date__gt=last_computed_date)
+
+                    if not sector_data.exists():
+                        print(f"No new data for {sector.symbol} (ID: {sector.id})")
+                        failed_sectors.append(sector.symbol)
+                        continue
+
+                    # Convert data to DataFrame
+                    df_new = pd.DataFrame(list(sector_data.values('date', 'close')))
+                    df_new['date'] = pd.to_datetime(df_new['date'])
+                    df_new.set_index('date', inplace=True)
+                    df_new.sort_index(inplace=True)
+
+                    # Initialize previous values
+                    prev_rsi = last_computed.rsi if last_computed else 0
+                    prev_avg_gain = last_computed.rs * (last_computed.rsi / 100) if last_computed else 0
+                    prev_avg_loss = prev_avg_gain / last_computed.rs if last_computed and last_computed.rs > 0 else 0
+
+                    prev_ema_values = {
+                        f"ema{span}": getattr(last_computed, f"ema{span}", 0)
+                        for span in [10, 20, 30, 50, 100, 200]
+                    }
+
+                    # Calculate indicators incrementally
+                    computed_data = []
+                    for date, row in df_new.iterrows():
+                        close = row['close']
+                        print(f"Processing data for {date} (Close: {close})")
+
+                        # Fetch the last financial data record for the sector
+                        last_financial_data = SectorFinancialData.objects.filter(sector=sector).order_by('-date').first()
+                        if last_financial_data:
+                            last_close = last_financial_data.close
+                        else:
+                            last_close = close  # In case there is no prior data, use the current close
+
+                        # RSI Calculation
+                        change = close - last_close
+                        gain = max(change, 0)
+                        loss = -min(change, 0)
+                        avg_gain = (prev_avg_gain * 13 + gain) / 14
+                        avg_loss = (prev_avg_loss * 13 + loss) / 14
+                        rs = avg_gain / avg_loss if avg_loss > 0 else 0
+                        rsi = 100 - (100 / (1 + rs))
+
+                        # EMA Calculation
+                        ema_values = {}
+                        for span in [10, 20, 30, 50, 100, 200]:
+                            key = f"ema{span}"
+                            multiplier = 2 / (span + 1)
+                            ema_values[key] = (close - prev_ema_values[key]) * multiplier + prev_ema_values[key]
+
+                        # Save computed data
+                        computed_data.append(
+                            ComputedSectorData(
+                                sector_id=sector.id,  # Use sector.id directly, not a dictionary
+                                date=date,
+                                rs=rs,
+                                rsi=rsi,
+                                **ema_values,
+                            )
+                        )
+                        prev_avg_gain, prev_avg_loss = avg_gain, avg_loss
+                        prev_rsi = rsi
+                        prev_ema_values.update(ema_values)
+
+                    # Bulk create new computed data
+                    ComputedSectorData.objects.bulk_create(computed_data)
+                    updated_sectors.append(sector)
+
+                except Exception as e:
+                    print(f"Error updating indicators for {sector.symbol}: {e}")
+                    failed_sectors.append(sector.symbol)
+
+    context = {
+        'sectors': sectors,
+        'updated_sectors': updated_sectors,
+        'failed_sectors': failed_sectors,
+        'need_update': need_update,
+        'uptoDate': uptoDate,
+    }
+    return render(request, 'stocks/sectorData/update_sector_indicators.html', context)

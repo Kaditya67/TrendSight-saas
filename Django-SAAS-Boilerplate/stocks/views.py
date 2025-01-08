@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .calculateView import update_stock_indicators, update_stocks, compute_stock_indicators, fetch_stocks
-from .calculateView import fetch_sectors
+from .calculateView import fetch_sectors, update_sectors, compute_sector_indicators, update_sector_indicators
 
 # Create your views here.
 def index(request):

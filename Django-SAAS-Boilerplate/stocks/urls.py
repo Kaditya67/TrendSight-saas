@@ -6,8 +6,11 @@ urlpatterns = [
     path('fetch/stocks/', views.fetch_stocks, name='fetch_stocks'),
     path('fetch/sectors/', views.fetch_sectors, name='fetch_sectors'),
     path('update/stocks/', views.update_stocks, name='update_stocks'),
+    path('update/sectors/', views.update_sectors, name='update_sectors'),
     path('compute/stock_indicators/', views.compute_stock_indicators, name='compute_stock_indicators'),
+    path('compute/sector_indicators/', views.compute_sector_indicators, name='compute_sector_indicators'),
     path('update/stock_indicators/', views.update_stock_indicators, name='update_stock_indicators'),
+    path('update/sector_indicators/', views.update_sector_indicators, name='update_sector_indicators'),
 
     path('profile/', views.profile, name='profile'),
 
