@@ -77,6 +77,15 @@
             </div>
         </form>
 
+        {% if failed_stocks %}
+            <h3 class="text-xl font-bold mt-10 mb-4 text-red-600">Failed to Update Stock Indicators</h3>
+            <ul class="list-disc pl-5">
+                {% for stock in failed_stocks %}
+                    <li>{{ stock }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
         {% if updated_stocks %}
             <h3 class="text-xl font-bold mt-10 mb-4">Updated Stock Indicators</h3>
             <div class="overflow-x-auto">
@@ -94,9 +103,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for data in updated_stocks %}
+                        {% for data,symbol in updated_stocks %}
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 border border-gray-200">{{ data.symbol }}</td>
+                                <td class="px-4 py-2 border border-gray-200">{{ symbol }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.date }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.rsi }}</td>
                                 <td class="px-4 py-2 border border-gray-200">{{ data.ema10 }}</td>
@@ -115,14 +124,6 @@
             </div>
         {% endif %}
 
-        {% if failed_stocks %}
-            <h3 class="text-xl font-bold mt-10 mb-4 text-red-600">Failed to Update Stock Indicators</h3>
-            <ul class="list-disc pl-5">
-                {% for stock in failed_stocks %}
-                    <li>{{ stock }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
     </div>
 
     <script>

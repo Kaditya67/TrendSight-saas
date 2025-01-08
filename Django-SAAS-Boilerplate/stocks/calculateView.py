@@ -491,8 +491,11 @@ def update_stock_indicators(request):
                                 volume50=str(volume50),
                             )
                         )
+                        
+                        print(f"Stock symbol : {stock['symbol']}, Date: {date}, RSI: {rsi}, EMAs: {ema_values}")
+                        # Append a tuple of (computed data, symbol)
+                        updated_stocks.append((computed_data[-1], stock['symbol']))
 
-                        updated_stocks.append(computed_data[-1])
                         prev_avg_gain, prev_avg_loss, prev_rsi = avg_gain, avg_loss, rsi
                         prev_ema_values.update(ema_values)
 
@@ -514,6 +517,7 @@ def update_stock_indicators(request):
     }
     return render(request, 'stocks/stockData/update_stock_indicators.html', context)
 
+##################################### SECTORS #############################################
 def fetch_sectors(request):
     # Override pandas datareader with yfinance
     yf.pdr_override()
