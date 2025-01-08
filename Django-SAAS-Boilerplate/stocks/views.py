@@ -1,6 +1,14 @@
-from django.shortcuts import render
-from .calculateView import update_stock_indicators, update_stocks, compute_stock_indicators, fetch_stocks
-from .calculateView import fetch_sectors, update_sectors, compute_sector_indicators, update_sector_indicators
+from django.shortcuts import redirect, render
+
+from user.models import User
+
+from .calculateView import (compute_sector_indicators,
+                            compute_stock_indicators, fetch_sectors,
+                            fetch_stocks, update_sector_indicators,
+                            update_sectors, update_stock_indicators,
+                            update_stocks)
+from .forms import UserProfileForm
+
 
 # Create your views here.
 def index(request):
@@ -57,10 +65,6 @@ def watchlist(request):
 
 def about(request):
     return render(request, 'stocks/about.html')
-
-from user.models import User
-from django.shortcuts import render, redirect
-from .forms import UserProfileForm
 
 def profile(request):
     user = request.user

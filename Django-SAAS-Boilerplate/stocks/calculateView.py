@@ -2,13 +2,13 @@ import logging
 from datetime import datetime, timedelta
 
 import numpy as np
-import pandas as pd 
+import pandas as pd
 import yfinance as yf
 from django.shortcuts import render
 
-from stocks.models import (ComputedStockData, FinancialStockData, PrevVolumes,
-                           Stock)
-from stocks.models import (ComputedSectorData,SectorFinancialData, Sector)
+from stocks.models import (ComputedSectorData, ComputedStockData,
+                           FinancialStockData, PrevVolumes, Sector,
+                           SectorFinancialData, Stock)
 
 from .models import FinancialStockData, Stock
 

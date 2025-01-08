@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Store sector data manually
 class Sector(models.Model):
     # Unique identifier for each sector

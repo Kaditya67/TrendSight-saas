@@ -1,10 +1,13 @@
-from django.contrib import admin
-from django.db import models 
-from .models import Stock, ComputedStockData, Sector, SectorFinancialData, ComputedSectorData,FinancialStockData,PrevVolumes
-from unfold.admin import ModelAdmin 
-from import_export.admin import ImportExportModelAdmin
-from unfold.contrib.import_export.forms import ExportForm, ImportForm
 from django import forms
+from django.contrib import admin
+from django.db import models
+from import_export.admin import ImportExportModelAdmin
+from unfold.admin import ModelAdmin
+from unfold.contrib.import_export.forms import ExportForm, ImportForm
+
+from .models import (ComputedSectorData, ComputedStockData, FinancialStockData,
+                     PrevVolumes, Sector, SectorFinancialData, Stock)
+
 
 # Stock Models Administration
 class StockAdmin(ModelAdmin, ImportExportModelAdmin):
