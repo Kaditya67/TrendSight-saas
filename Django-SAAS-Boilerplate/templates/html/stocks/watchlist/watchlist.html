@@ -1,0 +1,122 @@
+{% comment %} {% extends 'stocks/watchlist/base.html' %}
+
+{% block title %}Watchlist{% endblock %}
+
+{% block content %}
+
+<!-- Secondary Navbar -->
+<section class="sticky top-0 w-full bg-gray-200 shadow-md z-10">
+    <div class="container mx-auto flex items-center justify-start p-4 space-x-6 overflow-y-auto max-h-48">  
+        <!-- Default Watchlist -->
+        <form method="get" action="{% url 'watchlist' %}" class="flex-shrink-0">
+            <button type="submit" class="text-sm bg-white border-2 text-gray-700 text-blue-600 font-medium py-2 px-4 rounded-lg transition-all border-b-4 border-blue-600
+                border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 flex items-center space-x-2">
+                <i class="fas fa-list-ul"></i>
+                <span>Watchlist</span>
+                <span class="pl-10">5</span>
+            </button>
+        </form>
+
+        <!-- Dynamic Watchlists -->
+        {% for watchlist in watchlists %}
+        <form method="get" action="{% url 'watchlist' watchlist.id %}" class="flex-shrink-0">
+            <button type="submit" class="text-sm bg-white border-2 border-gray-300 text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg transition-all border-gray-300
+                hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 flex items-center space-x-2">
+                <i class="fas fa-list-ul"></i>
+                <span>{{ watchlist.name }}</span>
+                <span>{{ watchlist.count }}</span>
+            </button>
+        </form>
+        {% endfor %}
+
+        <!-- Add Watchlist Button -->
+        <button type="button" id="addWatchlistBtn" class="text-sm bg-white border-2 border-gray-300 text-blue-700 font-medium py-2 px-4 rounded-full transition-all 
+            hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 
+            hover:bg-blue-50 active:bg-blue-100 flex items-center space-x-2">
+            <span>Add <i class="fas fa-plus"></i></span>
+        </button>
+    </div>
+</section>
+
+<!-- Modal for Adding Watchlist -->
+<div id="addWatchlistModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h3 class="text-xl font-semibold mb-4">Add Watchlist</h3>
+        <form action="{% url 'watchlist' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="add_watchlist" value="1" />
+            <div class="mb-4">
+                <label for="watchlist_name" class="block text-sm font-medium text-gray-700">Watchlist Name</label>
+                <input type="text" id="watchlist_name" name="watchlist_name" class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelBtn" class="bg-gray-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg">Add Watchlist</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Watchlist Name --> 
+<div class="flex justify-between">
+    <div class="mt-4 text-left relative">
+        <div class="text-gray-700 font-small p-2 rounded-lg text-xl">Watchlist</div>
+    </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="mt-6 px-4">
+    <!-- Table Section -->
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+        {% if watchlist_data %}
+        <table class="min-w-full table-auto">
+            <thead>
+                <tr class="bg-gray-800 text-white">
+                    <th class="py-3 px-4 text-left border-b">Symbol</th>
+                    {% for date in watchlist_data.dates %}
+                    <th class="py-3 px-4 text-left border-b">{{ date }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in watchlist_data.stocks %}
+                <tr class="hover:bg-gray-50">
+                    <td class="py-2 px-4 border-b">{{ stock.symbol }}</td>
+                    {% for value in stock.data %}
+                    <td class="py-2 px-4 border-b">
+                        {% if value|slice:":1" == "+" %}
+                            <span class="text-green-500">{{ value }}</span>
+                        {% else %}
+                            <span class="text-red-500">{{ value }}</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ watchlist_data.dates|length }}" class="py-2 px-4 text-center text-gray-500">No stocks found in this watchlist.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+        {% endif %}
+    </div>
+</div>
+
+<!-- Main Content Scripts -->
+<script>
+    const addWatchlistBtn = document.getElementById('addWatchlistBtn');
+    const addWatchlistModal = document.getElementById('addWatchlistModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    addWatchlistBtn.addEventListener('click', () => {
+        addWatchlistModal.classList.remove('hidden');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        addWatchlistModal.classList.add('hidden');
+    });
+</script>
+
+{% endblock %} {% endcomment %}

@@ -14,6 +14,8 @@ urlpatterns = [
     path('update/sector_indicators/', views.update_sector_indicators, name='update_sector_indicators'),
 
     path('profile/', views.profile, name='profile'),
+    path('watchlist/', views.watchlist, name='watchlist'),
+    path('watchlist/<int:watchlist_id>/', views.custom_watchlist, name='watchlist'),
 
     path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
@@ -36,7 +38,7 @@ urlpatterns = [
     path('dashboard_new/', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
     path('graph/<str:type>/<str:symbol>/<int:ema_value>/', views.graph_partial, name='graph'),
     path('portfolio/', views.portfolio, name='portfolio'),
-    path('watchlist/', views.watchlist, name='watchlist'),
+    
     path('settings/', views.settings, name='settings'),
     path('help/', views.help, name='help'),
     path('about/', views.about, name='about'),

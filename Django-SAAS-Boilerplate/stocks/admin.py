@@ -7,7 +7,7 @@ from unfold.contrib.import_export.forms import ExportForm, ImportForm
 
 from .models import (ComputedSectorData, ComputedStockData, FinancialStockData,
                      PrevVolumes, Sector, SectorFinancialData, Stock)
-
+from .models import Watchlist
 
 # Stock Models Administration
 class StockAdmin(ModelAdmin, ImportExportModelAdmin):
@@ -62,6 +62,19 @@ class ComputedSectorDataAdmin(ModelAdmin):
     list_filter = ('last_updated',)
     search_fields = ('sector__name',)
 
+class WatchlistAdmin(ModelAdmin):
+    list_display = ('id','name', 'user', 'get_stocks', 'get_sectors','count', 'last_updated')
+    search_fields = ('user__username',)
+    autocomplete_fields = ['stocks', 'sectors']
+
+    def get_stocks(self, obj):
+        return ", ".join(stock.symbol for stock in obj.stocks.all())
+    get_stocks.short_description = 'Stocks'
+
+    def get_sectors(self, obj):
+        return ", ".join(sector.name for sector in obj.sectors.all())
+    get_sectors.short_description = 'Sectors'
+
 # Registering the models and their custom admins
 admin.site.register(Stock, StockAdmin)
 admin.site.register(FinancialStockData, FinancialStockDataAdmin)
@@ -70,3 +83,4 @@ admin.site.register(ComputedStockData, ComputedStockDataAdmin)
 admin.site.register(Sector, SectorAdmin)  
 admin.site.register(SectorFinancialData, SectorFinancialDataAdmin)
 admin.site.register(ComputedSectorData, ComputedSectorDataAdmin)
+admin.site.register(Watchlist, WatchlistAdmin)

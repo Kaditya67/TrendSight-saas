@@ -1,5 +1,5 @@
 from django.db import models
-
+from user.models import User
 
 # Store sector data manually
 class Sector(models.Model):
@@ -125,3 +125,40 @@ class ComputedSectorData(models.Model):
 
     def __str__(self):
         return f"Computed Sector Data for {self.sector.name}"
+
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
+
+class Watchlist(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlists")
+    stocks = models.ManyToManyField('Stock', related_name="watchlist_stocks", blank=True)
+    sectors = models.ManyToManyField('Sector', related_name="watchlist_sectors", blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    count = models.PositiveIntegerField(default=0)  # New field to store the count of stocks and sectors
+
+    def __str__(self):
+        return f"{self.name} Watchlist"
+    
+    def update_count(self):
+        """Update the count of stocks and sectors in the watchlist."""
+        self.count = self.stocks.count() + self.sectors.count()
+
+    # Override save method to update the count before saving
+    def save(self, *args, **kwargs):
+        self.update_count()  # Update count before saving
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Watchlist'
+        verbose_name_plural = 'Watchlists'
+
+
+# Signal to update count when stocks or sectors are added or removed
+@receiver(m2m_changed, sender=Watchlist.stocks.through)
+@receiver(m2m_changed, sender=Watchlist.sectors.through)
+def update_watchlist_count(sender, instance, **kwargs):
+    """Updates the count of stocks and sectors when they are added/removed."""
+    instance.update_count()
+    instance.save()  # Save after count update to persist the change

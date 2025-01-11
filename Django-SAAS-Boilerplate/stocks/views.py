@@ -1,14 +1,14 @@
 from django.shortcuts import redirect, render
 
 from user.models import User
-
+from .models import Watchlist, Sector, Stock
 from .calculateView import (compute_sector_indicators,
                             compute_stock_indicators, fetch_sectors,
                             fetch_stocks, update_sector_indicators,
                             update_sectors, update_stock_indicators,
                             update_stocks)
 from .forms import UserProfileForm
-
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -60,8 +60,60 @@ def settings(request):
 def help(request):  
     return render(request, 'stocks/help.html')
 
+@login_required
 def watchlist(request):
-    return render(request, 'stocks/watchlist.html')
+
+    # Get the watchlists for the user again in case a new one was created
+    # user_watchlists = Watchlist.objects.filter(user=user)
+
+    # Prepare the watchlist data for rendering
+    # watchlists = []
+    # for watchlist in user_watchlists:
+    #     watchlists.append({
+    #         "id": watchlist.id,
+    #         "name": watchlist.name,
+    #         "count": watchlist.count,
+    #     })
+
+    # # Debug prints to verify the watchlist data
+    # print(user_watchlists)
+    # print(f"Last watchlist: {user_watchlists.last()}")
+    
+    # watchlist_data = {
+    #     "stocks": [
+    #         {"symbol": "AAPL", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+2", "+1", "-2", "+3", "+4"]},
+    #         {"symbol": "MSFT", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+3", "+0", "+2", "+1", "-1"]},
+    #         {"symbol": "GOOGL", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+1", "-1", "+2", "+0", "-3"]},
+    #         {"symbol": "AMZN", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+4", "+3", "-2", "+1", "+0"]},
+    #         {"symbol": "TSLA", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["-1", "+2", "-3", "+3", "+5"]},
+    #         {"symbol": "NVDA", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+5", "+2", "+3", "+1", "+0"]},
+    #         {"symbol": "META", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+2", "+1", "-1", "+0", "+2"]},
+    #         {"symbol": "INTC", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["-2", "+1", "+3", "-1", "+2"]},
+    #         {"symbol": "AMD", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+4", "+3", "+1", "+2", "-1"]},
+    #         {"symbol": "ADBE", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+1", "-1", "+2", "+3", "+4"]},
+    #         {"symbol": "CRM", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+3", "+4", "+2", "+0", "-1"]},
+    #         {"symbol": "ORCL", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+1", "+2", "+3", "-2", "+1"]},
+    #         {"symbol": "CSCO", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+0", "+3", "-1", "+1", "+2"]},
+    #         {"symbol": "IBM", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["-1", "+2", "+3", "+4", "-2"]},
+    #         {"symbol": "SHOP", "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"], "data": ["+3", "+2", "+1", "+0", "-1"]}
+    #     ],
+    #     "dates": ["10 Jan", "9 Jan", "8 Jan", "7 Jan", "6 Jan"]
+    # }
+    
+    context = {
+        # "watchlists": watchlists,
+        # "selected_watchlist": selected_watchlist,
+        # "selected_watchlist_data": selected_watchlist_data
+    }
+    
+    return render(request, 'stocks/watchlist/watchlist.html', context)
+
+
+def custom_watchlist(request, watchlist_id):
+    return render(request, 'stocks/watchlist/custom_watchlist.html')
+
+def add_watchlist(request):
+    return render(request,'stocks/watchlist/watchlist.html')
 
 def about(request):
     return render(request, 'stocks/about.html')
@@ -77,8 +129,6 @@ def profile(request):
         form = UserProfileForm(instance=user)
 
     return render(request, 'stocks/stock_users/profile.html', {'form': form})
-
-
 
 def main_page(request):
     return render(request,'stocks/main_page.html')
