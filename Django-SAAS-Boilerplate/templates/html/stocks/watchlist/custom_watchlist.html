@@ -9,20 +9,19 @@
     <div class="container mx-auto flex items-center justify-start p-4 space-x-6">
         <!-- Default Watchlist -->
         <form method="get" action="{% url 'watchlist' %}" class="flex-shrink-0">
-            <button type="submit" class="text-sm bg-white border-2 text-gray-700 text-blue-600 font-medium py-2 px-4 rounded-lg transition-all border-b-4 
-                {% if not selected_watchlist %}border-gray-300{% else %}border-blue-600{% endif %} 
+            <button type="submit" class="text-sm bg-white border-2 text-gray-700 text-blue-600 font-medium py-2 px-4 rounded-lg transition-all border-b-4 border-gray-300 
                 border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 flex items-center space-x-2">
                 <i class="fas fa-list-ul"></i>
                 <span>Watchlist</span>
-                <span class="pl-10">5</span>
+                <span class="pl-10">{{ default_watchlist.count }}</span>
             </button>
         </form>
 
         <!-- Dynamic Watchlists -->
         {% for watchlist in watchlists %}
         <form method="get" action="{% url 'watchlist' watchlist.id %}" class="flex-shrink-0">
-            <button type="submit" class="text-sm bg-white border-2 border-gray-300 text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg transition-all 
-                {% if selected_watchlist.id == watchlist.id %}border-blue-600{% else %}border-gray-300{% endif %} 
+            <button type="submit" class="text-sm bg-white border-b-4 border-2 text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg transition-all 
+                {% if watchlist.id == watchlist_id %}border-blue-600{% else %}border-gray-300{% endif %} 
                 hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 flex items-center space-x-2">
                 <i class="fas fa-list-ul"></i>
                 <span>{{ watchlist.name }}</span>
@@ -31,15 +30,6 @@
         </form>
         {% endfor %}
         
-        <!-- Test Watchlist -->
-        <form method="get" action="" class="flex-shrink-0">
-            <button type="submit" class="text-sm bg-white border-2 border-gray-300 text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg transition-all 
-                hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 flex items-center space-x-2 border-b-4 ">
-                <i class="fas fa-rocket"></i>
-                <span>Test Watchlist</span>
-            </button>
-        </form>
-
         <!-- Add Watchlist Button -->
         <button type="button" id="addWatchlistBtn" class="text-sm bg-white border-2 border-gray-300 text-blue-700 font-medium py-2 px-4 rounded-full transition-all 
             hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 
@@ -55,7 +45,6 @@
         <h3 class="text-xl font-semibold mb-4">Add Watchlist</h3>
         <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="add_watchlist" value="1" />
             <div class="mb-4">
                 <label for="watchlist_name" class="block text-sm font-medium text-gray-700">Watchlist Name</label>
                 <input type="text" id="watchlist_name" name="watchlist_name" class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg" required>
@@ -72,9 +61,11 @@
 <!-- Options Button with Three Dots -->
 <div class="flex justify-between">
     <div class="mt-4 text-left relative">
-        <div class="text-gray-700 font-small p-2 rounded-lg text-xl">Watchlist</div>
+        <div class="text-gray-700 font-small p-2 rounded-lg text-xl">{{ selected_watchlist.name }} Watchlist</div>
     </div>
     <div class="mt-4 text-right relative">
+        <button class="border p-2 rounded-lg text-white bg-blue-500 ml-2" id="addStocks">Add Stock</button>
+        <button class="border p-2 rounded-lg text-white bg-blue-500 ml-2" id="addSectors">Add Sector</button>
         <button id="optionsButton" class="text-gray-700 hover:text-blue-600 font-medium p-2 rounded-lg text-xl">
             <i class="fas fa-ellipsis-v"></i> <!-- Three dots icon -->
         </button>
@@ -93,68 +84,210 @@
     </div>
 </div>
 
+
+<!-- Modal for Renaming Watchlist -->
+<div id="renameWatchlistModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h3 class="text-xl font-semibold mb-4">Rename Watchlist</h3>
+        <form action="{% url 'watchlist' selected_watchlist.id %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="watchlist_name_rename" class="block text-sm font-medium text-gray-700">New Name</label>
+                <input type="text" id="watchlist_name_rename" name="watchlist_name_rename" class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelRenameBtn" class="bg-gray-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg">Rename Watchlist</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Delete Watchlist -->
+<div id="deleteWatchlistModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h3 class="text-xl font-semibold mb-4">Delete Watchlist</h3>
+        <form action="{% url 'watchlist' selected_watchlist.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="delete_watchlist">
+            <div class="mb-4">
+                Are you sure, you want to delete this watchlist?
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-lg">Delete</button>
+                <button type="button" id="cancelDeleteBtn" class="bg-blue-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Adding Stocks to Watchlist -->
+<div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+        <h3 class="text-xl font-semibold mb-4">Add Stocks to Watchlist</h3>
+        <form action="{% url 'watchlist' selected_watchlist.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="update_stocks" value="1" />
+
+            <div class="mb-4">
+                <h4 class="font-semibold">Uncheck to remove</h4>
+                {% for stock in selected_stocks %}
+                    <div class="flex items-center">
+                        <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}" checked>
+                        <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-4">
+                <h4 class="font-semibold">Check to Add</h4>
+                {% for stock in remaining_stocks %}
+                    <div class="flex items-center">
+                        <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}">
+                        <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-4">
+                <button type="button" id="cancelStockUpdateBtn" class="bg-gray-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg" id="saveBtn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Adding Sectors to Watchlist -->
+<div id="addSectorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+        <h3 class="text-xl font-semibold mb-4">Add Sector to Watchlist</h3>
+        <form action="{% url 'watchlist' selected_watchlist.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="update_sectors" value="1" />
+
+            <div class="mb-4">
+                <h4 class="font-semibold">Uncheck to remove</h4>
+                {% for sector in selected_sectors %}
+                    <div class="flex items-center">
+                        <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}" checked>
+                        <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-4">
+                <h4 class="font-semibold">Check to Add</h4>
+                {% for sector in remaining_sectors %}
+                    <div class="flex items-center">
+                        <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}">
+                        <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-4">
+                <button type="button" id="cancelSectorUpdateBtn" class="bg-gray-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg" id="saveBtn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Main Content -->
 <div class="mt-6 px-4">
     <!-- Table Section -->
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
-        {% if selected_watchlist_data %}
+        {% if watchlist_data %}
         <table class="min-w-full table-auto">
             <thead>
                 <tr class="bg-gray-800 text-white">
                     <th class="py-3 px-4 text-left border-b">Symbol</th>
-                    {% for date in selected_watchlist_data.dates %}
+                    {% for date in watchlist_data.0.dates %}
                     <th class="py-3 px-4 text-left border-b">{{ date }}</th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for stock in selected_watchlist_data.stocks %}
+                {% for stock in watchlist_data %}
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 border-b">{{ stock.symbol }}</td>
                     {% for value in stock.data %}
-                    <td class="py-2 px-4 border-b">
-                        {% if value|slice:":1" == "+" %}
-                            <span class="text-green-500">{{ value }}</span>
-                        {% else %}
-                            <span class="text-red-500">{{ value }}</span>
-                        {% endif %}
+                    {% if value > 0 %}
+                    <td class="py-2 px-4 border-b bg-green-500">
+                        <span class="text-white">{{ value }}</span>
                     </td>
-                    {% endfor %}
+                    {% else %}
+                    <td class="py-2 px-4 border-b bg-red-500">
+                        <span class="text-white">{{ value }}</span>
+                    </td>
+                    {% endif %}
+                {% endfor %}
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="{{ selected_watchlist_data.dates|length }}" class="py-2 px-4 text-center text-gray-500">No stocks found in this watchlist.</td>
+                    <td colspan="{{ watchlist_data.dates|length }}" class="py-2 px-4 text-center text-gray-500">No stocks found in this watchlist.</td>
                 </tr>
                 {% endfor %}
             </tbody>
-        </table>
+        </table>        
         {% else %}
-        <table class="min-w-full table-auto">
-            <thead>
-                <tr class="bg-gray-800 text-white">
-                    <th class="py-3 px-4 text-center border-b">Stock</th>
-                    <th class="py-3 px-4 text-left border-b">4 Jan</th>
-                    <th class="py-3 px-4 text-left border-b">3 Jan</th>
-                    <th class="py-3 px-4 text-left border-b">2 Jan</th>
-                    <th class="py-3 px-4 text-left border-b">1 Jan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="hover:bg-gray-50">
-                    <td class="text-center py-2 px-4 border-b text-green-500">AAPL</td>
-                    <td class="py-2 px-4 border-b bg-green-400 text-white">+2</td>
-                    <td class="py-2 px-4 border-b bg-green-400 text-white">+1</td>
-                    <td class="py-2 px-4 border-b bg-red-400 text-white">-2</td>
-                    <td class="py-2 px-4 border-b bg-red-400 text-white">-1</td>
-                </tr>
-                <!-- Additional rows here... -->
-            </tbody>
-        </table>
+        <div class="p-4 text-center text-xl">
+            No data found !
+        </div>
         {% endif %}
+
     </div>
 </div>
 
+<script>
+    // Get elements for Delete Modal
+    const deleteOption = document.getElementById("deleteOption");
+    const deleteWatchlistModal = document.getElementById("deleteWatchlistModal");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+
+    // Open the Delete Modal when the Delete option is clicked
+    deleteOption.addEventListener("click", () => {
+        deleteWatchlistModal.classList.remove("hidden");
+    });
+
+    // Close the Delete Modal when the Cancel button is clicked
+    cancelDeleteBtn.addEventListener("click", () => {
+        deleteWatchlistModal.classList.add("hidden");
+    });
+
+    // Close the Delete Modal when clicking outside of it
+    window.addEventListener("click", (e) => {
+        if (!deleteWatchlistModal.contains(e.target) && !deleteOption.contains(e.target)) {
+            deleteWatchlistModal.classList.add("hidden");
+        }
+    });
+</script>
+
 <!-- Main Content Scripts -->
+<script>
+    // Get elements for Rename Modal
+    const renameOption = document.getElementById("renameOption");
+    const renameWatchlistModal = document.getElementById("renameWatchlistModal");
+    const cancelRenameBtn = document.getElementById("cancelRenameBtn");
+
+    // Open the Rename Modal when the Rename option is clicked
+    renameOption.addEventListener("click", () => {
+        renameWatchlistModal.classList.remove("hidden");
+    });
+
+    // Close the Rename Modal when the Cancel button is clicked
+    cancelRenameBtn.addEventListener("click", () => {
+        renameWatchlistModal.classList.add("hidden");
+    });
+
+    // Close the Rename Modal when clicking outside of it
+    window.addEventListener("click", (e) => {
+        if (!renameWatchlistModal.contains(e.target) && !renameOption.contains(e.target)) {
+            renameWatchlistModal.classList.add("hidden");
+        }
+    });
+</script>
+
 <script>
     const optionsButton = document.getElementById("optionsButton");
     const optionsMenu = document.getElementById("optionsMenu");
@@ -169,14 +302,6 @@
         }
     });
 
-    document.getElementById("renameOption").addEventListener("click", () => {
-        alert("Rename option clicked!");
-    });
-
-    document.getElementById("deleteOption").addEventListener("click", () => {
-        alert("Delete option clicked!");
-    });
-
     const addWatchlistBtn = document.getElementById('addWatchlistBtn');
     const addWatchlistModal = document.getElementById('addWatchlistModal');
     const cancelBtn = document.getElementById('cancelBtn');
@@ -187,6 +312,44 @@
 
     cancelBtn.addEventListener('click', () => {
         addWatchlistModal.classList.add('hidden');
+    });
+
+
+    const addStocksBtn = document.getElementById('addStocks');
+    const addStockModal = document.getElementById('addStockModal');
+    const addSectorsBtn = document.getElementById('addSectors');
+    const addSectorModal = document.getElementById('addSectorModal');
+
+    const cancelStockUpdateBtn = document.getElementById('cancelStockUpdateBtn')
+    const cancelSectorUpdateBtn = document.getElementById('cancelSectorUpdateBtn')
+    // Open Add Stock Modal
+    addStocksBtn.addEventListener('click', () => {
+        addStockModal.classList.remove('hidden'); 
+    });
+
+    cancelStockUpdateBtn.addEventListener('click', () => {
+        addStockModal.classList.add('hidden'); 
+    });
+
+    // Open Add Sector Modal
+    addSectorsBtn.addEventListener('click', () => {
+        addSectorModal.classList.remove('hidden');
+    });
+    cancelSectorUpdateBtn.addEventListener('click', () => {
+        addSectorModal.classList.add('hidden');
+    });
+
+
+    window.addEventListener('click', (e) => {
+        if (e.target === addWatchlistModal) {
+            addWatchlistModal.classList.add('hidden');
+        }
+        if (e.target === addStockModal) {
+            addStockModal.classList.add('hidden');
+        }
+        if (e.target === addSectorModal) {
+            addSectorModal.classList.add('hidden');
+        }
     });
 </script>
 

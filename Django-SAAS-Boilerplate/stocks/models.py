@@ -148,7 +148,7 @@ class Watchlist(models.Model):
     # Override save method to update the count before saving
     def save(self, *args, **kwargs):
         self.update_count()  # Update count before saving
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # Save the watchlist once with the updated count
 
     class Meta:
         verbose_name = 'Watchlist'
@@ -160,5 +160,5 @@ class Watchlist(models.Model):
 @receiver(m2m_changed, sender=Watchlist.sectors.through)
 def update_watchlist_count(sender, instance, **kwargs):
     """Updates the count of stocks and sectors when they are added/removed."""
-    instance.update_count()
-    instance.save()  # Save after count update to persist the change
+    instance.update_count()  # Update the count field
+    instance.save()  # Save the instance after count update
