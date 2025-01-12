@@ -12,7 +12,7 @@ def watchlist(request):
     if request.method == 'POST':
         if 'update_stocks' in request.POST:
             updated_stocks = request.POST.getlist('stocks')
-            print(f"Updated stocks: {updated_stocks}")
+            # print(f"Updated stocks: {updated_stocks}")
             
             try:
                 # Fetch the selected stocks by symbol
@@ -32,7 +32,7 @@ def watchlist(request):
         elif 'update_sectors' in request.POST:
             # Get the list of checked sectors from the form
             checked_sectors = request.POST.getlist('sectors')
-            print(f"Checked sectors: {checked_sectors}")
+            # print(f"Checked sectors: {checked_sectors}")
             
             try:
                 # Convert symbols to sector objects
@@ -163,7 +163,7 @@ def custom_watchlist(request, watchlist_id):
     if request.method == 'POST':
         if 'update_stocks' in request.POST:
             updated_stocks = request.POST.getlist('stocks')
-            print(f"Updated stocks: {updated_stocks}")
+            # print(f"Updated stocks: {updated_stocks}")
             
             try:
                 # Fetch the selected stocks by symbol
@@ -172,7 +172,7 @@ def custom_watchlist(request, watchlist_id):
                 # Use .set() to update the many-to-many relationship
                 with transaction.atomic():
                     selected_watchlist = Watchlist.objects.filter(id=watchlist_id).first()
-                    print(f"Selected watchlist: {selected_watchlist}")
+                    # print(f"Selected watchlist: {selected_watchlist}")
                     if selected_watchlist:
                         selected_watchlist.stocks.set(selected_stocks)
                     return redirect('watchlist', watchlist_id=watchlist_id)
@@ -184,7 +184,7 @@ def custom_watchlist(request, watchlist_id):
         elif 'update_sectors' in request.POST:
             # Get the list of checked sectors from the form
             checked_sectors = request.POST.getlist('sectors')
-            print(f"Checked sectors: {checked_sectors}")
+            # print(f"Checked sectors: {checked_sectors}")
             
             try:
                 # Convert symbols to sector objects
@@ -193,7 +193,7 @@ def custom_watchlist(request, watchlist_id):
                 # Use .set() to update the many-to-many relationship
                 with transaction.atomic():
                     selected_watchlist = Watchlist.objects.filter(id=watchlist_id).first()
-                    print(f"Selected watchlist: {selected_watchlist}")
+                    # print(f"Selected watchlist: {selected_watchlist}")
                     if selected_watchlist:
                         selected_watchlist.sectors.set(sectors_to_add)
                     return redirect('watchlist', watchlist_id=watchlist_id)
@@ -238,7 +238,7 @@ def custom_watchlist(request, watchlist_id):
     watchlists = watchlists[1:] 
 
     selected_watchlist = user_watchlists.filter(id=watchlist_id).first()
-    print(f"Selected id is: {selected_watchlist.id}")
+    # print(f"Selected id is: {selected_watchlist.id}")
     stocks = [] 
     selected_stocks = [] 
     # Gathering stock data for the selected watchlist
@@ -303,7 +303,7 @@ def custom_watchlist(request, watchlist_id):
         if sector not in selected_sectors:
             if len(SectorFinancialData.objects.filter(sector=sector)) > 15:
                 remaining_sectors.append(sector)
-    print(f"Remaining sectors: {remaining_sectors}")
+    # print(f"Remaining sectors: {remaining_sectors}")
 
     context = {
         "default_watchlist": default_watchlist,

@@ -17,6 +17,8 @@ urlpatterns = [
     path('watchlist/', views.watchlist, name='watchlist'),
     path('watchlist/<int:watchlist_id>/', views.custom_watchlist, name='watchlist'),
 
+    path('custom/portfolio/', views.custom_portfolio, name='custom_portfolio'),
+
     path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
     # path('logout/',views.user_logout,name="user_logout"),

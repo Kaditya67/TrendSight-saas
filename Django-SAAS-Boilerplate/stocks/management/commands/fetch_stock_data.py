@@ -15,7 +15,7 @@ class Command(BaseCommand):
         start_date = end_date - timedelta(days=400)  # Fetch data for the last 400 days
 
         try:
-            df_new = pdr.get_data_yahoo(symbol, start=start_date, end=end_date)
+            df_new = yf.download(symbol, start=start_date, end=end_date)
             print(df_new)
 
             # for idx, row in df_new.iterrows():

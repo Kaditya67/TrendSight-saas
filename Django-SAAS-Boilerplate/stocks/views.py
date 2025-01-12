@@ -51,6 +51,9 @@ def main_alerts(request):
 def portfolio(request):
     return render(request, 'stocks/portfolio.html')
 
+def custom_portfolio(request):
+    return render(request, 'stocks/portfolio/custom_portfolio.html')
+
 def settings(request):
     return render(request, 'stocks/settings.html')
 

@@ -162,3 +162,32 @@ def update_watchlist_count(sender, instance, **kwargs):
     """Updates the count of stocks and sectors when they are added/removed."""
     instance.update_count()  # Update the count field
     instance.save()  # Save the instance after count update
+
+class Portfolio(models.Model):
+    """
+    Represents a user's portfolio for a specific stock.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="portfolios")
+    stock = models.ForeignKey('Stock', on_delete=models.CASCADE, related_name="portfolios")
+    last_purchased_date = models.DateField()
+    quantity = models.PositiveIntegerField(default=0)
+    average_purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.user.username}'s portfolio: {self.stock.name} - {self.quantity} shares @ {self.average_purchase_price}"
+
+
+class SellStocks(models.Model):
+    """
+    Represents a sell transaction for a specific stock by a user.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sales")
+    stock = models.ForeignKey('Stock', on_delete=models.CASCADE, related_name="sales")
+    quantity = models.PositiveIntegerField()  # Quantity of stock sold
+    total_price = models.DecimalField(max_digits=15, decimal_places=2)  # Total price of the sale
+    last_sell_date = models.DateField()
+    is_profit = models.BooleanField()  # True if sale resulted in a profit, else False
+    profit_or_loss = models.DecimalField(max_digits=15, decimal_places=2)  # Amount of profit or loss
+
+    def __str__(self):
+        return f"{self.user.username} sold {self.quantity} shares of {self.stock.name} for {self.total_price}"
