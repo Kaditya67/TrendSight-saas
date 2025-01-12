@@ -130,17 +130,19 @@
             <input type="hidden" name="update_stocks" value="1" />
 
             <div class="mb-4">
-                <h4 class="font-semibold">Uncheck to remove</h4>
+                {% if selected_stocks %}
+                <h4 class="font-semibold text-red-700">Uncheck to remove</h4>
                 {% for stock in selected_stocks %}
                     <div class="flex items-center">
                         <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}" checked>
                         <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
                     </div>
                 {% endfor %}
+                {% endif %}
             </div>
 
             <div class="mb-4">
-                <h4 class="font-semibold">Check to Add</h4>
+                <h4 class="font-semibold text-blue-700">Check to Add</h4>
                 {% for stock in remaining_stocks %}
                     <div class="flex items-center">
                         <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}">
@@ -166,17 +168,19 @@
             <input type="hidden" name="update_sectors" value="1" />
 
             <div class="mb-4">
-                <h4 class="font-semibold">Uncheck to remove</h4>
+                {% if selected_sectors %}
+                <h4 class="font-semibold text-red-700">Uncheck to remove</h4>
                 {% for sector in selected_sectors %}
                     <div class="flex items-center">
                         <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}" checked>
                         <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
                     </div>
                 {% endfor %}
+                {% endif %}
             </div>
 
             <div class="mb-4">
-                <h4 class="font-semibold">Check to Add</h4>
+                <h4 class="font-semibold text-blue-700">Check to Add</h4>
                 {% for sector in remaining_sectors %}
                     <div class="flex items-center">
                         <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}">
@@ -198,46 +202,50 @@
     <!-- Table Section -->
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
         {% if watchlist_data %}
-        <table class="min-w-full table-auto">
-            <thead>
-                <tr class="bg-gray-800 text-white">
-                    <th class="py-3 px-4 text-left border-b">Symbol</th>
-                    {% for date in watchlist_data.0.dates %}
-                    <th class="py-3 px-4 text-left border-b">{{ date }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in watchlist_data %}
-                <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 border-b">{{ stock.symbol }}</td>
-                    {% for value in stock.data %}
-                    {% if value > 0 %}
-                    <td class="py-2 px-4 border-b bg-green-500">
-                        <span class="text-white">{{ value }}</span>
-                    </td>
-                    {% else %}
-                    <td class="py-2 px-4 border-b bg-red-500">
-                        <span class="text-white">{{ value }}</span>
-                    </td>
-                    {% endif %}
-                {% endfor %}
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="{{ watchlist_data.dates|length }}" class="py-2 px-4 text-center text-gray-500">No stocks found in this watchlist.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>        
+        <div class="relative">
+            <div class="overflow-x-scroll">
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr class="bg-gray-800 text-white">
+                            <th class="py-3 px-4 text-left border-b sticky left-0 bg-gray-800 z-10">Symbol</th>
+                            {% for date in watchlist_data.0.dates %}
+                            <th class="py-3 px-4 text-left border-b">{{ date }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in watchlist_data %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b sticky left-0 bg-white z-10">{{ stock.symbol }}</td>
+                            {% for value in stock.data %}
+                            {% if value > 0 %}
+                            <td class="py-2 px-4 border-b bg-green-500">
+                                <span class="text-white">{{ value }}</span>
+                            </td>
+                            {% else %}
+                            <td class="py-2 px-4 border-b bg-red-500">
+                                <span class="text-white">{{ value }}</span>
+                            </td>
+                            {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{{ watchlist_data.dates|length }}" class="py-2 px-4 text-center text-gray-500">No stocks found in this watchlist.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {% else %}
         <div class="p-4 text-center text-xl">
-            No data found !
+            No data found!
         </div>
         {% endif %}
-
     </div>
 </div>
+
 
 <script>
     // Get elements for Delete Modal

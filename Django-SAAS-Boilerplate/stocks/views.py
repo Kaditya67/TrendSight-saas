@@ -162,7 +162,11 @@ def watchlist(request):
         stock_data["data"].reverse()
         stocks.append(stock_data)
 
-    remaining_stocks = Stock.objects.all().exclude(symbol__in=selected_stocks).order_by('symbol')
+    remaining_stocks = []
+    for stock in Stock.objects.all():
+        if stock not in selected_stocks:
+            if len(FinancialStockData.objects.filter(stock=stock)) > 15:
+                remaining_stocks.append(stock)
 
     selected_sectors = []
     for sector in selected_watchlist.sectors.all():
@@ -189,7 +193,11 @@ def watchlist(request):
         sector_data["data"].reverse()
         stocks.append(sector_data)
 
-    remaining_sectors = Sector.objects.all().exclude(symbol__in=selected_sectors).order_by('symbol')
+    remaining_sectors = []
+    for sector in Sector.objects.all():
+        if sector not in selected_sectors:
+            if len(SectorFinancialData.objects.filter(sector=sector)) > 15:
+                remaining_sectors.append(sector)
 
     context = {
         "watchlists": watchlists,
@@ -321,7 +329,11 @@ def custom_watchlist(request, watchlist_id):
         stock_data["data"].reverse()
         stocks.append(stock_data)
 
-    remaining_stocks = Stock.objects.all().exclude(symbol__in=selected_stocks).order_by('symbol')
+    remaining_stocks = []
+    for stock in Stock.objects.all():
+        if stock not in selected_stocks:
+            if len(FinancialStockData.objects.filter(stock=stock)) > 15:
+                remaining_stocks.append(stock)
 
     # Gathering sector data for the selected watchlist
     selected_sectors = []
@@ -349,7 +361,12 @@ def custom_watchlist(request, watchlist_id):
         sector_data["data"].reverse()
         stocks.append(sector_data)
 
-    remaining_sectors = Sector.objects.all().exclude(symbol__in=selected_sectors).order_by('symbol')
+    remaining_sectors = []
+    for sector in Sector.objects.all():
+        if sector not in selected_sectors:
+            if len(SectorFinancialData.objects.filter(sector=sector)) > 15:
+                remaining_sectors.append(sector)
+    print(f"Remaining sectors: {remaining_sectors}")
 
     context = {
         "default_watchlist": default_watchlist,
