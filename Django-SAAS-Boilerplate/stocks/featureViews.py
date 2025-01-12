@@ -1,9 +1,15 @@
-from .models import Watchlist, Sector, Stock, FinancialStockData,ComputedStockData, SectorFinancialData, ComputedSectorData
-from django.db import transaction, IntegrityError
+from datetime import datetime, timedelta
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from datetime import timedelta, datetime
+from django.db import IntegrityError, transaction
+
 from user.models import User
+
+from .models import (ComputedSectorData, ComputedStockData, FinancialStockData,
+                     Sector, SectorFinancialData, Stock, Watchlist)
+
+
 @login_required
 def watchlist(request):
     user = request.user
@@ -152,9 +158,10 @@ def watchlist(request):
 
 
 
-from django.db import transaction, IntegrityError
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.db import IntegrityError, transaction
+from django.shortcuts import redirect, render
+
 
 def custom_watchlist(request, watchlist_id):
     user = request.user

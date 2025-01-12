@@ -5,7 +5,9 @@ from .calculateView import (compute_sector_indicators,
                             update_sectors, update_stock_indicators,
                             update_stocks)
 from .featureViews import (custom_watchlist, watchlist)
+from .models import (Portfolio, Sector, Stock, User, Watchlist,FinancialStockData, SellStocks)
 from .forms import UserProfileForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -51,8 +53,76 @@ def main_alerts(request):
 def portfolio(request):
     return render(request, 'stocks/portfolio.html')
 
+from django.shortcuts import redirect
+from django.urls import reverse
+
+@login_required
 def custom_portfolio(request):
-    return render(request, 'stocks/portfolio/custom_portfolio.html')
+    user = request.user
+    msg = ""
+    
+    if request.method == 'POST':
+        print(request.POST)
+        stock_id = request.POST.get("stock_id")  # e.g., "Reliance"
+        last_purchased_date = request.POST.get("last_purchased_date")  # e.g., "2023-01-01"
+        quantity = int(request.POST.get("quantity"))
+        average_purchase_price = float(request.POST.get("price_per_share"))  # e.g., 2500.0
+        
+        # Add the stock to the user's portfolio
+        Portfolio.objects.create(
+            user=user, 
+            stock_id=stock_id, 
+            last_purchased_date=last_purchased_date, 
+            quantity=quantity, 
+            average_purchase_price=average_purchase_price
+        )
+
+        # Add a success message (using PRG to avoid re-submission on reload)
+        request.session['msg'] = "Stock added to portfolio successfully!"
+        return redirect(reverse('custom_portfolio'))  # Redirect to the same view
+
+    # Retrieve the success message from the session and clear it
+    msg = request.session.pop('msg', "")
+
+    # Prepare stock list
+    stocks = [stock for stock in Stock.objects.all() if len(FinancialStockData.objects.filter(stock=stock)) > 15]
+
+    # Portfolio data
+    portfolio_data = []
+    total_invested_capital = 0
+    for record in Portfolio.objects.filter(user=user):
+        total_value = record.quantity * record.average_purchase_price
+        total_invested_capital += total_value
+        portfolio_data.append({
+            "stock": record.stock,
+            "last_purchased_date": record.last_purchased_date,
+            "quantity": record.quantity,
+            "average_purchase_price": record.average_purchase_price,
+            "total_value": total_value
+        })
+
+    # Sell transactions data
+    sell_data = []
+    for record in SellStocks.objects.filter(user=user):
+        sell_data.append({
+            "stock": record.stock,
+            "quantity": record.quantity,
+            "total_price": record.total_price,
+            "last_sell_date": record.last_sell_date,
+            "is_profit": record.is_profit,
+            "profit_or_loss": record.profit_or_loss
+        })
+
+    context = {
+        "username": user.name,
+        "msg": msg,
+        "stocks": stocks,
+        "portfolio_data": portfolio_data,
+        "sell_data": sell_data,
+        "total_invested_capital": total_invested_capital
+    }
+
+    return render(request, 'stocks/portfolio/custom_portfolio.html', context)
 
 def settings(request):
     return render(request, 'stocks/settings.html')

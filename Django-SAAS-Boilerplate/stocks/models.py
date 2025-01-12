@@ -174,7 +174,7 @@ class Portfolio(models.Model):
     average_purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.user.username}'s portfolio: {self.stock.name} - {self.quantity} shares @ {self.average_purchase_price}"
+        return f"{self.user.name}'s portfolio: {self.stock.name} - {self.quantity} shares"
 
 
 class SellStocks(models.Model):
@@ -190,4 +190,4 @@ class SellStocks(models.Model):
     profit_or_loss = models.DecimalField(max_digits=15, decimal_places=2)  # Amount of profit or loss
 
     def __str__(self):
-        return f"{self.user.username} sold {self.quantity} shares of {self.stock.name} for {self.total_price}"
+        return f"{self.user.name} sold {self.quantity} shares of {self.stock.name}"

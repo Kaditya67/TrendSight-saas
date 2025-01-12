@@ -7,7 +7,7 @@ from unfold.contrib.import_export.forms import ExportForm, ImportForm
 
 from .models import (ComputedSectorData, ComputedStockData, FinancialStockData,
                      PrevVolumes, Sector, SectorFinancialData, Stock)
-from .models import Watchlist
+from .models import Watchlist,Portfolio, SellStocks
 
 # Stock Models Administration
 class StockAdmin(ModelAdmin, ImportExportModelAdmin):
@@ -75,6 +75,23 @@ class WatchlistAdmin(ModelAdmin):
         return ", ".join(sector.name for sector in obj.sectors.all())
     get_sectors.short_description = 'Sectors'
 
+class PortfolioAdmin(ModelAdmin):
+    list_display = ('id', 'user', 'get_stock', 'last_purchased_date', 'quantity', 'average_purchase_price')
+    search_fields = ('user__name',) 
+
+    def get_stock(self, obj):
+        return obj.stock.name
+    get_stock.short_description = 'Stock'
+
+
+class SellStocksAdmin(ModelAdmin):
+    list_display = ('id', 'user', 'get_stock', 'total_price', 'quantity', 'last_sell_date', 'is_profit', 'profit_or_loss')
+    search_fields = ('user__name',) 
+
+    def get_stock(self, obj):
+        return obj.stock.name
+    get_stock.short_description = 'Stock'
+
 # Registering the models and their custom admins
 admin.site.register(Stock, StockAdmin)
 admin.site.register(FinancialStockData, FinancialStockDataAdmin)
@@ -84,3 +101,5 @@ admin.site.register(Sector, SectorAdmin)
 admin.site.register(SectorFinancialData, SectorFinancialDataAdmin)
 admin.site.register(ComputedSectorData, ComputedSectorDataAdmin)
 admin.site.register(Watchlist, WatchlistAdmin)
+admin.site.register(Portfolio, PortfolioAdmin)
+admin.site.register(SellStocks, SellStocksAdmin)
