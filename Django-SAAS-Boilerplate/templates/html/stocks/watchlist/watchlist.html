@@ -69,32 +69,41 @@
 </div>
 
 <!-- Modal for Adding Stocks to Watchlist -->
+<!-- Modal for Adding Stocks to Watchlist -->
 <div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
         <h3 class="text-xl font-semibold mb-4">Add Stocks to Watchlist</h3>
-        <form action="{% url 'watchlist'%}" method="POST">
+        
+        <!-- Search Input -->
+        <div class="mb-4">
+            <input type="text" id="searchStockInput" 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                   placeholder="Search stocks..." />
+        </div>
+        
+        <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="update_stocks" value="1" />
 
-            <div class="mb-4">
+            <div class="mb-4" id="selectedStocks">
                 {% if selected_stocks %}
-                <h4 class="font-semibold text-red-700">Uncheck to remove</h4>
+                <h4 class="font-semibold text-red-700">Note : Uncheck to remove</h4>
                 {% for stock in selected_stocks %}
-                    <div class="flex items-center">
-                        <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}" checked>
-                        <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
-                    </div>
+                <div class="flex items-center stock-item">
+                    <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}" checked>
+                    <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
+                </div>
                 {% endfor %}
                 {% endif %}
             </div>
 
-            <div class="mb-4">
+            <div class="mb-4" id="remainingStocks">
                 <h4 class="font-semibold text-blue-700">Check to Add</h4>
                 {% for stock in remaining_stocks %}
-                    <div class="flex items-center">
-                        <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}">
-                        <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
-                    </div>
+                <div class="flex items-center stock-item">
+                    <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}">
+                    <label for="stock-{{ stock.symbol }}" class="ml-2">{{ stock.symbol }}</label>
+                </div>
                 {% endfor %}
             </div>
 
@@ -106,33 +115,43 @@
     </div>
 </div>
 
+
+<!-- Modal for Adding Sectors to Watchlist -->
 <!-- Modal for Adding Sectors to Watchlist -->
 <div id="addSectorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
         <h3 class="text-xl font-semibold mb-4">Add Sector to Watchlist</h3>
+        
+        <!-- Search Input -->
+        <div class="mb-4">
+            <input type="text" id="searchSectorInput" 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                   placeholder="Search sectors..." />
+        </div>
+        
         <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="update_sectors" value="1" />
 
-            <div class="mb-4">
+            <div class="mb-4" id="selectedSectors">
                 {% if selected_sectors %}
-                <h4 class="font-semibold text-red-700">Uncheck to remove</h4>
+                <h4 class="font-semibold text-red-700">Note : Uncheck to remove</h4>
                 {% for sector in selected_sectors %}
-                    <div class="flex items-center">
-                        <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}" checked>
-                        <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
-                    </div>
+                <div class="flex items-center sector-item">
+                    <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}" checked>
+                    <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
+                </div>
                 {% endfor %}
                 {% endif %}
             </div>
 
-            <div class="mb-4">
+            <div class="mb-4" id="remainingSectors">
                 <h4 class="font-semibold text-blue-700">Check to Add</h4>
                 {% for sector in remaining_sectors %}
-                    <div class="flex items-center">
-                        <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}">
-                        <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
-                    </div>
+                <div class="flex items-center sector-item">
+                    <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}">
+                    <label for="sector-{{ sector.symbol }}" class="ml-2">{{ sector.symbol }}</label>
+                </div>
                 {% endfor %}
             </div>
 
@@ -143,6 +162,7 @@
         </form>
     </div>
 </div>
+
 <!-- Main Content -->
 <div class="mt-6 px-4">
     <!-- Table Section -->
@@ -191,6 +211,41 @@
 </div>
 
 <script>
+    // Search functionality for Add Stocks modal
+const searchStockInput = document.getElementById('searchStockInput');
+const stockItems = document.querySelectorAll('.stock-item');
+
+searchStockInput.addEventListener('input', () => {
+    const searchTerm = searchStockInput.value.toLowerCase();
+
+    stockItems.forEach(item => {
+        const stockLabel = item.querySelector('label').innerText.toLowerCase();
+        if (stockLabel.includes(searchTerm)) {
+            item.style.display = 'flex'; // Show matching stocks
+        } else {
+            item.style.display = 'none'; // Hide non-matching stocks
+        }
+    });
+});
+
+// Search functionality for Add Sectors modal
+const searchSectorInput = document.getElementById('searchSectorInput');
+const sectorItems = document.querySelectorAll('.sector-item');
+
+searchSectorInput.addEventListener('input', () => {
+    const searchTerm = searchSectorInput.value.toLowerCase();
+
+    sectorItems.forEach(item => {
+        const sectorLabel = item.querySelector('label').innerText.toLowerCase();
+        if (sectorLabel.includes(searchTerm)) {
+            item.style.display = 'flex'; // Show matching sectors
+        } else {
+            item.style.display = 'none'; // Hide non-matching sectors
+        }
+    });
+});
+
+
     // Get elements for the watchlist modal 
     const addWatchlistBtn = document.getElementById('addWatchlistBtn');
     const addWatchlistModal = document.getElementById('addWatchlistModal');
