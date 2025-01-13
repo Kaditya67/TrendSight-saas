@@ -55,6 +55,9 @@ def portfolio(request):
 
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.contrib import messages
+from decimal import Decimal
+
 
 @login_required
 def custom_portfolio(request):
@@ -63,23 +66,42 @@ def custom_portfolio(request):
     
     if request.method == 'POST':
         print(request.POST)
-        stock_id = request.POST.get("stock_id")  # e.g., "Reliance"
-        last_purchased_date = request.POST.get("last_purchased_date")  # e.g., "2023-01-01"
-        quantity = int(request.POST.get("quantity"))
-        average_purchase_price = float(request.POST.get("price_per_share"))  # e.g., 2500.0
-        
-        # Add the stock to the user's portfolio
-        Portfolio.objects.create(
-            user=user, 
-            stock_id=stock_id, 
-            last_purchased_date=last_purchased_date, 
-            quantity=quantity, 
-            average_purchase_price=average_purchase_price
-        )
+        if 'add_stocks' in request.POST:
+            stock_id = request.POST.get("stock_id")
+            last_purchased_date = request.POST.get("last_purchased_date")
+            quantity = int(request.POST.get("quantity", 0))
+            average_purchase_price = float(request.POST.get("price_per_share", 0.0))
 
-        # Add a success message (using PRG to avoid re-submission on reload)
-        request.session['msg'] = "Stock added to portfolio successfully!"
-        return redirect(reverse('custom_portfolio'))  # Redirect to the same view
+            try:
+                stock_record = Portfolio.objects.filter(user=user, stock_id=stock_id).first()
+
+                if stock_record:
+                    # Update existing stock record
+                    total_cost = stock_record.quantity * stock_record.average_purchase_price
+                    new_cost = quantity * Decimal(average_purchase_price)
+                    total_quantity = stock_record.quantity + quantity
+
+                    stock_record.average_purchase_price = (total_cost + new_cost) / total_quantity
+                    stock_record.quantity = total_quantity 
+                    stock_record.last_purchased_date = last_purchased_date
+                    stock_record.save()
+                else:
+                    # Create a new stock record
+                    Portfolio.objects.create(
+                        user=user,
+                        stock_id=stock_id,
+                        last_purchased_date=last_purchased_date,
+                        quantity=quantity,
+                        average_purchase_price=average_purchase_price,
+                    )
+                messages.success(request, "Stock added to portfolio successfully!")
+            except Exception as e:
+                print(e)
+                messages.error(request, "An error occurred while updating the portfolio.")
+            request.session['msg'] = "Stock added to portfolio successfully!"
+        elif 'sell_stocks' in request.POST:
+            pass
+        return redirect(reverse("custom_portfolio"))
 
     # Retrieve the success message from the session and clear it
     msg = request.session.pop('msg', "")
