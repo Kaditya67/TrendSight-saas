@@ -163,50 +163,55 @@
         
         <div id="sell-stock-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
             <div class="bg-white w-full max-w-lg p-8 rounded-lg shadow-lg">
-                <h3 class="text-xl font-semibold mb-6">Add Stock to Portfolio</h3>
+                <h3 class="text-xl font-semibold mb-6">Sell Stock</h3>
                 <form method="POST" action="{% url 'custom_portfolio' %}" class="space-y-4" id="sell-form">
                     {% csrf_token %}
-                    {% comment %} <input type="hidden" name="add_stocks" value="1">
-                    <input type="hidden" name="stock_id" id="stock_id">
-                
+                    <input type="hidden" name="sell_stocks" value="1">
+                    <input type="hidden" name="stock_id" id="sell_stock_id">
+        
+                    <!-- Stock Search -->
                     <div class="relative">
-                        <label for="stock-search" class="block text-gray-700 text-sm font-bold mb-2">Stock:</label>
+                        <label for="stock-sell-search" class="block text-gray-700 text-sm font-bold mb-2">Stock:</label>
                         <input 
                             type="text" 
-                            id="stock-search" 
+                            id="stock-sell-search" 
                             class="w-full px-3 py-2 border rounded mb-2" 
                             placeholder="Search for stock..."
                             autocomplete="off"
                             required
                         >
                         <div 
-                            id="stock-dropdown" 
+                            id="stock-sell-dropdown" 
                             class="absolute w-full bg-white border rounded mt-1 hidden z-10 shadow-lg max-h-60 overflow-auto">
-                            <ul id="stock-list" class="list-none p-0 m-0">
-                                {% for stock in stocks %}
-                                <li class="py-2 px-3 cursor-pointer hover:bg-gray-200" data-id="{{ stock.id }}" data-name="{{ stock.name }}">
-                                    {{ stock.name }}
+                            <ul id="stock-sell-list" class="list-none p-0 m-0">
+                                {% for item in portfolio_data %}
+                                <li class="py-2 px-3 cursor-pointer hover:bg-gray-200" data-id="{{ item.stock.id }}" data-name="{{ item.stock.name }}" data-quantity="{{ item.quantity }}" data-last-purchased-date="{{item.last_purchased_date}}">
+                                    {{ item.stock.name }}
                                 </li>
                                 {% endfor %}
                             </ul>
                         </div>
                     </div>
-                
+        
+                    <!-- Sell Date -->
                     <div>
-                        <label for="last_purchased_date" class="block text-gray-700 text-sm font-bold mb-2">Purchase Date:</label>
-                        <input type="date" name="last_purchased_date" id="last_purchased_date" required class="w-full px-3 py-2 border rounded">
+                        <label for="last_sell_date" class="block text-gray-700 text-sm font-bold mb-2">Sell Date:</label>
+                        <input type="date" name="last_sell_date" id="last_sell_date" required class="w-full px-3 py-2 border rounded">
                     </div>
-                
+        
+                    <!-- Quantity -->
                     <div>
                         <label for="quantity" class="block text-gray-700 text-sm font-bold mb-2">Quantity:</label>
-                        <input type="number" name="quantity" id="quantity" min="1" required class="w-full px-3 py-2 border rounded">
+                        <input type="number" name="quantity" id="sell-quantity" min="1" required class="w-full px-3 py-2 border rounded">
                     </div>
-                
+        
+                    <!-- Price per Share -->
                     <div>
-                        <label for="price_per_share" class="block text-gray-700 text-sm font-bold mb-2">Average Purchase Price:</label>
+                        <label for="price_per_share" class="block text-gray-700 text-sm font-bold mb-2">Average Sell Price:</label>
                         <input type="number" name="price_per_share" id="price_per_share" step="0.01" required class="w-full px-3 py-2 border rounded">
                     </div>
-                 {% endcomment %}
+        
+                    <!-- Action Buttons -->
                     <div class="flex justify-end space-x-4">
                         <button 
                             type="button" 
@@ -223,10 +228,9 @@
                 </form>
             </div>
         </div>
+        
 
         <script>
-
-            
             // Modal toggle for selling a stock
             const openSellModalBtn = document.getElementById('open-sell-modal-btn');
             const sellStockModal = document.getElementById('sell-stock-modal');
@@ -241,86 +245,118 @@
                 sellStockModal.classList.add('hidden');
             });
 
-            const searchInput = document.getElementById('stock-search');
-            const dropdown = document.getElementById('stock-dropdown');
-            const stockList = document.getElementById('stock-list');
-            const stockIdInput = document.getElementById('stock_id');
-            
-            // Handle input event for searching stocks
-            searchInput.addEventListener('input', function() {
-                const filter = searchInput.value.toUpperCase();
-                const items = stockList.getElementsByTagName('li');
-                let found = false;
-        
-                if (filter.length > 0) {
-                    dropdown.classList.remove('hidden');
-                } else {
-                    dropdown.classList.add('hidden');
-                }
-        
-                for (let i = 0; i < items.length; i++) {
-                    const txtValue = items[i].textContent || items[i].innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        items[i].style.display = ""; // Show matched option
-                        found = true;
-                    } else {
-                        items[i].style.display = "none"; // Hide non-matching option
-                    }
-                }
-        
-                // Show "No results found" if no matching items
-                const noResultOption = stockList.querySelector('li.cursor-not-allowed');
-                if (!found && filter.length > 0) {
-                    if (!noResultOption) {
-                        const noResult = document.createElement('li');
-                        noResult.classList.add('py-2', 'px-3', 'text-gray-500', 'cursor-not-allowed');
-                        noResult.textContent = "No results found";
-                        stockList.appendChild(noResult);
-                    }
-                } else {
-                    if (noResultOption) {
-                        stockList.removeChild(noResultOption);
-                    }
+             // Form submission check for stock selection
+            document.querySelector('#sell-form').addEventListener('submit', function(event) {
+                const stockIdSellInput = document.getElementById('sell_stock_id');
+                if (!stockIdSellInput.value) {
+                    event.preventDefault();
+                    alert('Please select a valid stock from the dropdown.');
                 }
             });
-         
-            // Handle stock selection from the dropdown
-            stockList.addEventListener('click', function(event) {
+
+            // Generalize the search functionality for both adding and selling stocks
+            function handleStockSearch(input, dropdown, stockList, stockIdInput) {
+                input.addEventListener('input', function() {
+                    const filter = input.value.toUpperCase();
+                    const items = stockList.getElementsByTagName('li');
+                    let found = false;
+
+                    if (filter.length > 0) {
+                        dropdown.classList.remove('hidden');
+                    } else {
+                        dropdown.classList.add('hidden');
+                    }
+
+                    for (let i = 0; i < items.length; i++) {
+                        const txtValue = items[i].textContent || items[i].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            items[i].style.display = ""; // Show matched option
+                            found = true;
+                        } else {
+                            items[i].style.display = "none"; // Hide non-matching option
+                        }
+                    }
+
+                    // Show "No results found" if no matching items
+                    const noResultOption = stockList.querySelector('li.cursor-not-allowed');
+                    if (!found && filter.length > 0) {
+                        if (!noResultOption) {
+                            const noResult = document.createElement('li');
+                            noResult.classList.add('py-2', 'px-3', 'text-gray-500', 'cursor-not-allowed');
+                            noResult.textContent = "No results found";
+                            stockList.appendChild(noResult);
+                        }
+                    } else {
+                        if (noResultOption) {
+                            stockList.removeChild(noResultOption);
+                        }
+                    }
+                });
+
+                // Handle stock selection from the dropdown
+                stockList.addEventListener('click', function(event) {
+                    if (event.target.tagName === 'LI') {
+                        const stockId = event.target.getAttribute('data-id');
+                        const stockName = event.target.getAttribute('data-name');
+                        input.value = stockName;
+                        stockIdInput.value = stockId;
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Close the dropdown when clicking outside of it
+                document.addEventListener('click', function(event) {
+                    if (!dropdown.contains(event.target) && event.target !== input) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Initialize both stock and sell stock search
+
+            handleStockSearch(document.getElementById('stock-search'), document.getElementById('stock-dropdown'), document.getElementById('stock-list'), document.getElementById('stock_id'));
+
+            const stockSellList = document.getElementById('stock-sell-list');
+            handleStockSearch(document.getElementById('stock-sell-search'), document.getElementById('stock-sell-dropdown'), stockSellList, document.getElementById('sell_stock_id'));
+            stockSellList.addEventListener('click', function(event) {
                 if (event.target.tagName === 'LI') {
                     const stockId = event.target.getAttribute('data-id');
                     const stockName = event.target.getAttribute('data-name');
-                    searchInput.value = stockName;
-                    stockIdInput.value = stockId;
-                    dropdown.classList.add('hidden');
+                    const stockQuantity = event.target.getAttribute('data-quantity'); // Get quantity
+            
+                    // Populate the input fields with the selected stock's data
+                    document.getElementById('stock-sell-search').value = stockName;
+                    document.getElementById('sell_stock_id').value = stockId;
+                    document.getElementById('sell-quantity').value = stockQuantity; // Set quantity automatically
+
+                    // Set the max value for the quantity input to the available stock quantity
+                    document.getElementById('sell-quantity').setAttribute('max', stockQuantity);
+
+                    document.getElementById('stock-sell-dropdown').classList.add('hidden'); // Close the dropdown
+
                 }
             });
-        
-            // Close the dropdown when clicking outside of it
-            document.addEventListener('click', function(event) {
-                if (!dropdown.contains(event.target) && event.target !== searchInput) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-        
-            // Modal toggle for adding a stock
+            
+            // Handle modal toggle for adding a stock
             const openModalBtn = document.getElementById('open-modal-btn');
             const addStockModal = document.getElementById('add-stock-modal');
             const cancelModalBtn = document.getElementById('cancel-modal-btn');
-        
+
             openModalBtn.addEventListener('click', () => {
                 addStockModal.classList.remove('hidden');
             });
-        
+
             cancelModalBtn.addEventListener('click', () => {
                 addStockModal.classList.add('hidden');
             });
-        
+
             // Form submission check for stock selection
-            document.querySelector('add-form').addEventListener('submit', function (event) {
+            document.querySelector('#add-form').addEventListener('submit', function(event) {
+                const stockIdInput = document.getElementById('stock_id');
                 if (!stockIdInput.value) {
                     event.preventDefault();
                     alert('Please select a valid stock from the dropdown.');
                 }
             });
-        </script>        
+</script>        
 {% endblock %}

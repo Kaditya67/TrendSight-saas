@@ -58,58 +58,128 @@ from django.urls import reverse
 from django.contrib import messages
 from decimal import Decimal
 
-
 @login_required
 def custom_portfolio(request):
     user = request.user
     msg = ""
-    
+
+    def add_stocks_to_portfolio():
+        stock_id = request.POST.get("stock_id")
+        last_purchased_date = request.POST.get("last_purchased_date")
+        quantity = int(request.POST.get("quantity", 0))
+        average_purchase_price = float(request.POST.get("price_per_share", 0.0))
+
+        try:
+            # Check if stock already exists in the portfolio
+            stock_record = Portfolio.objects.filter(user=user, stock_id=stock_id).first()
+
+            if stock_record:
+                # Update the stock quantity and average purchase price
+                total_cost = stock_record.quantity * stock_record.average_purchase_price
+                new_cost = quantity * Decimal(average_purchase_price)
+                total_quantity = stock_record.quantity + quantity
+
+                stock_record.average_purchase_price = (total_cost + new_cost) / total_quantity
+                stock_record.quantity = total_quantity
+                stock_record.last_purchased_date = last_purchased_date
+                stock_record.save()
+            else:
+                # Add new stock to the portfolio
+                Portfolio.objects.create(
+                    user=user,
+                    stock_id=stock_id,
+                    last_purchased_date=last_purchased_date,
+                    quantity=quantity,
+                    average_purchase_price=average_purchase_price,
+                )
+
+            messages.success(request, "Stock added to portfolio successfully!")
+
+        except Exception as e:
+            print(e)
+            messages.error(request, "An error occurred while updating the portfolio.")
+        
+        request.session['msg'] = "Stock added to portfolio successfully!"
+
+    def sell_stocks_from_portfolio():
+        stock_id = request.POST.get("stock_id")
+        last_sell_date = request.POST.get("last_sell_date")
+        quantity = int(request.POST.get("quantity", 0))
+        price_per_share = Decimal(request.POST.get("price_per_share", 0.0))
+
+        # Ensure the user has enough quantity in their portfolio
+        portfolio_entry = Portfolio.objects.filter(user=user, stock_id=stock_id).first()
+        if not portfolio_entry or portfolio_entry.quantity < quantity:
+            messages.error(request, "Not enough stock quantity to sell.")
+            return
+
+        # Calculate profit or loss from this sale
+        profit_or_loss_per_unit = Decimal(price_per_share) - Decimal(portfolio_entry.average_purchase_price)
+        total_profit_or_loss = profit_or_loss_per_unit * quantity
+        is_profit = total_profit_or_loss > 0
+
+        # Update portfolio after selling
+        if quantity >= portfolio_entry.quantity:
+            # If we are selling all of the stock, delete the portfolio entry
+            total_profit_or_loss = (Decimal(price_per_share) - Decimal(portfolio_entry.average_purchase_price)) * portfolio_entry.quantity
+            portfolio_entry.delete()  # Remove stock from the portfolio
+        else:
+            # If we are selling only a part of the stock, update quantity
+            portfolio_entry.quantity -= quantity
+            portfolio_entry.save()  # Save the reduced quantity
+
+        # Now handle the SellStocks table (where the transaction is recorded)
+        stock_record = SellStocks.objects.filter(stock_id=stock_id, user=user).first()
+
+        if stock_record:
+            # If a record exists, update the existing record
+            old_is_profit = stock_record.is_profit
+            old_profit_or_loss = stock_record.profit_or_loss
+
+            if old_is_profit and is_profit:
+                stock_record.profit_or_loss += total_profit_or_loss
+            elif old_is_profit and not is_profit:
+                profit_diff = old_profit_or_loss - total_profit_or_loss
+                stock_record.is_profit = profit_diff > 0
+                stock_record.profit_or_loss = profit_diff
+            elif not old_is_profit and not is_profit:
+                stock_record.profit_or_loss += total_profit_or_loss
+            else:
+                profit_diff = total_profit_or_loss - old_profit_or_loss
+                stock_record.is_profit = profit_diff > 0
+                stock_record.profit_or_loss = profit_diff
+
+            stock_record.quantity += quantity
+            stock_record.total_price += price_per_share * quantity
+            stock_record.last_sell_date = last_sell_date
+            stock_record.save()
+        else:
+            # Create a new SellStocks record if one doesn't exist
+            SellStocks.objects.create(
+                user=user,
+                stock_id=stock_id,
+                quantity=quantity,
+                total_price=price_per_share * quantity,
+                last_sell_date=last_sell_date,
+                is_profit=is_profit,
+                profit_or_loss=total_profit_or_loss
+            )
+
     if request.method == 'POST':
-        print(request.POST)
         if 'add_stocks' in request.POST:
-            stock_id = request.POST.get("stock_id")
-            last_purchased_date = request.POST.get("last_purchased_date")
-            quantity = int(request.POST.get("quantity", 0))
-            average_purchase_price = float(request.POST.get("price_per_share", 0.0))
-
-            try:
-                stock_record = Portfolio.objects.filter(user=user, stock_id=stock_id).first()
-
-                if stock_record:
-                    # Update existing stock record
-                    total_cost = stock_record.quantity * stock_record.average_purchase_price
-                    new_cost = quantity * Decimal(average_purchase_price)
-                    total_quantity = stock_record.quantity + quantity
-
-                    stock_record.average_purchase_price = (total_cost + new_cost) / total_quantity
-                    stock_record.quantity = total_quantity 
-                    stock_record.last_purchased_date = last_purchased_date
-                    stock_record.save()
-                else:
-                    # Create a new stock record
-                    Portfolio.objects.create(
-                        user=user,
-                        stock_id=stock_id,
-                        last_purchased_date=last_purchased_date,
-                        quantity=quantity,
-                        average_purchase_price=average_purchase_price,
-                    )
-                messages.success(request, "Stock added to portfolio successfully!")
-            except Exception as e:
-                print(e)
-                messages.error(request, "An error occurred while updating the portfolio.")
-            request.session['msg'] = "Stock added to portfolio successfully!"
+            add_stocks_to_portfolio()
         elif 'sell_stocks' in request.POST:
-            pass
+            sell_stocks_from_portfolio()
+
         return redirect(reverse("custom_portfolio"))
 
-    # Retrieve the success message from the session and clear it
+    # Get the success message from the session and clear it
     msg = request.session.pop('msg', "")
 
-    # Prepare stock list
+    # Prepare stock list (exclude stocks that have insufficient data)
     stocks = [stock for stock in Stock.objects.all() if len(FinancialStockData.objects.filter(stock=stock)) > 15]
 
-    # Portfolio data
+    # Portfolio data preparation
     portfolio_data = []
     total_invested_capital = 0
     for record in Portfolio.objects.filter(user=user):
@@ -151,7 +221,6 @@ def settings(request):
 
 def help(request):  
     return render(request, 'stocks/help.html')
-
 
 def add_watchlist(request):
     return render(request,'stocks/watchlist/watchlist.html')
