@@ -166,10 +166,18 @@ def custom_portfolio(request):
             )
 
     if request.method == 'POST':
+        print(request.POST)
         if 'add_stocks' in request.POST:
             add_stocks_to_portfolio()
         elif 'sell_stocks' in request.POST:
             sell_stocks_from_portfolio()
+        elif 'delete_record' in request.POST:
+            record_type = request.POST.get('record_type')
+            stock_id  = request.POST.get('stock_id')
+            if record_type == 'portfolio':
+                Portfolio.objects.filter(user=user, stock_id=stock_id).delete()
+            elif record_type == 'sell':
+                SellStocks.objects.filter(user=user, stock_id=stock_id).delete()
 
         return redirect(reverse("custom_portfolio"))
 
