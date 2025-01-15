@@ -328,29 +328,67 @@ def custom_watchlist(request, watchlist_id):
 
     return render(request, 'stocks/watchlist/custom_watchlist.html', context)
 
+from django.shortcuts import render, redirect
+from .models import Sector, Watchlist, SectorFinancialData, ComputedSectorData
 
 def sectors(request):
-    sector_records = Sector.objects.all()  # Get all stocks, not just the first
+    # Get all sector records
+    sector_records = Sector.objects.all()
     sectors = []
+    user = request.user 
+
+    # Fetch the watchlists associated with the user, ordered by count (descending)
+    watchlists = Watchlist.objects.filter(user=user).order_by('-count')
+    print(f"Watchlists: {watchlists}")
+    if request.method == 'POST':
+        print("POST : ", request.POST)
+        # Handle the POST request to add sector to watchlist
+        if 'add_to_watchlist' in request.POST:
+            # Get the sector_id and watchlist_name from the POST data
+            sector_id = request.POST.get('sector_id')
+            watchlist_id = request.POST.get('watchlist_name')
+
+            # Fetch the sector and watchlist from the database
+            try:
+                sector = Sector.objects.get(id=sector_id)
+                watchlist = Watchlist.objects.get(id=watchlist_id, user=user)
+                
+                if sector in watchlist.sectors.all():
+                    # If the sector is already in the watchlist, do nothing
+                    messages.error(request, "Sector is already in the watchlist.")
+                    return redirect('sectors')  # Replace 'sectors' with the name of your view
+                # Add the sector to the watchlist (you may want to adjust the logic here)
+                watchlist.sectors.add(sector)  # Assuming you have a ManyToMany field in Watchlist for sectors
+                watchlist.count += 1  # Increment the count of sectors in the watchlist
+                watchlist.save()
+                messages.success(request, "Sector added to watchlist successfully.")
+
+                # Optionally, you could redirect to avoid re-submitting the form
+                return redirect('sectors')  # Replace 'sectors' with the name of your view
+            except Sector.DoesNotExist:
+                print(f"Sector with id {sector_id} not found.")
+            except Watchlist.DoesNotExist:
+                print(f"Watchlist with id {watchlist_id} not found.")
+
+    # For each sector, gather the financial data and computed sector data
     for sector in sector_records:
-      
         data_records = SectorFinancialData.objects.filter(sector=sector).order_by('-date')[:30]
         if len(data_records) < 30:
-            continue 
+            continue  # Skip sectors with insufficient data
 
         ema_records = ComputedSectorData.objects.filter(sector=sector).order_by('-date')[:30]
         if len(ema_records) < 30:
-            continue
+            continue  # Skip sectors with insufficient EMA data
 
-          
         sector_data = {
+            "id": sector.id,
             "symbol": sector.symbol,
             "dates": [],
             "data": []
         }
 
         ema_counter = 0
-        for (record, ema_record) in reversed(list(zip(data_records, ema_records))):
+        for record, ema_record in reversed(list(zip(data_records, ema_records))):
             sector_data["dates"].append(record.date.strftime('%d %b'))
             if record.close > ema_record.ema30:
                 ema_counter = ema_counter + 1 if ema_counter >= 0 else 1
@@ -361,16 +399,18 @@ def sectors(request):
         sector_data["dates"].reverse()  # Ensure chronological order
         sector_data["data"].reverse()
         sectors.append(sector_data)
-    
+
     context = {
-        'sectors': sectors
+        'sectors': sectors,
+        'watchlists': watchlists
     }
-    # print(context)
     return render(request, 'stocks/Table/sector_table.html', context)
 
 def stock(request):
     stock_records = Stock.objects.all()  # Get all stocks, not just the first
     stocks = []
+    user = request.user 
+    watchlists = Watchlist.objects.filter(user=user).order_by('-count')
     for stock in stock_records:
       
         data_records = FinancialStockData.objects.filter(stock=stock).order_by('-date')[:30]
