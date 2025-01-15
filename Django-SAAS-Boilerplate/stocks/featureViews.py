@@ -339,9 +339,9 @@ def sectors(request):
 
     # Fetch the watchlists associated with the user, ordered by count (descending)
     watchlists = Watchlist.objects.filter(user=user).order_by('-count')
-    print(f"Watchlists: {watchlists}")
+    # print(f"Watchlists: {watchlists}")
     if request.method == 'POST':
-        print("POST : ", request.POST)
+        # print("POST : ", request.POST)
         # Handle the POST request to add sector to watchlist
         if 'add_to_watchlist' in request.POST:
             # Get the sector_id and watchlist_name from the POST data
@@ -356,7 +356,7 @@ def sectors(request):
                 if sector in watchlist.sectors.all():
                     # If the sector is already in the watchlist, do nothing
                     messages.error(request, "Sector is already in the watchlist.")
-                    return redirect('sectors')  # Replace 'sectors' with the name of your view
+                    return redirect('sector')  # Replace 'sectors' with the name of your view
                 # Add the sector to the watchlist (you may want to adjust the logic here)
                 watchlist.sectors.add(sector)  # Assuming you have a ManyToMany field in Watchlist for sectors
                 watchlist.count += 1  # Increment the count of sectors in the watchlist
@@ -364,7 +364,7 @@ def sectors(request):
                 messages.success(request, "Sector added to watchlist successfully.")
 
                 # Optionally, you could redirect to avoid re-submitting the form
-                return redirect('sectors')  # Replace 'sectors' with the name of your view
+                return redirect('sector')  # Replace 'sectors' with the name of your view
             except Sector.DoesNotExist:
                 print(f"Sector with id {sector_id} not found.")
             except Watchlist.DoesNotExist:
@@ -411,6 +411,35 @@ def stock(request):
     stocks = []
     user = request.user 
     watchlists = Watchlist.objects.filter(user=user).order_by('-count')
+
+    if request.method == 'POST':
+        if 'add_to_watchlist' in request.POST:
+                # Get the sector_id and watchlist_name from the POST data
+                stock_id = request.POST.get('stock_id')
+                watchlist_id = request.POST.get('watchlist_name')
+
+                # Fetch the sector and watchlist from the database
+                try:
+                    stock = Stock.objects.get(id=stock_id)
+                    watchlist = Watchlist.objects.get(id=watchlist_id, user=user)
+                    
+                    if stock in watchlist.stocks.all():
+                        # If the sector is already in the watchlist, do nothing
+                        messages.error(request, "Stock is already in the watchlist.")
+                        return redirect('stock')  # Replace 'sectors' with the name of your view
+                    # Add the sector to the watchlist (you may want to adjust the logic here)
+                    watchlist.stocks.add(stock)  # Assuming you have a ManyToMany field in Watchlist for sectors
+                    watchlist.count += 1  # Increment the count of sectors in the watchlist
+                    watchlist.save()
+                    messages.success(request, "Stock added to watchlist successfully.")
+
+                    # Optionally, you could redirect to avoid re-submitting the form
+                    return redirect('stock')  # Replace 'sectors' with the name of your view
+                except Stock.DoesNotExist:
+                    print(f"Stock with id {stock_id} not found.")
+                except Watchlist.DoesNotExist:
+                    print(f"Watchlist with id {watchlist_id} not found.")
+                    
     for stock in stock_records:
       
         data_records = FinancialStockData.objects.filter(stock=stock).order_by('-date')[:30]
@@ -423,6 +452,7 @@ def stock(request):
 
           
         stock_data = {
+            "id": stock.id,
             "symbol": stock.symbol,
             "dates": [],
             "data": []
@@ -442,7 +472,8 @@ def stock(request):
         stocks.append(stock_data)
     
     context = {
-        'stocks': stocks
+        'stocks': stocks,
+        'watchlists': watchlists
     }
     # print(context)
     return render(request, 'stocks/Table/stock_table.html', context)

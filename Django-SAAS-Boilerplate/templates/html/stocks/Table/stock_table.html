@@ -5,7 +5,7 @@
 {% block content %}
 <!-- Displaying Messages -->
 {% if messages %}
-    <div class="p-4">
+    <div class="p-4" id="messagesContainer">
         {% for message in messages %}
             <div class="alert text-white p-4 mb-4 rounded-lg 
                         {% if message.tags == 'success' %}
@@ -59,7 +59,13 @@
                 <tbody>
                     {% for stock in stocks %}
                     <tr class="hover:bg-gray-50 stock-row">
-                        <td class="sticky left-0 bg-white py-2 px-4 border-b z-10">{{ stock.symbol }}</td>
+                        <td class="sticky left-0 bg-white py-2 px-4 border-b z-10 flex">
+                            <!-- Plus Button -->
+                            <button class="text-green-500 hover:text-green-700 focus:outline-none pr-2" onclick="openModal('{{ stock.symbol }}', '{{ stock.id }}')">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                            <span>{{ stock.symbol }}</span>
+                        </td>
                         {% for value in stock.data %}
                         {% if value > 0 %}
                         <td class="py-2 px-4 border-b bg-green-400">
@@ -84,63 +90,112 @@
     {% endif %}
 </div>
 
+<!-- Modal Structure -->
+<div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center z-10">
+    <div class="bg-white p-8 rounded-xl w-96 max-w-lg shadow-lg">
+        <h2 class="text-2xl font-semibold text-center mb-6 text-gray-800">Add Stock to Watchlist</h2>
+
+        <!-- Modal Content -->
+        <p id="stockSymbol" class="text-center text-lg mb-6 text-gray-600"></p>
+
+        <!-- Watchlist Dropdown Form -->
+        <form id="addStockForm" action="{% url 'stock' %}" method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-6" {% if watchlists|length < 2 %}hidden{% endif %}>
+                <label for="watchlistSelect" class="block text-md font-medium text-gray-700 mb-3">Change Watchlist</label>
+                <select id="watchlistSelect" name="watchlist_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                    {% for watchlist in watchlists %}
+                        <option value="{{ watchlist.id }}">{{ watchlist.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <input type="hidden" id="stockId" name="stock_id" value="">
+            <input type="hidden" name="add_to_watchlist" value="1">
+
+            <div class="flex justify-between mt-4">
+                <button type="button" class="bg-gray-400 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-gray-500 transition duration-200" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="bg-blue-500 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-blue-600 transition duration-200">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     let sortDirection = true; // true for ascending, false for descending
 
-    // Function to filter stocks by symbol
-    function searchStocks() {
-        const searchQuery = document.getElementById('searchBar').value.toLowerCase();
-        const rows = document.querySelectorAll('.stock-row');
-        
-        rows.forEach(row => {
-            const symbol = row.querySelector('td').innerText.toLowerCase();
-            if (symbol.includes(searchQuery)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
+// Function to sort the table based on the column index
+function sortTable(columnIndex) {
+    const table = document.getElementById("stocksTable");
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    const isNumericColumn = columnIndex > 0; // Assuming numeric data for columns > 0
 
-    // Function to sort the table based on the column index
-    function sortTable(columnIndex) {
-        const table = document.getElementById("stocksTable");
-        const rows = Array.from(table.querySelectorAll("tbody tr"));
-        const isNumericColumn = columnIndex > 0;  // Assume dates or stock values are numeric columns
+    // Sort rows
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.cells[columnIndex]?.innerText.trim() || "";
+        const cellB = rowB.cells[columnIndex]?.innerText.trim() || "";
 
-        rows.sort((rowA, rowB) => {
-            const cellA = rowA.cells[columnIndex].innerText.trim();
-            const cellB = rowB.cells[columnIndex].innerText.trim();
-
-            if (isNumericColumn) {
-                return sortDirection
-                    ? parseFloat(cellA) - parseFloat(cellB)
-                    : parseFloat(cellB) - parseFloat(cellA);
-            } else {
-                return sortDirection
-                    ? cellA.localeCompare(cellB)
-                    : cellB.localeCompare(cellA);
-            }
-        });
-
-        // Reorder the rows in the table body
-        rows.forEach(row => table.querySelector("tbody").appendChild(row));
-
-        // Toggle sort direction for next click
-        sortDirection = !sortDirection;
-
-        // Toggle the sort icon
-        const icons = table.querySelectorAll(".fa-sort");
-        icons.forEach(icon => icon.classList.replace("fa-sort-up", "fa-sort"));
-        const clickedHeader = table.rows[0].cells[columnIndex];
-        const sortIcon = clickedHeader.querySelector("i");
-
-        if (sortDirection) {
-            sortIcon.classList.replace("fa-sort", "fa-sort-up");
+        // Check if column is numeric
+        if (isNumericColumn) {
+            const numA = parseFloat(cellA) || 0; // Default to 0 if NaN
+            const numB = parseFloat(cellB) || 0;
+            return sortDirection ? numA - numB : numB - numA;
         } else {
-            sortIcon.classList.replace("fa-sort", "fa-sort-down");
+            // Compare as strings
+            return sortDirection
+                ? cellA.localeCompare(cellB)
+                : cellB.localeCompare(cellA);
         }
+    });
+
+    // Reorder the rows in the table body
+    const tbody = table.querySelector("tbody");
+    rows.forEach(row => tbody.appendChild(row));
+
+    // Toggle sorting direction
+    sortDirection = !sortDirection;
+
+    // Update sort icons
+    const headers = table.querySelectorAll("th");
+    headers.forEach((header, index) => {
+        const icon = header.querySelector("i");
+        if (icon) {
+            icon.classList.remove("fa-sort-up", "fa-sort-down", "fa-sort");
+            if (index === columnIndex) {
+                icon.classList.add(sortDirection ? "fa-sort-up" : "fa-sort-down");
+            } else {
+                icon.classList.add("fa-sort");
+            }
+        }
+    });
+}
+    function openModal(symbol, stockId) {
+        document.getElementById('stockSymbol').innerText = `Do you want to add the stock: ${symbol}?`;
+        document.getElementById('stockId').value = stockId; // Set the sector_id in the hidden input field
+        document.getElementById('modal').classList.remove('hidden');
     }
+
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+    }
+
+    document.getElementById('addSectorForm').addEventListener('submit', function(event) { 
+        const stockId = document.getElementById('stockId').value;
+        const watchlistName = document.getElementById('watchlistSelect').value;
+
+        console.log("Stock ID:", stockIdy);
+        console.log("Watchlist Name:", watchlistName);
+
+        closeModal();
+    });
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
 </script>
 
 {% endblock %}
