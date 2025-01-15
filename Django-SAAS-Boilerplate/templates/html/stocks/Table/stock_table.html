@@ -1,0 +1,126 @@
+{% extends 'stocks/Table/base.html' %}
+
+{% block title %}Custom Portfolio{% endblock %}
+
+{% block content %}
+<!-- Search Bar Section -->
+<div class="p-4 relative">
+    <input 
+        type="text" 
+        id="searchBar" 
+        class="w-full px-6 py-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition-all"
+        placeholder="Search by Stock Symbol..." 
+        onkeyup="searchStocks()" 
+    />
+    <i class="fas fa-search absolute left-7 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+</div>
+
+<!-- Table Section -->
+<div class="overflow-x-auto bg-white shadow-md rounded-lg">
+    {% if stocks %}
+    <div class="relative">
+        <div class="overflow-x-auto">
+            <table class="min-w-full table-auto" id="stocksTable">
+                <thead>
+                    <tr class="bg-gray-800 text-white">
+                        <!-- Freeze the first column -->
+                        <th class="sticky left-0 bg-gray-800 py-3 px-4 text-left border-b z-10 cursor-pointer" onclick="sortTable(0)">
+                            Symbol
+                            <i class="fas fa-sort text-sm ml-2"></i>
+                        </th>
+                        {% for date in stocks.0.dates %}
+                        <th class="py-3 px-4 text-left border-b cursor-pointer" onclick="sortTable({{ forloop.counter }})">
+                            {{ date }}
+                            <i class="fas fa-sort text-sm ml-2"></i>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr class="hover:bg-gray-50 stock-row">
+                        <td class="sticky left-0 bg-white py-2 px-4 border-b z-10">{{ stock.symbol }}</td>
+                        {% for value in stock.data %}
+                        {% if value > 0 %}
+                        <td class="py-2 px-4 border-b bg-green-400">
+                            <span class="text-white">{{ value }}</span>
+                        </td>
+                        {% else %}
+                        <td class="py-2 px-4 border-b bg-red-500">
+                            <span class="text-white">{{ value }}</span>
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-lg text-gray-700">
+        No stock data available.
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    let sortDirection = true; // true for ascending, false for descending
+
+    // Function to filter stocks by symbol
+    function searchStocks() {
+        const searchQuery = document.getElementById('searchBar').value.toLowerCase();
+        const rows = document.querySelectorAll('.stock-row');
+        
+        rows.forEach(row => {
+            const symbol = row.querySelector('td').innerText.toLowerCase();
+            if (symbol.includes(searchQuery)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Function to sort the table based on the column index
+    function sortTable(columnIndex) {
+        const table = document.getElementById("stocksTable");
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        const isNumericColumn = columnIndex > 0;  // Assume dates or stock values are numeric columns
+
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex].innerText.trim();
+            const cellB = rowB.cells[columnIndex].innerText.trim();
+
+            if (isNumericColumn) {
+                return sortDirection
+                    ? parseFloat(cellA) - parseFloat(cellB)
+                    : parseFloat(cellB) - parseFloat(cellA);
+            } else {
+                return sortDirection
+                    ? cellA.localeCompare(cellB)
+                    : cellB.localeCompare(cellA);
+            }
+        });
+
+        // Reorder the rows in the table body
+        rows.forEach(row => table.querySelector("tbody").appendChild(row));
+
+        // Toggle sort direction for next click
+        sortDirection = !sortDirection;
+
+        // Toggle the sort icon
+        const icons = table.querySelectorAll(".fa-sort");
+        icons.forEach(icon => icon.classList.replace("fa-sort-up", "fa-sort"));
+        const clickedHeader = table.rows[0].cells[columnIndex];
+        const sortIcon = clickedHeader.querySelector("i");
+
+        if (sortDirection) {
+            sortIcon.classList.replace("fa-sort", "fa-sort-up");
+        } else {
+            sortIcon.classList.replace("fa-sort", "fa-sort-down");
+        }
+    }
+</script>
+
+{% endblock %}

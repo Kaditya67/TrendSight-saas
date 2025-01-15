@@ -18,6 +18,8 @@ urlpatterns = [
     path('watchlist/<int:watchlist_id>/', views.custom_watchlist, name='watchlist'),
 
     path('custom/portfolio/', views.custom_portfolio, name='custom_portfolio'),
+    path('table/stocks/', views.stock, name='stock'),
+    path('table/sectors/', views.sectors, name='sector'),
 
     path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
@@ -45,7 +47,7 @@ urlpatterns = [
     path('help/', views.help, name='help'),
     path('about/', views.about, name='about'),
     path('main_alerts/', views.main_alerts, name='main_alerts'),
-    path('stock/', views.stock, name='stock'),
+    
     path('',views.main_page,name='main_page'),
     path('sidebar',views.sidebar,name='sidebar'),
     path('navbarr',views.navbarr,name='navbarr'),
