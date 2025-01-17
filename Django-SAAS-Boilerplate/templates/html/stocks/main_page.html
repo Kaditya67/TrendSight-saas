@@ -11,6 +11,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Navbar with Logo and Name</title>
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Wancho&family=Oswald:wght@200..700&display=swap');
+      </style>
+    
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -18,11 +22,12 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: Oswald;
             background-color: #f4f4f9;
             color: #333;
             overflow-x: hidden;
             overflow-y: auto;
+            
         }
 
         .stock {
@@ -174,17 +179,17 @@
     
 </head>
 
-<body id="main_page">
+<body>
 
     {% include 'stocks/navbarr.html' %}
 
 
    <!-- Stock Section -->
    <div class="main_page stock mt-[4.4rem]">
-    <div class="content">
-        <h2>Stock Guard</h2>
-        <p>StockGuard is a new and efficient way to use market data with ease.</p>
-        <div class="quote" id="random-quote"></div>
+    <div class="content ml-7">
+        <h2 class="text-xl font bold mb-8">Stock Guard</h2>
+        <p class="mt-2">StockGuard is a new and efficient way to use market data with ease.</p>
+        <div class="quote mt-4" id="random-quote"></div>
     </div>
     <div class="rectangles">
         <div class="rectangle flex items-center justify-center">Nifty</div>
@@ -193,18 +198,18 @@
 </div>
 
   <!-- Features Section -->
-  <section id="features" class="py-5">
-    <h2 class="text-4xl font-bold text-left mb-10">Why StockGuard?</h2>
+  <section id="features" class="py-5 ">
+    <h2 class="text-4xl font-bold text-left mb-12 ml-5">Why StockGuard?</h2>
 
-    <div class="container">
+    <div class="container ml-5">
       <div class="row">
         <!-- Feature Card 1 -->
         <div class="col-md-4">
-          <div class="card mb-4">
-            <img src="{% static 'images/image1.jpg' %}" class="card-img-top" alt="Feature 1 Image">
+          <div class="card mb-6">
+            <img src="{% static 'images/stock.png' %}" class="card-img-top h-[10rem]" alt="Feature 1 Image">
             <div class="card-body">
               <h5 class="card-title text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Effortless Stock Analysis</h5>
-              <p class="card-text">Search for stocks, choose analysis periods, and gain insights through clear visualizations of trends and technical indicators - all within a user-friendly interface.</p>
+              <p class="card-text text-xl">Search for stocks, choose analysis periods, and gain insights through clear visualizations of trends and technical indicators - all within a user-friendly interface.</p>
             </div>
           </div>
         </div>
@@ -212,10 +217,10 @@
         <!-- Feature Card 2 -->
         <div class="col-md-4">
           <div class="card mb-4">
-            <img src="{% static 'images/image2.jpg' %}" class="card-img-top" alt="Feature 2 Image">
+            <img src="{% static 'images/data.png' %}" class="card-img-top h-[10rem]" alt="Feature 2 Image">
             <div class="card-body">
               <h5 class="card-title text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Data-Driven Decisions</h5>
-              <p class="card-text">Leverage TrendSight's calculations of technical indicators like EMAs and potentially RSI to understand market behavior and make informed investment choices</p>
+              <p class="card-text text-xl">Leverage TrendSight's calculations of technical indicators like EMAs and potentially RSI to understand market behavior and make informed investment choices</p>
             </div>
           </div>
         </div>
@@ -223,10 +228,10 @@
         <!-- Feature Card 3 -->
         <div class="col-md-4">
           <div class="card mb-4">
-            <img src="{% static 'images/image3.jpg' %}" class="card-img-top" alt="Feature 3 Image">
+            <img src="{% static 'images/alert.png' %}" class="card-img-top h-[10rem]" alt="Feature 3 Image">
             <div class="card-body">
               <h5 class="card-title text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Customizable Alerts</h5>
-              <p class="card-text">Set personalized alerts based on user-defined criteria, empowering users to stay informed about significant market developments and potential investment opportunities.</p>
+              <p class="card-text text-xl">Set personalized alerts based on user-defined criteria, empowering users to stay informed about significant market developments and potential investment opportunities.</p>
             </div>
           </div>
         </div>
@@ -235,27 +240,54 @@
   </section>
 
 
-  <div class="start w-[60%] h-[250px] bg-[#1f2937] mx-auto flex flex-col items-center justify-center rounded-3xl mt-15 p-6">
-    <div class="text-center">
-        <h1 class="text-3xl font-bold mb-4 text-white">Track Your Stock with Benefits:</h1>
-        <ul class="list-disc list-inside text-left text-white text-lg">
-            <li><i class="fas fa-briefcase mr-2"></i><strong>Portfolio:</strong> Easily manage and analyze your stock investments.</li>
-            <li><i class="fas fa-bell mr-2"></i><strong>Alerts:</strong> Get real-time notifications for stock movements.</li>
-            <li><i class="fas fa-chart-line mr-2"></i><strong>Charts:</strong> Visualize data with detailed stock performance charts.</li>
-        </ul>
-        <button class="mt-6 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300" id="get-btn">Get Started</button>
-    </div>
+    <div class="start w-[60%] h-[250px] bg-[#1f2937] mx-auto flex flex-col items-center justify-center rounded-3xl mt-15 p-6">
+      <div class="text-center">
+          <h1 class="text-3xl mb-6 text-white">Track Your Stock with Benefits:</h1>
+          <ul class="space-y-4 text-left text-white text-xl">
+              <li class="flex items-center">
+                  <i class="fas fa-briefcase text-xl text-yellow-500 mr-3"></i>
+                  <strong class="font-semibold"></strong> <span class="ml-1">Easily manage and analyze your stock investments.</span>
+              </li>
+              <li class="flex items-center">
+                  <i class="fas fa-bell text-xl text-yellow-500 mr-3"></i>
+                  <strong class="font-semibold"></strong> <span class="ml-1">Get real-time notifications for stock movements.</span>
+              </li>
+              <li class="flex items-center">
+                  <i class="fas fa-chart-line text-xl text-yellow-500 mr-3"></i>
+                  <strong class="font-semibold"></strong> <span class="ml-1">Visualize data with detailed stock performance charts.</span>
+              </li>
+          </ul>
+      </div>
+  </div>
+
+  
+</div>
+
+<div class="flex flex-col items-center mt-[6rem]">
+  <!-- Top Horizontal Line -->
+  <hr class="border-4 border-[#151e28] w-[60%] mx-auto mb-[2rem]">
+
+  <!-- Get Started Button -->
+  <button class="px-6 py-2 bg-[#151e28] text-white font-bold rounded-lg hover:bg-blue-600 transition-all duration-300">
+      Get Started
+  </button>
+
+  <!-- Bottom Horizontal Line -->
+  <hr class="border-4 border-[#151e28] w-[60%] mx-auto mt-[2rem]">
 </div>
 
 
+
+
+
 <!-- Newsletter Signup Section -->
-<section class="newsletter-signup py-10 bg-gray-100 mt-10 mb-10">
+<section class="newsletter-signup py-10 bg-gray-100 mt-14 mb-12">
     <div class="container mx-auto text-center">
       <h2 class="text-3xl font-semibold mb-4">Special Newsletter Signup</h2>
       <p class="mb-6">Get to know about our future templates</p>
       <form action="#" method="POST" class="flex justify-center">
         <input type="email" name="email" placeholder="Enter your email" class="p-2 rounded-l-md border border-gray-300" required>
-        <button type="submit" class="bg-blue-500 text-white p-2 rounded-r-md">Signup</button>
+        <button type="submit" class="bg-[#151e28] text-white p-2 rounded-r-md">Signup</button>
       </form>
     </div>
   </section>

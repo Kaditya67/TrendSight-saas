@@ -27,7 +27,7 @@ def login_view(request):
         if next_url and next_url != request.path:
             return redirect(next_url)
         
-        return redirect('home')
+        return redirect('dashboard')
 
     if request.method == "GET":
         return render(request, 'html/authentication/login.html', {
@@ -49,7 +49,7 @@ def login_view(request):
         if next_url and next_url != request.path:
             return redirect(next_url)
         
-        return redirect('home')
+        return redirect('dashboard')
 
     return render(request, 'html/authentication/login.html', {'error': f'Invalid email or password'})
 

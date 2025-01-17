@@ -1,43 +1,82 @@
 <!-- Add this in your <head> section -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-  <!-- sidebar.html -->
+  <!-- Sidebar -->
   <div 
     id="sidebar" 
-    class="fixed top-16 left-0 h-full w-[190px] bg-gradient-to-r from-blue-600 to-purple-600 mb-6 text-white transform -translate-x-full transition-transform duration-300">
-    <ul class="p-4 space-y-6">
-      <li class="flex items-center space-x-3">
-        <i class="fas fa-tachometer-alt w-5 h-5"></i>
-        <a href="/dashboard_new" class="font-bold hover:text-gray-400">Dashboard</a>
+    class="fixed top-0 left-0 h-full w-[60px] bg-[#151e28] text-white transform transition-all duration-300">
+    <ul class="space-y-3 mt-16">
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/dashboard_new" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-tachometer-alt w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Dashboard</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-3">
-        <i class="fas fa-chart-line w-5 h-5"></i>
-        <a href="/stock" class="font-bold hover:text-gray-400">Stock</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/stock" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-chart-line w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Stock</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-5">
-        <i class="fas fa-industry w-5 h-5"></i>
-        <a href="/sectors" class="font-bold hover:text-gray-400">Sector</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/sectors" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-industry w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Sector</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-5">
-        <i class="fas fa-clock w-5 h-5"></i>
-        <a href="#" class="font-bold hover:text-gray-400">Alerts</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="#" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-clock w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Alerts</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-3">
-        <i class="fas fa-list w-5 h-5"></i>
-        <a href="/watchlist" class="font-bold hover:text-gray-400">Watchlist</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/<int:watchlist_id>/" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-list w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Watchlist</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-3">
-        <i class="fas fa-briefcase w-5 h-5"></i>
-        <a href="/portfolio" class="font-bold hover:text-gray-400">Portfolio</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/portfolio" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-briefcase w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Portfolio</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-3">
-        <i class="fas fa-cog w-5 h-5"></i>
-        <a href="/settings" class="font-bold hover:text-gray-400">Settings</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/settings" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-cog w-5 h-5"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Settings</span>
+        </a>
       </li>
-      <li class="flex items-center space-x-3">
-        <i class="fas fa-sign-out-alt w-5 h-5"></i>
-        <a href="logout.html" class="font-bold hover:text-gray-400">Logout</a>
+      <li class="flex items-center space-x-3 m-1 pl-2">
+        <a href="/logout" class="flex items-center space-x-3 w-full hover:bg-gray-700 p-2 rounded-lg">
+          <i class="fas fa-sign-out-alt w-6 h-6"></i>
+          <span class="font-bold hover:text-gray-400 sidebar-text hidden">Logout</span>
+        </a>
       </li>
     </ul>
   </div>
+  
+  <script>
+    // Sidebar toggle functionality
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarText = document.querySelectorAll('.sidebar-text');
+    
+    sidebarToggle.addEventListener('click', () => {
+      if (sidebar.classList.contains('w-[60px]')) {
+        sidebar.classList.remove('w-[60px]');
+        sidebar.classList.add('w-[190px]');
+        sidebarText.forEach((text) => {
+          text.classList.remove('hidden');
+        });
+      } else {
+        sidebar.classList.remove('w-[190px]');
+        sidebar.classList.add('w-[60px]');
+        sidebarText.forEach((text) => {
+          text.classList.add('hidden');
+        });
+      }
+    });
+  </script>
   

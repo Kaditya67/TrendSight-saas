@@ -33,22 +33,27 @@
 
 
   <script>
-    const toggleButton = document.getElementById('toggleSidebar');
-    const sidebar = document.getElementById('sidebar');
-    const body = document.body;
-
-    toggleButton.addEventListener('click', () => {
-      // Toggle the sidebar visibility
-      sidebar.classList.toggle('-translate-x-full');
-
-      // Adjust body margin
-      if (!sidebar.classList.contains('-translate-x-full')) {
-        body.style.marginLeft = '190px'; // Adjust margin to match sidebar width
-      } else {
-        body.style.marginLeft = '0'; // Reset margin when sidebar is hidden
-      }
-    });
-
+      const toggleButton = document.getElementById('toggleSidebar');
+      const sidebar = document.getElementById('sidebar');
+      const body = document.body;
+    
+      // Ensure the sidebar is open by default
+      sidebar.classList.remove('-translate-x-full');
+      body.style.marginLeft = '190px'; // Set body margin to match sidebar width
+    
+      toggleButton.addEventListener('click', () => {
+        // Toggle the sidebar visibility
+        sidebar.classList.toggle('-translate-x-full');
+    
+        // Adjust body margin
+        if (!sidebar.classList.contains('-translate-x-full')) {
+          body.style.marginLeft = '190px'; // Adjust margin to match sidebar width
+        } else {
+          body.style.marginLeft = '0'; // Reset margin when sidebar is hidden
+        }
+      });
+    
+    
     
   </script>
   

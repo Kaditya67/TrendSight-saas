@@ -200,7 +200,6 @@ EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = env('EMAIL_HOST')
     EMAIL_PORT = 587
@@ -209,6 +208,8 @@ else:
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
+
+
 
     # Uncomment below if using Brevo or another ESP
     # EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
