@@ -35,7 +35,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('user/', include('user.urls')),
-    path('blog/', include('blog.urls')),
+    path('', include('blog.urls')),
     path('contact-us/', include('inquiry.urls')),
     path('payments/', include('payments.urls')),
 
@@ -44,7 +44,7 @@ urlpatterns = [
     path('ratelimit-error/', rate_limiter_view, name='ratelimit-error'),
 
     # add new path here
-    path('', include('stocks.urls')),
+    path('stocks', include('stocks.urls')),
     path('transactions/', include('transaction.urls')),
     # path('', home_view, name='home'),
 

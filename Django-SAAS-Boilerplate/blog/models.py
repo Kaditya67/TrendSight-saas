@@ -23,7 +23,7 @@ class Blog(models.Model):
     title = models.CharField(max_length=200, default="", unique=True)  
     body = models.TextField(null=True, blank=True)
 
-    draft = models.BooleanField(default=True, blank=True)
+    draft = models.BooleanField(default=False, blank=True)
     datetime = models.DateTimeField(auto_now=True) # stays at last updated
 
     def __str__(self):

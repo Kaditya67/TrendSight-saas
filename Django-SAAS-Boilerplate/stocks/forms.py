@@ -19,3 +19,5 @@ class UserProfileForm(forms.ModelForm):
         
         # Disable the email field so it can't be updated
         self.fields['email'].disabled = True
+
+

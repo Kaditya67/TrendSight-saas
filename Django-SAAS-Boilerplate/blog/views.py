@@ -1,27 +1,20 @@
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from .models import Blog
-from .froms import BlogImageForm
+from .forms import BlogForm, BlogImageForm
 
 from utils.decorators import login_required_rest_api
 
 @require_http_methods(['GET'])
 def get_blog(request, slug):
-    try:
-        
-        blog = Blog.objects.get(slug=slug, draft=False)
-
-
-        return render(request, 'html/blog/blog-view.html', {
-                                            'blog': blog,
-                                        })
-
-    except Blog.DoesNotExist:
-        return render(request, '404.html', status=404)
+    blog = get_object_or_404(Blog, slug=slug, draft=False)
+    return render(request, 'html/blog/blog-view.html', {
+        'blog': blog
+    })
 
 
 @require_http_methods(['GET'])
@@ -56,3 +49,22 @@ def upload_image(request):
 
 
     return JsonResponse({'error': 'Invalid form submission'}, status=401)
+
+
+
+@require_http_methods(['GET', 'POST'])
+@login_required_rest_api
+def create_blog(request):
+    if request.method == 'POST':
+        form = BlogForm(request.POST, request.FILES)
+        if form.is_valid():
+            blog = form.save(commit=False)
+            blog.user = request.user  # Set the user as the author of the blog
+            blog.save()
+            return redirect('blog:view_blog', slug=blog.slug)  # Redirect to the newly created blog's view page
+        else:
+            return render(request, 'html/blog/blog_create.html', {'form': form})
+
+    else:
+        form = BlogForm()
+        return render(request, 'html/blog/blog_create.html', {'form': form})

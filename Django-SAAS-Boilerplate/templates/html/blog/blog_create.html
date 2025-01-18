@@ -1,0 +1,12 @@
+{% comment %} {% extends 'stocks/base.html' %} {% endcomment %}
+
+{% block content %}
+  <h1>Create a New Blog</h1>
+  
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Blog</button>
+  </form>
+  
+{% endblock %}
