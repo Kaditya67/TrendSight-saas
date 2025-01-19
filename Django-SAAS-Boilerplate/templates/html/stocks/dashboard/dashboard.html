@@ -1,5 +1,4 @@
 {% extends "stocks/dashboard/base.html" %}
-
 {% block title %} Stocks {% endblock %}
 
 {% block content %}
@@ -47,16 +46,15 @@
         </h5>
         <div class="flex overflow-x-auto space-x-4 px-2 py-4 rounded-lg shadow-inner">
             {% for period, days in ema_trends.items %}
-            <div class="card border border-gray-300 shadow-md rounded-lg p-4 text-left hover:shadow-xl hover:bg-blue-100 transition-all min-w-[150px] font-bold bg-gradient-to-r from-blue-50 to-white">
+            <div class="card border border-gray-300 shadow-sm rounded-lg p-4 text-left hover:shadow-lg hover:bg-blue-100 transition-all min-w-[150px] font-bold bg-gradient-to-r from-{% if days > 0 %}green{% else %}red{% endif %}-50 to-white">
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm text-gray-600">{{ period|title }} EMA</p>
+                    <p class="text-md text-gray-600">{{ period|title }} EMA</p>
                 </div>
                 <span class="{% if days > 0 %}text-green-600{% else %}text-red-600{% endif %} text-sm">{{ days }} days</span>
             </div>
             {% endfor %}
         </div>
     </div>
-    
 
     <style>
         .chartWrapper {
@@ -70,121 +68,183 @@
         }
     
         #sectorChart {
-            height: 400px; /* Adjust height for better visibility */
+            height: 500px; /* Adjust height for better visibility */
         }
     </style>
     
     <!-- Graph Section -->
     <div class="mb-12">
-        <h5 class="text-2xl font-bold text-gray-800 mb-4">Day Counts by Sector</h5>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h5 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Day Counts by Sector</h5>
+
+            <!-- Form for Selecting EMA -->
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                <label for="emaCount" class="text-sm font-medium text-gray-700">Choose EMA</label>
+                <select id="emaCount" class="border-2 border-gray-300 rounded-lg px-6 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300 ease-in-out hover:shadow-lg hover:border-blue-500 bg-white">
+                    <option value="ema_10" {% if selected_ema == 'ema_10' %}selected{% endif %}>10 EMA</option>
+                    <option value="ema_20" {% if selected_ema == 'ema_20' %}selected{% endif %}>20 EMA</option>
+                    <option value="ema_30" {% if selected_ema == 'ema_30' %}selected{% endif %}>30 EMA</option>
+                    <option value="ema_50" {% if selected_ema == 'ema_50' %}selected{% endif %}>50 EMA</option>
+                    <option value="ema_100" {% if selected_ema == 'ema_100' %}selected{% endif %}>100 EMA</option>
+                    <option value="ema_200" {% if selected_ema == 'ema_200' %}selected{% endif %}>200 EMA</option>
+                </select>
+            </div>
+        </div>
+
         <!-- Scrollable container for the chart -->
         <div class="chartWrapper">
-            <!-- Canvas will stretch to accommodate more sectors, and it's scrollable horizontally -->
             <div class="chartAreaWrapper">
                 <canvas id="sectorChart"></canvas>
             </div>
         </div>
     </div>
+
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Parse the dynamically passed sector data (in JSON format)
+        const sectorData = JSON.parse('{{ sector_data_json|escapejs }}');
+        let chartInstance = null;
     
-<!-- Chart Section -->
-<div class="chartWrapper">
-    <div class="chartAreaWrapper">
-        <canvas id="sectorChart"></canvas>
-    </div>
-</div>
-
-<!-- Include Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Parse the dynamically passed sector data (in JSON format)
-    const sectorData = JSON.parse('{{ sector_data_json|escapejs }}');
-
-    const chartData = {
-        labels: sectorData.map(item => item.name),  // Extract sector names
-        datasets: [
-            {
-                label: 'Days',
-                backgroundColor: function(context) {
-                    const value = context.raw;
-                    return value > 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)';
-                },
-                borderColor: function(context) {
-                    const value = context.raw;
-                    return value > 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)';
-                },
-                borderWidth: 1,
-                data: sectorData.map(item => item.days),  // Extract the days data
-            },
-        ],
-    };
-
-    // Dynamically calculate the width based on number of sectors
-    const sectorCount = chartData.labels.length;
-    const widthPerSector = 110; // Width per sector in pixels
-    const chartWidth = sectorCount * widthPerSector;
-
-    // Chart configuration
-    const config = {
-        type: 'bar',
-        data: chartData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false,
-                },
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Sectors',
-                        font: {
-                            size: 14,
-                            weight: 'bold',
+        // Function to calculate dynamic chart height based on number of sectors
+        function calculateChartHeight(sectorCount) {
+            const maxHeight = 500; // Max height for smaller number of sectors
+            const minHeight = 100; // Min height for larger number of sectors
+            const heightFactor = 30; // Scaling factor for height
+    
+            // Calculate the height dynamically
+            let calculatedHeight = maxHeight - (sectorCount * heightFactor);
+            // Ensure the height doesn't go below the min height
+            return Math.max(calculatedHeight, minHeight);
+        }
+    
+        // Function to update chart data with selected EMA
+        function updateCharts(selectedEma = 'ema_10') {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+    
+            const chartData = {
+                labels: sectorData.map(item => item.symbol),  // Use sector name for the x-axis labels
+                datasets: [
+                    {
+                        label: selectedEma,
+                        backgroundColor: function(context) {
+                            const value = context.raw;
+                            return value > 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)';
+                        },
+                        borderColor: function(context) {
+                            const value = context.raw;
+                            return value > 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)';
+                        },
+                        borderWidth: 1,
+                        data: sectorData.map(item => item[selectedEma]),
+                    },
+                ],
+            };
+    
+            // Get number of sectors and calculate dynamic chart height
+            const sectorCount = chartData.labels.length;
+            const dynamicChartHeight = calculateChartHeight(sectorCount);
+    
+            // Dynamically calculate the width based on number of sectors
+            const widthPerSector = 110;
+            const chartWidth = sectorCount * widthPerSector;
+    
+            const config = {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const sectorName = tooltipItem.label; // Get the name of the sector
+                                    const value = tooltipItem.raw; // EMA value (days)
+                                    
+                                    // Get the sector symbol from sectorData using the index
+                                    const sectorSymbol = sectorData[tooltipItem.dataIndex].name;
+                                    
+                                    // Customize the tooltip to show name and symbol
+                                    const customLabel = `Sector: ${sectorSymbol}, EMA${selectedEma.replace('ema_', '').trim()}: ${value} days`;
+                                    return customLabel;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sectors',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12,
+                                },
+                                autoSkip: true,
+                                maxRotation: 45,
+                            },
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            maxBarThickness: 50,
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Days',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12,
+                                },
+                            },
                         },
                     },
-                    ticks: {
-                        font: {
-                            size: 12,
-                        },
-                        autoSkip: true,
-                        maxRotation: 45,
-                    },
-                    barPercentage: 0.6,
-                    categoryPercentage: 0.8,
-                    maxBarThickness: 50,
                 },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Days',
-                        font: {
-                            size: 14,
-                            weight: 'bold',
-                        },
-                    },
-                    ticks: {
-                        font: {
-                            size: 12,
-                        },
-                    },
-                },
-            },
-        },
-    };
-
-    // Render chart
-    const ctx = document.getElementById('sectorChart').getContext('2d');
-    new Chart(ctx, config);
-
-    // Dynamically set the width of the chartAreaWrapper
-    document.querySelector('.chartAreaWrapper').style.width = `${chartWidth}px`;
-</script> 
-
-
+            };
+    
+            // Render or update chart
+            const ctx = document.getElementById('sectorChart').getContext('2d');
+            chartInstance = new Chart(ctx, config);
+    
+            // Adjust the chart height dynamically by adding/removing Tailwind height classes
+            const chartElement = document.getElementById('sectorChart');
+            chartElement.classList.remove('md:h-[500px]', 'sm:h-[300px]'); // Remove any static height classes
+    
+            // Add dynamic height based on the calculated value
+            chartElement.classList.add(`h-[${dynamicChartHeight}px]`); // Apply dynamic height class
+    
+            // Dynamically set the width of the chartAreaWrapper
+            document.querySelector('.chartAreaWrapper').style.width = `${chartWidth}px`;
+        }
+    
+        // Event listener to update the chart when the dropdown selection changes
+        document.getElementById('emaCount').addEventListener('change', function(event) {
+            const selectedEma = event.target.value;
+            updateCharts(selectedEma);
+        });
+    
+        // Initialize the chart with the default EMA value
+        updateCharts('ema_10');
+    </script>
+    
+    
+    
     <!-- Broader Market Trend Table (Scrollable) -->
     <div class="mb-6">
         <label for="search" class="sr-only">Search</label>
@@ -197,11 +257,12 @@
             </span>
         </div>
     </div>
+
     <div class="card shadow-lg rounded-lg bg-white p-4">
         <h5 class="text-2xl font-semibold text-gray-800 mb-6 text-left">Sectoral Indices Trends - Daily</h5>
 
         <div class="overflow-x-auto"> <!-- Enables horizontal scrolling -->
-            <table class="min-w-full table-auto border-collapse text-sm text-left">
+            <table class="min-w-full table-auto border-collapse text-sm text-left" id="sectorTable">
                 <thead>
                     <tr class="bg-gray-800">
                         <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">Index</th>
@@ -215,18 +276,36 @@
                 </thead>
                 <tbody>
                     {% for index in sector_data_table %}
-                    <tr class="hover:bg-gray-50 transition-all duration-300">
+                    <tr class="hover:bg-gray-50 transition-all duration-300" data-name="{{ index.name | lower }}">
                         <td class="py-3 px-4 border border-gray-300 font-medium text-gray-700">{{ index.name }}</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold {% if index.ema_10 > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ index.ema_10 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold {% if index.ema_20 > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ index.ema_20 }} &#8595;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold {% if index.ema_30 > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ index.ema_30 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold {% if index.ema_50 > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ index.ema_50 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold {% if index.ema_100 > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ index.ema_100 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold {% if index.ema_200 > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ index.ema_200 }} &#8595;</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_10 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_10 }} &#8593;</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_20 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_20 }} &#8595;</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_30 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_30 }} &#8593;</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_50 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_50 }} &#8593;</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_100 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_100 }} &#8593;</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_200 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_200 }} &#8595;</td>
                     </tr>
                     {% endfor %}
                 </tbody>                
             </table>
         </div>
     </div>
+
+    <script>
+        // Function to filter table rows based on search input
+        document.getElementById('search').addEventListener('input', function(event) {
+            const searchQuery = event.target.value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+            const rows = document.querySelectorAll('#sectorTable tbody tr');
+
+            rows.forEach(function(row) {
+                const sectorName = row.getAttribute('data-name'); // Get the sector name from the data-name attribute
+                if (sectorName.includes(searchQuery)) {
+                    row.style.display = ''; // Show the row if it matches the search query
+                } else {
+                    row.style.display = 'none'; // Hide the row if it doesn't match
+                }
+            });
+        });
+    </script>
+
 {% endblock %}

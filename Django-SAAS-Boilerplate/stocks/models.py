@@ -204,4 +204,4 @@ class sectorIndicatorCount(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Count Sector Indicator for {self.sector.name}"
+        return f"Count Sector Data for {self.sector.name}"

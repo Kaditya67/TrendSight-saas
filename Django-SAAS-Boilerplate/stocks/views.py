@@ -33,78 +33,123 @@ def forget_password(request):
 def signup(request):
     return render(request, 'stocks/signup.html')
 
+from .models import Sector,SectorFinancialData,ComputedSectorData, sectorIndicatorCount
+
 def countDay():
-    pass
+    for sector in Sector.objects.all():
+        # print(f"Computing indicators for {sector.symbol} (ID: {sector.id})")
+        emas = [10, 20, 30, 50, 100, 200]
+        
+        # Initialize stock data dictionary
+        stock_data = {
+            "symbol": sector.symbol, 
+        }
+
+        # Retrieve the stock data and EMA records for the sector
+        stock_data_records = SectorFinancialData.objects.filter(sector=sector).order_by('-date')
+        stock_ema_records = ComputedSectorData.objects.filter(sector=sector).order_by('-date')
+        if len(stock_data_records) < 15 and len(stock_ema_records) < 15:
+            print(f"Insufficient data for {sector.symbol}")
+            continue
+        
+        # Initialize lists for each EMA in the stock_data dictionary
+        for ema in emas:
+            stock_data[f'ema{ema}'] = []
+
+        # Loop through the records and compute EMA counters
+        for ema in emas:
+            ema_counter = 0
+            for record, ema_record in zip(reversed(stock_data_records), reversed(stock_ema_records)): 
+                # Access the specific EMA value dynamically
+                ema_value = getattr(ema_record, f"ema{ema}")
+
+                # Compare close price with the EMA value
+                if record.close > ema_value:
+                    ema_counter = ema_counter + 1 if ema_counter >= 0 else 1
+                else:
+                    ema_counter = ema_counter - 1 if ema_counter <= 0 else -1
+                
+                # Append the computed EMA counter for this record
+            stock_data[f'ema{ema}'].append(ema_counter)
+
+        # Update in the database
+        # print(f"{sector.symbol}: EMA10 = {stock_data['ema10']}, EMA20 = {stock_data['ema20']}, "
+        #       f"EMA30 = {stock_data['ema30']}, EMA50 = {stock_data['ema50']}, "
+        #       f"EMA100 = {stock_data['ema100']}, EMA200 = {stock_data['ema200']}, "
+        #       f"Date = {stock_data_records[0].date}")
+        sectorIndicatorCount.objects.update_or_create(
+            sector=sector,
+            defaults={
+                'date' : stock_data_records[0].date,
+                'ema10Count': stock_data['ema10'][0],
+                'ema20Count': stock_data['ema20'][0],
+                'ema30Count': stock_data['ema30'][0],
+                'ema50Count': stock_data['ema50'][0],
+                'ema100Count': stock_data['ema100'][0],
+                'ema200Count': stock_data['ema200'][0],
+                'last_updated': stock_data_records[0].date
+            }
+        )
+        # print(stock_data)
+
+
 
 from django.shortcuts import render
 import json
 def dashboard(request):
-    countDay()
-    # Hardcoded EMA trends data
+    # countDay();           // count for sectors
+    # Fetch all data from the database
+    data = sectorIndicatorCount.objects.all()
 
-    ema_trends = {
-        '10_ema': 3,
-        '20_ema': -2,
-        '30_ema': 5,
-        '50_ema': 8,
-        '100_ema': 12,
-        '200_ema': -18,
-    }
+    # Filter the "NIFTY 50" sector from the already fetched data
+    ema_trends = next((item for item in data if item.sector.name == "NIFTY 50"), None)
 
-    sector_data_table = [
-        {'name': 'IT', 'days': 5, 'ema_10': 3, 'ema_20': -1, 'ema_30': 4, 'ema_50': 7, 'ema_100': 10, 'ema_200': -2},
-        {'name': 'Finance', 'days': -2, 'ema_10': -1, 'ema_20': -3, 'ema_30': 1, 'ema_50': 4, 'ema_100': 6, 'ema_200': 0},
-        {'name': 'Energy', 'days': 4, 'ema_10': 5, 'ema_20': 2, 'ema_30': 3, 'ema_50': -2, 'ema_100': 1, 'ema_200': -3},
-        {'name': 'Pharma', 'days': -4, 'ema_10': -2, 'ema_20': -5, 'ema_30': -3, 'ema_50': 1, 'ema_100': -1, 'ema_200': -4},
-        {'name': 'Auto', 'days': 7, 'ema_10': 5, 'ema_20': 6, 'ema_30': 8, 'ema_50': 9, 'ema_100': 12, 'ema_200': 3},
-        {'name': 'FMCG', 'days': -3, 'ema_10': -4, 'ema_20': -1, 'ema_30': 1, 'ema_50': -3, 'ema_100': -2, 'ema_200': -1},
-        {'name': 'Realty', 'days': 2, 'ema_10': 1, 'ema_20': 4, 'ema_30': 6, 'ema_50': 7, 'ema_100': 5, 'ema_200': 0},
-        {'name': 'Metals', 'days': 9, 'ema_10': 7, 'ema_20': 8, 'ema_30': 10, 'ema_50': 12, 'ema_100': 15, 'ema_200': 6},
-        {'name': 'Media', 'days': -2, 'ema_10': -1, 'ema_20': -3, 'ema_30': 2, 'ema_50': 4, 'ema_100': 1, 'ema_200': -5},
-        # Add more sectors as needed
-    ]
+    if ema_trends:
+        ema_trends_sector = {
+            '10': ema_trends.ema10Count,
+            '20': ema_trends.ema20Count,
+            '30': ema_trends.ema30Count,
+            '50': ema_trends.ema50Count,
+            '100': ema_trends.ema100Count,
+            '200': ema_trends.ema200Count,
+        }
+    else:
+        ema_trends_sector = None
 
-    sector_data = [
-        {'name': 'IT', 'days': 8},
-        {'name': 'Finance', 'days': -2},
-        {'name': 'Energy', 'days': 4},
-        {'name': 'Pharma', 'days': -4},
-        {'name': 'Auto', 'days': 7},
-        {'name': 'FMCG', 'days': -3},
-        {'name': 'Realty', 'days': 2},
-        {'name': 'Metals', 'days': 9},
-        {'name': 'Media', 'days': -2},
-        {'name': 'Infra', 'days': 6},
-        {'name': 'Chemical', 'days': -5},
-        {'name': 'Retail', 'days': 3},
-        {'name': 'Construction', 'days': 4},
-        {'name': 'Telecom', 'days': -2},
-        {'name': 'Agri', 'days': 1},
-        {'name': 'Education', 'days': 5},
-        {'name': 'Healthcare', 'days': -3},
-        {'name': 'Logistics', 'days': 2},
-        {'name': 'Textiles', 'days': -1},
-        {'name': 'Tourism', 'days': 4},
-        {'name': 'Entertainment', 'days': 3},
-        {'name': 'Aerospace', 'days': 7},
-        {'name': 'Shipping', 'days': 1},
-        {'name': 'Automotive', 'days': -2},
-        {'name': 'Technology', 'days': 6},
-        {'name': 'Manufacturing', 'days': 4},
-        {'name': 'Food & Beverages', 'days': 3},
-        {'name': 'Mining', 'days': -1},
-        {'name': 'Biotech', 'days': 0},
-        {'name': 'Agriculture', 'days': 2},
-        {'name': 'Government', 'days': 5}
-    ]
+    # Generate sector data table
+    sector_data_table = []
+    sector_data = []
+    for sector in data:
+        sector_data_table.append({
+            'name': sector.sector.name,
+            'ema_10': sector.ema10Count,
+            'ema_20': sector.ema20Count,
+            'ema_30': sector.ema30Count,
+            'ema_50': sector.ema50Count,
+            'ema_100': sector.ema100Count,
+            'ema_200': sector.ema200Count,
+        })
+
+        sector_data.append({
+            'symbol': sector.sector.symbol,
+            'name': sector.sector.name,
+            'ema_10': sector.ema10Count,
+            'ema_20': sector.ema20Count,
+            'ema_30': sector.ema30Count,
+            'ema_50': sector.ema50Count,
+            'ema_100': sector.ema100Count,
+            'ema_200': sector.ema200Count,
+        })
 
     context = {
-        'sector_data_table': sector_data_table,
+        'sector_data_table': sector_data_table[::-1],
         'sector_data_json': json.dumps(sector_data),
-        'ema_trends': ema_trends,
+        'ema_trends': ema_trends_sector, 
     }
+    # print(context)
 
     return render(request, 'stocks/dashboard/dashboard.html', context)
+
 
 def graph_partial(request):
     return render(request, 'stocks/graph_partial.html')
