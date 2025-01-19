@@ -107,7 +107,7 @@
         <div class="container mx-auto p-6 flex items-center justify-between">
             <!-- Logo -->
             <h1 class="text-4xl font-semibold tracking-tight header-logo">
-                <a href="/" class="text-white hover:text-gray-200">TrendSight</a>
+                <a href="{% url "dashboard" %}" class="text-white hover:text-gray-200">TrendSight</a>
             </h1> 
 
             <!-- Search Bar --> 
@@ -121,8 +121,8 @@
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex space-x-3 text-lg">
                 <a href="/blog/" class="nav-link navbar-text px-4 py-3">Blog</a>
-                <a href="/portfolio/" class="nav-link navbar-text px-4 py-3">Portfolio</a>
-                <a href="/" class="nav-link navbar-text px-4 py-3">Watchlist</a>
+                <a href="{% url "custom_portfolio" %}" class="nav-link navbar-text px-4 py-3">Portfolio</a>
+                <a href="{% url "watchlist" %}" class="nav-link navbar-text px-4 py-3">Watchlist</a>
             </nav>
 
             <!-- Right Section (Login/Signup or Profile Icon) -->
@@ -176,10 +176,10 @@
         <div class="container mx-auto flex justify-between items-center text-gray-200 space-x-6 overflow-x-auto whitespace-nowrap px-6">
             <!-- Left Section -->
             <div class="flex space-x-6">
-                <a href="/category/technology/" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <a href="{% url "stock" %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                     <i class="fas fa-chart-line mr-1"></i> Stocks
                 </a>
-                <a href="/category/finance/" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <a href="{% url "sector" %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                     <i class="fas fa-coins mr-1"></i> Sectors
                 </a>
                 <a href="/category/lifestyle/" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
@@ -191,16 +191,16 @@
                 <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                     <i class="fas fa-phone mr-2"></i>Contact</a> 
                 </a>
-                <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <a href="{% url "settings" %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                     <i class="fas fa-cog mr-2"></i>Settings</a> 
                 </a>
                 <div class="dropdown hidden sm:block">
                     <button class="dropbtn hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">More <i class="fa fa-caret-down"></i>
                     </button>
                     <div class="dropdown-content">
-                      <a href="#" class="hover:text-blue-500">
+                      <a href="{% url "help" %}" class="hover:text-blue-500">
                         <i class="fas fa-info mr-2"></i>Help us</a>
-                      <a href="#" class="hover:text-blue-500">
+                      <a href="{% url "about" %}" class="hover:text-blue-500">
                         <i class="fas fa-phone mr-2"></i>Contact</a> 
                     </div>
                   </div> 
@@ -208,7 +208,7 @@
 
          <!-- Right Section (Settings Link) -->
         <div class="flex items-center space-x-6 hover:text-gray-300">
-            <a href="/category/health/" class="inline-block transition duration-200 px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <a href="{% url "settings" %}" class="inline-block transition duration-200 px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <span class="hidden sm:inline-block"><i class="fas fa-cog"></i> Settings</span>
             </a>
         </div>
