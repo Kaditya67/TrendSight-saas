@@ -191,3 +191,17 @@ class SellStocks(models.Model):
 
     def __str__(self):
         return f"{self.user.name} sold {self.quantity} shares of {self.stock.name}"
+    
+class sectorIndicatorCount(models.Model):
+    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name="sector_indicator_counts")
+    date = models.DateField(null=True,blank=True)
+    ema10Count = models.IntegerField()
+    ema20Count = models.IntegerField()
+    ema30Count = models.IntegerField()
+    ema50Count = models.IntegerField()
+    ema100Count = models.IntegerField()
+    ema200Count = models.IntegerField() 
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Count Sector Indicator for {self.sector.name}"
