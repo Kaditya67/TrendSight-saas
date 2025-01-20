@@ -723,6 +723,7 @@ def stock_chart(request, stock_id):
     # symbol = request.GET.get('symbol', 'TATAMOTORS.NS')
     stock_symbols = Stock.objects.all()
     sector_symbols = Sector.objects.all()
+    emas = [10,20,30,50,10,200]
 
     # Function to fetch stock data and moving average data
     def get_stock_data(symbol, num_days):
@@ -756,7 +757,8 @@ def stock_chart(request, stock_id):
             'symbol': symbol,
             'stock_symbols':stock_symbols,
             'sector_symbols':sector_symbols,
-            'stock_id':stock_id
+            'stock_id':stock_id,
+            'emas':emas
         }
 
         return render(request, 'stocks/charts/stock_charts.html', context)
@@ -770,7 +772,8 @@ def stock_chart(request, stock_id):
         'symbol': symbol, 
         'stock_symbols':stock_symbols,
         'sector_symbols':sector_symbols,
-        'stock_id':stock_id
+        'stock_id':stock_id,
+        'emas':emas
     }
 
     return render(request, 'stocks/charts/stock_charts.html', context)
