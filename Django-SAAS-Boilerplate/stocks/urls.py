@@ -13,7 +13,7 @@ urlpatterns = [
     path('update/stock_indicators/', views.update_stock_indicators, name='update_stock_indicators'),
     path('update/sector_indicators/', views.update_sector_indicators, name='update_sector_indicators'),
 
-    path('profile/', views.profile, name='profile'),
+    path('profile/', views.profile, name='profile_settings'),
     path('watchlist/', views.watchlist, name='watchlist'),
     path('watchlist/<int:watchlist_id>/', views.custom_watchlist, name='watchlist'),
 

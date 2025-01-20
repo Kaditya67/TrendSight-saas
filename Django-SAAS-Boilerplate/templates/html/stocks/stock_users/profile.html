@@ -2,81 +2,253 @@
 
 {% block title %}Profile{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white px-4 sm:px-6 md:px-8 py-10 rounded-lg shadow-lg">
-    <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-8 text-gray-800">Edit Profile</h2>
-    
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
-        {% csrf_token %}
+<div class="flex flex-wrap lg:flex-nowrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+    <!-- Profile Edit Section -->
+    <div class="max-w-4xl w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-white px-4 sm:px-6 md:px-8 py-10 rounded-lg shadow-lg mr-4">
+        <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-8 text-gray-800">Edit Profile</h2>
         
-        <!-- Email Field -->
-        <div>
-            <label for="id_email" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Email:</label>
-            {{ form.email }}
-        </div>
-        
-        <!-- Name Field -->
-        <div>
-            <label for="id_name" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Name:</label>
-            {{ form.name }}
-        </div>
-        
-        <!-- Profile Picture Section -->
-        <div>
-            <label for="id_dp" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Profile Picture:</label>
-            <div class="flex flex-wrap items-center gap-4">
-                {% if user.dp %}
-                    <img src="{{ user.dp.url }}" alt="Profile Picture" 
-                         class="h-20 w-20 sm:h-24 sm:w-24 object-cover rounded-full border-2 border-gray-300">
-                    <div class="flex flex-col justify-center">
-                        <span class="text-sm font-medium text-gray-600">Current Picture</span>
-                        <span class="text-sm text-gray-400">{{ user.dp.name }}</span>
-                    </div>
-                {% endif %}
-                
-                <input type="file" name="dp" id="id_dp" 
-                       class="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto text-sm font-medium text-gray-600 hover:border-gray-400 focus:ring-2 focus:ring-blue-600 focus:outline-none">
-            </div>
-            <div id="imagePreview" class="mt-4 hidden">
-                <img id="previewImg" src="" alt="Image Preview" 
-                     class="h-20 w-20 sm:h-24 sm:w-24 object-cover rounded-full border-2 border-gray-300">
-            </div>
-            <script>
-                function previewImage(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const imgElement = document.getElementById('previewImg');
-                            imgElement.src = e.target.result;
-                            imgElement.parentElement.classList.remove('hidden');
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-                document.getElementById('id_dp').addEventListener('change', previewImage);
-            </script>
-        </div>
-
-        <!-- Phone Number Field -->
-        <div>
-            <label for="id_phone_no" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Phone Number:</label>
-            {{ form.phone_no }}
-        </div>
-        
-        <!-- Submit Button -->
-        <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <!-- Update Profile Button -->
-            <button type="submit" 
-                    class="bg-blue-600 text-white font-semibold py-3 px-6 w-full sm:w-auto rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105">
-                Update Profile
-            </button>
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="profileForm">
+            {% csrf_token %}
             
-            <!-- Request Password Reset Button -->
-            <a href="{% url 'password-reset' %}" 
-               class="bg-red-600 text-white font-semibold py-3 px-6 w-full sm:w-auto rounded-lg shadow-md hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105">
-                Request Password Reset
-            </a>
-        </div>
-    </form> 
+            <!-- Email Field -->
+            <div>
+                <label for="id_email" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Email:</label>
+                {{ form.email }}
+            </div>
+            
+            <!-- Name Field -->
+            <div>
+                <label for="id_name" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Name:</label>
+                {{ form.name }}
+            </div>
+            
+            <!-- Profile Picture Section -->
+            <div>
+                <div class="flex justify-between">
+                    <label for="id_dp" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Profile Picture:</label>
+                    <!-- Edit Button (Pen Icon) -->
+                    <button type="button" id="editProfilePictureButton" class="text-blue-600 hover:text-blue-800">
+                        <i class="fa-regular fa-pen-to-square"></i> Edit
+                    </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-4">
+                    {% if user.dp %}
+                        <img src="{{ user.dp.url }}" alt="Profile Picture" 
+                             class="h-20 w-20 sm:h-24 sm:w-24 object-cover rounded-full border-2 border-gray-300" id="profilePicturePreview">
+                        <div class="flex flex-col justify-center">
+                            <span class="text-sm font-medium text-gray-600 hidden md:block">Current Picture</span>
+                            <span class="text-sm text-gray-400 hidden md:block">{{ user.dp.name }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- Hidden file input for updating profile picture -->
+                <input type="file" id="id_dp" name="dp" class="hidden">
+            </div>
+
+            <!-- Modal (Hidden initially) -->
+            <div id="profilePictureModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+                <div class="bg-white p-6 rounded-lg w-96">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Change Profile Picture</h2>
+                    
+                    <!-- Image Preview in Modal -->
+                    <div id="modalImagePreview" class="mt-4 hidden">
+                        <img id="modalPreviewImg" src="" alt="Image Preview" class="h-24 w-24 object-cover rounded-full border-2 border-gray-300">
+                    </div>
+                    
+                    <!-- File Input for New Profile Picture -->
+                    <input type="file" id="modalFileInput" class="border border-gray-300 rounded-lg py-2 px-4 w-full text-sm font-medium text-gray-600 hover:border-gray-400 focus:ring-2 focus:ring-blue-600 focus:outline-none" onchange="previewImageInModal(event)">
+                
+                    <button type="button" id="closeModalButton" class="mt-4 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700">
+                        Cancel
+                    </button>
+                    <button type="button" id="saveProfileButton" class="mt-4 text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700">
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <!-- Phone Number Field -->
+            <div>
+                <label for="id_phone_no" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Phone Number:</label>
+                {{ form.phone_no }}
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="mt-8 flex flex-row justify-between items-center gap-4">
+                <button type="submit" id="updateProfileButton" 
+                        class="bg-gray-600 text-white font-semibold py-3 px-6 sm:w-auto rounded-lg shadow-md focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        disabled>
+                        <i class="fa-regular fa-floppy-disk"></i> Save
+                </button>
+            </div>
+        </form> 
+    </div>
+
+    <!-- Settings Section -->
+    <div class="max-w-4xl w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-white px-6 sm:px-8 py-8 rounded-lg shadow-xl">
+        <h2 class="text-2xl sm:text-3xl font-semibold text-center mb-8 text-gray-800">Email Alert Settings</h2>
+        
+        <form>
+            <!-- Market Updates Setting -->
+            <div class="flex items-center justify-between p-4 rounded-lg">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded-md" id="marketUpdates">
+                    <label for="marketUpdates" class="text-lg text-gray-700">Market Updates</label>
+                </div>
+            </div>
+
+            <!-- New Features Setting -->
+            <div class="flex items-center justify-between p-4 rounded-lg">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded-md" id="newFeatures">
+                    <label for="newFeatures" class="text-lg text-gray-700">Information on New Features</label>
+                </div>
+            </div>
+
+            <!-- Personalized Offers Setting -->
+            <div class="flex items-center justify-between p-4 rounded-lg">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded-md" id="personalizedOffers">
+                    <label for="personalizedOffers" class="text-lg text-gray-700">Personalized Offers</label>
+                </div>
+            </div>
+
+            <hr>
+            <!-- Default EMA Setting -->
+            <div class="flex items-center justify-between p-4 rounded-lg">
+                <div class="flex items-center gap-4">
+                    <label for="defaultEma" class="text-lg text-gray-700">Default EMA:</label>
+                    <select id="defaultEma" name="defaultEma" class="form-select h-10 w-24 text-gray-700 border-gray-300 rounded-md">
+                        <option value="10">EMA 10</option>
+                        <option value="20">EMA 20</option>
+                        <option value="50">EMA 50</option>
+                        <option value="100">EMA 100</option>
+                        <option value="200">EMA 200</option>
+                    </select>
+                </div>
+            </div> 
+            <!-- Save Settings Button -->
+            <div class="flex justify-end mt-4">
+                <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105">
+                    <i class="fa-regular fa-floppy-disk"></i> Save 
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<div class="flex flex-wrap lg:flex-nowrap justify-left gap-4 sm:gap-6 md:gap-8 lg:gap-10 mt-10">
+    <div class="flex justify-between max-w-4xl w-full sm:w-3/4 md:w-2/3 lg:w-1/2 bg-white px-4 sm:px-6 md:px-8 py-10 rounded-lg shadow-lg mr-4">
+        <!-- Request Password Reset Button -->
+        <label for="id_password_reset" class="text-base sm:text-lg font-medium text-gray-700 block mb-2">Request Password reset :</label> 
+        <a href="{% url 'password-reset' %}" 
+            class="bg-red-600 text-white font-semibold py-3 px-6 sm:w-auto rounded-lg shadow-md hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:outline-none flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock"></i>
+            <span class="hidden lg:block">Reset</span>
+        </a>
+    </div> 
+</div>
+
+
+
+<script>
+    let changeCount = 0; // Variable to track changes
+
+    // Preview the selected image in the modal
+    function previewImageInModal(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = document.getElementById('modalPreviewImg');
+                imgElement.src = e.target.result;
+                imgElement.style.display = 'block';  // Show the preview image
+                document.getElementById('modalImagePreview').style.display = 'block';  // Show the preview container
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Form change listener for enabling the 'Update Profile' button
+    const form = document.getElementById('profileForm');
+    const updateButton = document.getElementById('updateProfileButton');
+    const initialFormData = new FormData(form);
+
+    function checkForChanges() {
+        const currentFormData = new FormData(form);
+        let formChanged = false;
+        changeCount = 0; // Reset change count
+
+        for (let [key, value] of currentFormData.entries()) {
+            if (initialFormData.get(key) !== value) {
+                formChanged = true;
+                changeCount++;  // Increase count if there is a change
+            }
+        }
+
+        if (changeCount > 0) {
+            updateButton.classList.remove("bg-gray-600");
+            updateButton.classList.add("bg-blue-600");
+            updateButton.disabled = false;
+        } else {
+            updateButton.disabled = true;
+            updateButton.classList.remove("bg-blue-600");
+            updateButton.classList.add("bg-gray-600");
+        }
+    }
+
+    // Handle saving the profile picture
+    document.getElementById('saveProfileButton').addEventListener('click', function() {
+        const fileInput = document.getElementById('modalFileInput');
+        const file = fileInput.files[0];
+        
+        if (file) {
+            console.log("File is present: ", file);
+            // Get the main file input field from the form
+            const formImageInput = document.getElementById('id_dp');
+            const formImagePreview = document.getElementById('profilePicturePreview');
+            
+            // Check if formImageInput exists before trying to update it
+            if (formImageInput) {
+                // Manually update the form file input with the selected file
+                const dataTransfer = new DataTransfer();  // Creates a new DataTransfer object (used to update the file input)
+                dataTransfer.items.add(file);  // Add the new file to it
+                formImageInput.files = dataTransfer.files;  // Update the form input files
+        
+                // Update the file preview in the form with the selected image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    formImagePreview.src = e.target.result;  // Update the image preview
+                };
+                reader.readAsDataURL(file);
+            } else {
+                console.error("Form input with id 'id_dp' not found!");
+            }
+        
+            // Close the modal after saving
+            document.getElementById('profilePictureModal').classList.add('hidden');
+        }
+    });
+
+    // Show the modal when the edit button is clicked
+    document.getElementById('editProfilePictureButton').addEventListener('click', function() {
+        document.getElementById('profilePictureModal').classList.remove('hidden');
+    });
+
+    // Close the modal when the close button is clicked
+    document.getElementById('closeModalButton').addEventListener('click', function() {
+        document.getElementById('modalFileInput').value = ''; // Clear file input
+        document.getElementById('modalPreviewImg').src = ''; // Clear image preview
+        document.getElementById('modalImagePreview').style.display = 'none'; // Hide image preview container
+        document.getElementById('profilePictureModal').classList.add('hidden');
+        changeCount -= 1; // Reset change count when the modal is canceled
+    });
+
+    // Add event listeners to all form fields
+    form.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('input', checkForChanges);
+        input.addEventListener('change', checkForChanges);
+    });
+</script>
+
 {% endblock %}

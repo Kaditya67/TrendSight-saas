@@ -128,7 +128,7 @@
             <!-- Right Section (Login/Signup or Profile Icon) -->
             <div class="hidden md:flex items-center">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="text-white hover:text-gray-200">
+                    <a href="{% url 'profile_settings' %}" class="text-white hover:text-gray-200">
                         {% if user_avatar.url %}
                             <img src="{{ user_avatar.url }}" alt="User Avatar" class="w-10 h-10 rounded-full">
                         {% else %}
@@ -171,7 +171,7 @@
             <a href="{% url "custom_portfolio" %}" class="block px-6 py-3 hover:bg-gray-700">Portfolio</a>
             <a href="/blog/" class="block px-6 py-3 hover:bg-gray-700">Blog</a>
             {% if user.is_authenticated %} 
-            <a href="{% url 'profile' %}" class="block pl-6 pr-3 py-3 hover:bg-gray-700"><i class="fa-regular fa-user mr-4 text-white"></i></a>
+            <a href="{% url 'profile_settings' %}" class="block pl-6 pr-3 py-3 hover:bg-gray-700"><i class="fa-regular fa-user mr-4 text-white"></i></a>
             {% endif %}
         </div> 
     </div>
@@ -196,7 +196,7 @@
                 <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                     <i class="fas fa-phone mr-2"></i>Contact</a> 
                 </a>
-                <a href="{% url "settings" %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <a href="{% url "profile_settings" %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                     <i class="fas fa-cog mr-2"></i>Settings</a> 
                 </a>
                 <div class="dropdown hidden sm:block">
@@ -213,7 +213,7 @@
 
          <!-- Right Section (Settings Link) -->
         <div class="flex items-center space-x-6 hover:text-gray-300">
-            <a href="{% url "settings" %}" class="inline-block transition duration-200 px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <a href="{% url "profile_settings" %}" class="inline-block transition duration-200 px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <span class="hidden sm:inline-block"><i class="fas fa-cog"></i> Settings</span>
             </a>
             {% if user.is_authenticated %}

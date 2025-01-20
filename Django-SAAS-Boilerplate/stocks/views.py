@@ -190,7 +190,7 @@ def profile(request):
     else:
         form = UserProfileForm(instance=user)
 
-    return render(request, 'stocks/stock_users/profile.html', {'form': form})
+    return render(request, 'stocks/stock_users/profile.html', {'form': form,'user_avatar': request.user.dp if request.user.dp else None})
 
 def main_page(request):
     return render(request,'stocks/main_page.html')
