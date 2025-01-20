@@ -38,6 +38,7 @@ urlpatterns = [
     # path('close_position/', views.close_position, name='close_position'),
     # path('closed-positions/', views.closed_positions, name='closed_positions'),
     path('dashboard/', views.dashboard, name='dashboard'),  # URL for the sectoral dashboard
+    path('dashboard_new/', views.dashboard_new, name='dashboard_new'),  # URL for the sectoral dashboard
     path('graph/<str:type>/<str:symbol>/<int:ema_value>/', views.graph_partial, name='graph'),
     path('portfolio/', views.portfolio, name='portfolio'),
     

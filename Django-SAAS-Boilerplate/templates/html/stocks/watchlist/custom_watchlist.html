@@ -1,4 +1,4 @@
-{% extends 'stocks/watchlist/base.html' %}
+{% extends 'stocks/dashboard/base.html' %}
 
 {% block title %}Watchlist{% endblock %}
 
@@ -46,7 +46,7 @@
         <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="watchlist_name" class="block text-sm font-medium text-gray-700">Watchlist Name</label>
+                <label for="watchlist_name" class="block text-sm font-medium text-gray-700 text-left">Watchlist Name</label>
                 <input type="text" id="watchlist_name" name="watchlist_name" class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg" required>
             </div>
             <div class="flex justify-end space-x-4">
@@ -92,7 +92,7 @@
         <form action="{% url 'watchlist' selected_watchlist.id %}" method="POST">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="watchlist_name_rename" class="block text-sm font-medium text-gray-700">New Name</label>
+                <label for="watchlist_name_rename" class="block text-sm font-medium text-gray-700 text-left">New Name</label>
                 <input type="text" id="watchlist_name_rename" name="watchlist_name_rename" class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
             </div>
             <div class="flex justify-end space-x-4">
@@ -138,7 +138,7 @@
             <!-- Selected Stocks -->
             <div class="mb-4">
                 {% if selected_stocks %}
-                <h4 class="font-semibold text-red-700">Note : Uncheck to remove</h4>
+                <h4 class="font-semibold text-red-700 text-left">Note : Uncheck to remove</h4>
                 {% for stock in selected_stocks %}
                     <div class="stock-item flex items-center">
                         <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}" checked>
@@ -150,7 +150,7 @@
 
             <!-- Remaining Stocks -->
             <div class="mb-4">
-                <h4 class="font-semibold text-blue-700">Check to Add</h4>
+                <h4 class="font-semibold text-blue-700 text-left">Check to Add</h4>
                 {% for stock in remaining_stocks %}
                     <div class="stock-item flex items-center">
                         <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}">
@@ -185,7 +185,7 @@
 
             <div class="mb-4">
                 {% if selected_sectors %}
-                <h4 class="font-semibold text-red-700">Note : Uncheck to remove</h4>
+                <h4 class="font-semibold text-red-700 text-left">Note : Uncheck to remove</h4>
                 {% for sector in selected_sectors %}
                     <div class="sector-item flex items-center">
                         <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}" checked>
@@ -196,7 +196,7 @@
             </div>
 
             <div class="mb-4">
-                <h4 class="font-semibold text-blue-700">Check to Add</h4>
+                <h4 class="font-semibold text-blue-700 text-left">Check to Add</h4>
                 {% for sector in remaining_sectors %}
                     <div class="sector-item flex items-center">
                         <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}">

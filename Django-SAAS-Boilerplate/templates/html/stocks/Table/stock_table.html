@@ -1,4 +1,4 @@
-{% extends 'stocks/Table/base.html' %}
+{% extends 'stocks/dashboard/base.html' %}
 
 {% block title %}Custom Portfolio{% endblock %}
 
@@ -7,21 +7,18 @@
 {% if messages %}
     <div class="p-4" id="messagesContainer">
         {% for message in messages %}
-            <div class="alert text-white p-4 mb-4 rounded-lg 
-                        {% if message.tags == 'success' %}
-                            bg-green-500
-                        {% elif message.tags == 'error' %}
-                            bg-red-500
-                        {% elif message.tags == 'info' %}
-                            bg-blue-500
-                        {% elif message.tags == 'warning' %}
-                            bg-yellow-500
+            <div class="alert text-white text-left p-4 mb-4 rounded-lg 
+                        {% if message.tags == 'success' %}bg-green-500
+                        {% elif message.tags == 'error' %}bg-red-500
+                        {% elif message.tags == 'info' %}bg-blue-500
+                        {% elif message.tags == 'warning' %}bg-yellow-500
+                        {% else %}bg-gray-500
                         {% endif %}">
-                <span>{{ message }}</span>
+                {{ message }}
             </div>
         {% endfor %}
     </div>
-{% endif %}
+{% endif %} 
 
 <!-- Search Bar Section -->
 <div class="p-4 relative">

@@ -6,6 +6,7 @@ from .calculateView import (compute_sector_indicators,
                             update_stocks)
 from .featureViews import (custom_watchlist, watchlist, stock, sectors, custom_portfolio)
 from .forms import UserProfileForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -96,6 +97,8 @@ def countDay():
 
 from django.shortcuts import render
 import json
+
+@login_required
 def dashboard(request):
     # countDay();           // count for sectors
     # Fetch all data from the database
@@ -145,11 +148,14 @@ def dashboard(request):
         'sector_data_table': sector_data_table[::-1],
         'sector_data_json': json.dumps(sector_data),
         'ema_trends': ema_trends_sector, 
+        'user_avatar': request.user.dp if request.user.dp else None
     }
     # print(context)
 
     return render(request, 'stocks/dashboard/dashboard.html', context)
 
+def dashboard_new(request):
+    return render(request, 'stocks/dashboard_new.html')
 
 def graph_partial(request):
     return render(request, 'stocks/graph_partial.html')

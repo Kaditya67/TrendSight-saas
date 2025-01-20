@@ -47,7 +47,7 @@
     <div class="flex overflow-x-auto space-x-4 px-2 py-4 rounded-lg shadow-inner">
         {% for period, days in ema_trends.items %}
         <div class="card border border-gray-300 shadow-sm rounded-lg p-4 text-left hover:shadow-lg hover:bg-gradient-to-r from-{% if days > 0 %}green{% else %}red{% endif %}-50 to-white transition-all min-w-[150px] font-bold relative"> 
-            
+
             <!-- Small logo positioned in the top right corner -->
             <div class="absolute top-2 right-2 w-6 h-6">
                 {% if days > 0 %}<i class="fa fa-caret-up text-green-500"></i>{% else %}<i class="fa fa-caret-down text-red-500"></i>{% endif %}
@@ -269,28 +269,59 @@
         <h5 class="text-2xl font-semibold text-gray-800 mb-6 text-left">Sectoral Indices Trends - Daily</h5>
 
         <div class="overflow-x-auto"> <!-- Enables horizontal scrolling -->
-            <table class="min-w-full table-auto border-collapse text-sm text-left" id="sectorTable">
+            <table class="min-w-full table-auto border-collapse text-sm text-left border-black" id="sectorTable">
                 <thead>
-                    <tr class="bg-gray-800">
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">Index</th>
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">10 EMA</th>
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">20 EMA</th>
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">30 EMA</th>
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">50 EMA</th>
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">100 EMA</th>
-                        <th class="py-3 px-4 font-medium text-gray-100 border border-gray-300 whitespace-nowrap">200 EMA</th>
-                    </tr>
-                </thead>
-                <tbody>
                     {% for index in sector_data_table %}
                     <tr class="hover:bg-gray-50 transition-all duration-300" data-name="{{ index.name | lower }}">
-                        <td class="py-3 px-4 border border-gray-300 font-medium text-gray-700">{{ index.name }}</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_10 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_10 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_20 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_20 }} &#8595;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_30 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_30 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_50 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_50 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_100 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_100 }} &#8593;</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left {% if index.ema_200 > 0 %}bg-green-400{% else %}bg-red-400{% endif %}">{{ index.ema_200 }} &#8595;</td>
+                        <td class="sticky left-0 py-3 px-4 border border-gray-300 font-medium text-gray-700 bg-white z-10">{{ index.name }}</td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                            {% if index.ema_10 > 50 %}bg-green-500
+                            {% elif index.ema_10 > 0 %}bg-green-400
+                            {% elif index.ema_10 < -50 %}bg-red-500
+                            {% else %}bg-red-400
+                            {% endif %}">
+                            {{ index.ema_10 }} {% if index.ema_10 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                        </td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                            {% if index.ema_20 > 50 %}bg-green-500
+                            {% elif index.ema_20 > 0 %}bg-green-400
+                            {% elif index.ema_20 < -50 %}bg-red-500
+                            {% else %}bg-red-400
+                            {% endif %}">
+                            {{ index.ema_20 }} {% if index.ema_20 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                        </td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                            {% if index.ema_30 > 50 %}bg-green-500
+                            {% elif index.ema_30 > 0 %}bg-green-400
+                            {% elif index.ema_30 < -50 %}bg-red-500
+                            {% else %}bg-red-400
+                            {% endif %}">
+                            {{ index.ema_30 }} {% if index.ema_30 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                        </td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                            {% if index.ema_50 > 50 %}bg-green-500
+                            {% elif index.ema_50 > 0 %}bg-green-400
+                            {% elif index.ema_50 < -50 %}bg-red-500
+                            {% else %}bg-red-400
+                            {% endif %}">
+                            {{ index.ema_50 }} {% if index.ema_50 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                        </td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                            {% if index.ema_100 > 50 %}bg-green-500
+                            {% elif index.ema_100 > 0 %}bg-green-400
+                            {% elif index.ema_100 < -50 %}bg-red-500
+                            {% else %}bg-red-400
+                            {% endif %}">
+                            {{ index.ema_100 }} {% if index.ema_100 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                        </td>
+                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                            {% if index.ema_200 > 50 %}bg-green-500
+                            {% elif index.ema_200 > 0 %}bg-green-400
+                            {% elif index.ema_200 < -50 %}bg-red-500
+                            {% else %}bg-red-400
+                            {% endif %}">
+                            {{ index.ema_200 }} {% if index.ema_200 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>                

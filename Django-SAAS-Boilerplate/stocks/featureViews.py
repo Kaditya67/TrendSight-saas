@@ -152,7 +152,8 @@ def watchlist(request):
         "remaining_stocks": remaining_stocks,
         "remaining_sectors": remaining_sectors,
         "selected_stocks": selected_stocks,
-        "selected_sectors": selected_sectors
+        "selected_sectors": selected_sectors,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
 
     return render(request, 'stocks/watchlist/watchlist.html', context)
@@ -322,7 +323,8 @@ def custom_watchlist(request, watchlist_id):
         "remaining_stocks": remaining_stocks,
         "remaining_sectors": remaining_sectors,
         "selected_stocks": selected_stocks,
-        "selected_sectors": selected_sectors
+        "selected_sectors": selected_sectors,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
     # print(context)
 
@@ -331,6 +333,7 @@ def custom_watchlist(request, watchlist_id):
 from django.shortcuts import render, redirect
 from .models import Sector, Watchlist, SectorFinancialData, ComputedSectorData
 
+@login_required
 def sectors(request):
     # Get all sector records
     sector_records = Sector.objects.all()
@@ -402,10 +405,12 @@ def sectors(request):
 
     context = {
         'sectors': sectors,
-        'watchlists': watchlists
+        'watchlists': watchlists,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
     return render(request, 'stocks/Table/sector_table.html', context)
 
+@login_required
 def stock(request):
     stock_records = Stock.objects.all()  # Get all stocks, not just the first
     stocks = []
@@ -473,7 +478,8 @@ def stock(request):
     
     context = {
         'stocks': stocks,
-        'watchlists': watchlists
+        'watchlists': watchlists,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
     # print(context)
     return render(request, 'stocks/Table/stock_table.html', context)
@@ -646,7 +652,8 @@ def custom_portfolio(request):
         "stocks": stocks,
         "portfolio_data": portfolio_data,
         "sell_data": sell_data,
-        "total_invested_capital": total_invested_capital
+        "total_invested_capital": total_invested_capital,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
 
     return render(request, 'stocks/portfolio/custom_portfolio.html', context)
