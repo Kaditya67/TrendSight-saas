@@ -4,7 +4,7 @@ from .calculateView import (compute_sector_indicators,
                             fetch_stocks, update_sector_indicators,
                             update_sectors, update_stock_indicators,
                             update_stocks)
-from .featureViews import (custom_watchlist, watchlist, stock, sectors, custom_portfolio)
+from .featureViews import (custom_watchlist, watchlist, stock, sectors, custom_portfolio, stock_chart, charts)
 from .forms import UserProfileForm
 from django.contrib.auth.decorators import login_required
 

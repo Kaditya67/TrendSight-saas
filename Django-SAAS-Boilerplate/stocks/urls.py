@@ -21,6 +21,9 @@ urlpatterns = [
     path('table/stocks/', views.stock, name='stock'),
     path('table/sectors/', views.sectors, name='sector'),
 
+    path('charts/<int:stock_id>/', views.stock_chart, name='charts'),
+    path('charts/', views.charts, name='charts'),
+
     path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
     # path('logout/',views.user_logout,name="user_logout"),

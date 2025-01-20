@@ -1,0 +1,413 @@
+{% extends "stocks/dashboard/base.html" %}
+
+{% block title %}Stock Market Charts{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<div>
+    <form id="search-form" class="flex items-center relative" onsubmit="return false;">
+        <input 
+            type="text" 
+            id="stock-search" 
+            class="px-4 py-3 border rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 transition" 
+            placeholder="Search for stock..." 
+            autocomplete="off" 
+            required
+        >
+        <button 
+            type="button" 
+            id="search-button" 
+            class="ml-3 px-4 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+        >
+            <i class="fa fa-search"></i>
+        </button>
+        <div 
+            id="stock-dropdown" 
+            class="absolute left-0 w-full md:w-1/2 bg-white border rounded-lg mt-2 hidden z-10 shadow-lg max-h-60 overflow-auto"
+        >
+            <ul id="stock-list" class="list-none p-0 m-0">
+                {% for stock in stock_symbols %}
+                <li 
+                    class="py-3 px-4 cursor-pointer hover:bg-gray-100 text-left transition" 
+                    data-id="{{ stock.id }}" 
+                    data-url="{% url 'charts' stock.id %}"
+                >
+                    {{ stock.name }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </form>
+
+    Default : {{ symbol }}
+    <!-- Zoom Controls -->
+    <div id="zoom-controls" class="flex justify-between items-center space-x-4 mb-4">
+        <div class="flex items-center gap-2">
+            <span class="px-4 py-2 mt-2 font-medium">
+                Choose Scale:
+            </span>
+            <form method="POST" action="{% url 'charts' %}" id="1w-form">
+                {% csrf_token %}
+                <button type="submit" name="range" value="week" class="px-4 py-2 bg-green-500 text-white rounded-lg mt-2 range-btn" id="w-btn">1W</button>
+            </form>
+
+            <form method="POST" action="{% url 'charts' %}" id="1m-form">
+                {% csrf_token %}
+                <button type="submit" name="range" value="month" class="px-4 py-2 bg-green-500 text-white rounded-lg mt-2 range-btn" id="m-btn">1M</button>
+            </form>
+
+            <form method="POST" action="{% url 'charts' %}" id="1y-form">
+                {% csrf_token %}
+                <button type="submit" name="range" value="year" class="px-4 py-2 bg-green-500 text-white rounded-lg mt-2 range-btn" id="y-btn">1Y</button>
+            </form>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="zoom-in" class="px-4 py-2 bg-blue-500 text-white rounded-lg mb-2">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+            <button id="zoom-out" class="px-4 py-2 bg-blue-500 text-white rounded-lg mb-2">
+                <i class="fa fa-search-minus" aria-hidden="true"></i>
+            </button>
+        </div> 
+    </div>
+
+    <!-- Chart Container -->
+    <div id="chart" 
+         class="relative w-full" 
+         style="height: calc(100vh - 300px); min-height: 300px; max-height: 600px;">
+    </div>
+</div>
+
+<script>
+    function initSearchBar(input, dropdown, stockList, searchButton) {
+        input.addEventListener('input', function () {
+            const filter = input.value.toUpperCase();
+            const items = stockList.getElementsByTagName('li');
+            let found = false;
+    
+            if (filter.length > 0) {
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
+            }
+    
+            for (let i = 0; i < items.length; i++) {
+                const txtValue = items[i].textContent || items[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    items[i].style.display = ""; // Show matching option
+                    found = true;
+                } else {
+                    items[i].style.display = "none"; // Hide non-matching option
+                }
+            }
+    
+            // Show "No results found" if no matching items
+            const noResultOption = stockList.querySelector('li.cursor-not-allowed');
+            if (!found && filter.length > 0) {
+                if (!noResultOption) {
+                    const noResult = document.createElement('li');
+                    noResult.classList.add('py-2', 'px-3', 'text-gray-500', 'cursor-not-allowed');
+                    noResult.textContent = "No results found";
+                    stockList.appendChild(noResult);
+                }
+            } else {
+                if (noResultOption) {
+                    stockList.removeChild(noResultOption);
+                }
+            }
+        });
+    
+        // Handle stock selection from the dropdown
+        stockList.addEventListener('click', function (event) {
+            if (event.target.tagName === 'LI' && !event.target.classList.contains('cursor-not-allowed')) {
+                const stockUrl = event.target.getAttribute('data-url');
+                window.location.href = stockUrl;
+            }
+        });
+    
+        // Navigate to URL on search button click or Enter key
+        searchButton.addEventListener('click', function () {
+            navigateToStock(input, stockList);
+        });
+    
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                navigateToStock(input, stockList);
+            }
+        });
+    
+        // Close dropdown on clicking outside
+        document.addEventListener('click', function (event) {
+            if (!dropdown.contains(event.target) && event.target !== input) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    function navigateToStock(input, stockList) {
+        const items = stockList.getElementsByTagName('li');
+        const filter = input.value.toUpperCase();
+    
+        for (let i = 0; i < items.length; i++) {
+            const txtValue = items[i].textContent || items[i].innerText;
+            if (txtValue.toUpperCase() === filter) {
+                const stockUrl = items[i].getAttribute('data-url');
+                window.location.href = stockUrl;
+                return;
+            }
+        }
+    
+        alert('Please select a valid stock from the list.');
+    }
+    
+    // Initialize search bar
+    initSearchBar(
+        document.getElementById('stock-search'),
+        document.getElementById('stock-dropdown'),
+        document.getElementById('stock-list'),
+        document.getElementById('search-button')
+    );
+    
+
+    // Data passed from Django to JavaScript
+    const dates = {{ dates|safe }};
+    const stockPrices = {{ stock_prices|safe }};
+    const movingAvg50 = {{ moving_avg50|safe }};
+
+    // Combine dates and stock prices into a format ApexCharts can understand
+    const stockData = dates.map((date, index) => ({
+        x: new Date(date).getTime(),
+        y: stockPrices[index]
+    }));
+
+    // Combine dates and moving average data, handling nulls
+    const movingAvgData = dates.map((date, index) => ({
+        x: new Date(date).getTime(),
+        y: movingAvg50[index] === 'null' ? null : movingAvg50[index]
+    }));
+
+    // Calculate dynamic min and max values for Y-axis, excluding nulls
+    const validStockPrices = stockPrices.filter(v => v !== null);
+    const validMovingAvg50 = movingAvg50.filter(v => v !== 'null' && v !== null);
+
+    const minY = Math.min(...validStockPrices.concat(validMovingAvg50));
+    const maxY = Math.max(...validStockPrices.concat(validMovingAvg50));
+
+    // Add some padding to the min and max values to avoid the line touching the edges
+    const padding = (maxY - minY) * 0.05;
+    const adjustedMinY = minY - padding;
+    const adjustedMaxY = maxY + padding;
+
+    // Get the earliest and latest data points for the X-axis (time)
+    const minX = stockData[0]?.x;  // Earliest data point (first date)
+    const maxX = stockData[stockData.length - 1]?.x;  // Latest data point (last date)
+
+    // Set chart options
+    const options = {
+        chart: {
+            type: 'line',
+            height: '100%',  // Set to 100% to use the full container height
+            width: '100%',   // Set to 100% to use the full container width
+            toolbar: {
+                show: false // Hide the toolbar with zoom controls on the right
+            },
+            zoom: {
+                enabled: true, // Allow scrolling (pan)
+                type: 'x', // Allow zooming on the x-axis (time scale)
+                autoScaleYaxis: true, // Keep the y-axis scaling automatic while zooming
+                smooth: true // Smooth scrolling
+            },
+            animations: {
+                enabled: true, // Enable animations
+                easing: 'easeinout', // Easing function for the animation
+                speed: 800, // Speed of the animation in milliseconds
+                animateGradually: {
+                    enabled: true, // Enable gradual animation for series
+                    delay: 150 // Delay between series animations
+                },
+                dynamicAnimation: {
+                    enabled: true, // Enable dynamic animation for real-time updates
+                    speed: 350 // Speed of the dynamic updates
+                }
+            }
+        },
+        series: [
+            {
+                name: 'Close Value',
+                data: stockData,
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        type: 'vertical',
+                        shadeIntensity: 1,
+                        opacityFrom: 0.5,
+                        opacityTo: 1, 
+                        stops: [0, 100] 
+                    }
+                },
+                stroke: {
+                    curve: 'smooth', // Smooth line style
+                    width: 2 // Line width
+                }
+            },
+            {
+                name: '50-Day EMA',
+                data: movingAvgData,
+                stroke: {
+                    curve: 'smooth', // Smooth line style
+                    width: 2 // Line width
+                }
+            }
+        ],
+        xaxis: {
+            type: 'datetime',
+            title: {
+                text: 'Date'
+            },
+            min: maxX, // Start from the first data point
+            max: minX, // End at the last data point
+            labels: {
+                rotate: -45
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Stock Price'
+            },
+            min: adjustedMinY, // Set dynamic min Y value
+            max: adjustedMaxY, // Set dynamic max Y value
+        },
+        tooltip: {
+            shared: true,
+            x: {
+                format: 'yyyy-MM-dd'
+            }
+        },
+        markers: {
+            size: 0 // Disable markers for cleaner visualization
+        },
+        stroke: {
+            curve: 'smooth', // Smooth line style
+            width: [2, 2] // Line widths for stock price and moving average
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right'
+        },
+        grid: {
+            borderColor: '#f1f1f1'
+        },
+        dataLabels: {
+            enabled: false // Disable data labels
+        }
+    };
+
+    function setActiveButton(buttonId) {
+        const buttons = document.querySelectorAll('.range-btn');
+        buttons.forEach(button => {
+            button.classList.remove('bg-green-700');
+            button.classList.add('bg-green-500');
+        });
+        document.getElementById(buttonId).classList.add('bg-green-700');
+    }
+    
+    // setActiveButton('m-btn');  // Initial active button (1M)
+
+    // Asynchronously load and render the chart
+    async function loadChart() {
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        await chart.render();
+
+        // Zoom In and Zoom Out functionality
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            const currentMin = chart.w.globals.minX;
+            const currentMax = chart.w.globals.maxX;
+            const diff = currentMax - currentMin;
+
+            // Zoom in: Reduce the range by 10%, but prevent zooming beyond the maxX (latest data point)
+            const newMin = Math.max(currentMin + (diff * 0.1), maxX); // Prevent zooming in past maxX
+            const newMax = Math.min(currentMax - (diff * 0.1), minX); // Prevent zooming in past minX
+
+            chart.updateOptions({
+                xaxis: {
+                    min: newMin,
+                    max: newMax
+                },
+                yaxis: {
+                    min: adjustedMinY,
+                    max: adjustedMaxY
+                }
+            });
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            const currentMin = chart.w.globals.minX;
+            const currentMax = chart.w.globals.maxX;
+            const diff = currentMax - currentMin;
+
+            // Zoom out: Increase the range by 10%, but prevent zooming beyond the data range
+            const newMin = Math.max(currentMin - (diff * 0.1), maxX); // Prevent zooming out past maxX
+            const newMax = Math.min(currentMax + (diff * 0.1), minX); // Prevent zooming out past minX
+
+            chart.updateOptions({
+                xaxis: {
+                    min: newMin,
+                    max: newMax
+                },
+                yaxis: {
+                    min: adjustedMinY,
+                    max: adjustedMaxY
+                }
+            });
+        });
+
+        // Range selector (1D, 1W, 1M, 1Y)
+        document.getElementById('1w-form').addEventListener('submit', (event) => {
+            const currentMax = stockData[stockData.length - 1]?.x; // Latest date
+            const currentMin = currentMax - (7 * 24 * 60 * 60 * 1000); // 1 week in milliseconds
+
+            chart.updateOptions({
+                xaxis: {
+                    min: currentMin,
+                    max: currentMax
+                }
+            });
+            setActiveButton('w-btn');
+        });
+
+        document.getElementById('1m-form').addEventListener('submit', () => {
+            const currentMax = stockData[stockData.length - 1]?.x; // Latest date
+            const currentMin = currentMax - (30 * 24 * 60 * 60 * 1000); // 1 month in milliseconds
+
+            chart.updateOptions({
+                xaxis: {
+                    min: currentMin,
+                    max: currentMax
+                }
+            });
+            setActiveButton('m-btn');
+        });
+
+        document.getElementById('1y-form').addEventListener('submit', () => {
+            const currentMax = stockData[stockData.length - 1]?.x; // Latest date
+            const currentMin = currentMax - (365 * 24 * 60 * 60 * 1000); // 1 year in milliseconds
+
+            chart.updateOptions({
+                xaxis: {
+                    min: currentMin,
+                    max: currentMax
+                }
+            });
+            setActiveButton('y-btn');
+        });
+    }
+
+    loadChart();
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
+
+{% endblock %}

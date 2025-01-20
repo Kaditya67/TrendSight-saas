@@ -657,3 +657,120 @@ def custom_portfolio(request):
     }
 
     return render(request, 'stocks/portfolio/custom_portfolio.html', context)
+ 
+from django.shortcuts import render
+from .models import FinancialStockData, ComputedStockData
+
+def charts(request):
+    # Retrieve stock symbol from query parameters or default to a placeholder
+    symbol = request.GET.get('symbol', 'TATAMOTORS.NS')
+    stock_symbols = Stock.objects.all()
+    sector_symbols = Sector.objects.all()
+
+    # Function to fetch stock data and moving average data
+    def get_stock_data(symbol, num_days):
+        stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('-date')[:num_days]
+        dates = [stock.date.strftime('%Y-%m-%d') for stock in stock_data]
+        stock_prices = [round(stock.close, 2) for stock in stock_data]
+
+        moving_avg50_data = ComputedStockData.objects.filter(stock__symbol=symbol).order_by('-date').values_list('ema50')[:num_days]
+        moving_avg50 = [round(data[0],2) for data in moving_avg50_data]
+
+        return dates, stock_prices, moving_avg50
+
+    # Check if the request method is POST
+    if request.method == 'POST': 
+        range_data = request.POST.get('range', 'day')
+
+        # Set the number of days based on the selected range
+        if range_data == 'week':
+            num_days = 5
+        elif range_data == 'year':
+            num_days = 365
+        else:
+            num_days = 30   
+             
+        dates, stock_prices, moving_avg50 = get_stock_data(symbol, num_days)
+
+        context = {
+            'dates': dates,
+            'stock_prices': stock_prices,
+            'moving_avg50': moving_avg50,
+            'symbol': symbol,
+            'stock_symbols':stock_symbols,
+            'sector_symbols':sector_symbols 
+        }
+
+        return render(request, 'stocks/charts/charts.html', context)
+ 
+    dates, stock_prices, moving_avg50 = get_stock_data(symbol, 30)
+
+    context = {
+        'dates': dates,
+        'stock_prices': stock_prices,
+        'moving_avg50': moving_avg50,
+        'symbol': symbol, 
+        'stock_symbols':stock_symbols,
+        'sector_symbols':sector_symbols 
+    }
+
+    return render(request, 'stocks/charts/charts.html', context)
+
+from django.shortcuts import render, get_object_or_404
+def stock_chart(request, stock_id):
+    # Retrieve stock symbol from query parameters or default to a placeholder
+    symbol = Stock.objects.filter(id=stock_id).first().symbol
+    # symbol = request.GET.get('symbol', 'TATAMOTORS.NS')
+    stock_symbols = Stock.objects.all()
+    sector_symbols = Sector.objects.all()
+
+    # Function to fetch stock data and moving average data
+    def get_stock_data(symbol, num_days):
+        stock_data = FinancialStockData.objects.filter(stock__symbol=symbol).order_by('-date')[:num_days]
+        dates = [stock.date.strftime('%Y-%m-%d') for stock in stock_data]
+        stock_prices = [round(stock.close, 2) for stock in stock_data]
+
+        moving_avg50_data = ComputedStockData.objects.filter(stock__symbol=symbol).order_by('-date').values_list('ema50')[:num_days]
+        moving_avg50 = [round(data[0],2) for data in moving_avg50_data]
+
+        return dates, stock_prices, moving_avg50
+
+    # Check if the request method is POST
+    if request.method == 'POST': 
+        range_data = request.POST.get('range', 'day')
+
+        # Set the number of days based on the selected range
+        if range_data == 'week':
+            num_days = 5
+        elif range_data == 'year':
+            num_days = 365
+        else:
+            num_days = 30   
+             
+        dates, stock_prices, moving_avg50 = get_stock_data(symbol, num_days)
+
+        context = {
+            'dates': dates,
+            'stock_prices': stock_prices,
+            'moving_avg50': moving_avg50,
+            'symbol': symbol,
+            'stock_symbols':stock_symbols,
+            'sector_symbols':sector_symbols,
+            'stock_id':stock_id
+        }
+
+        return render(request, 'stocks/charts/stock_charts.html', context)
+ 
+    dates, stock_prices, moving_avg50 = get_stock_data(symbol, 30)
+
+    context = {
+        'dates': dates,
+        'stock_prices': stock_prices,
+        'moving_avg50': moving_avg50,
+        'symbol': symbol, 
+        'stock_symbols':stock_symbols,
+        'sector_symbols':sector_symbols,
+        'stock_id':stock_id
+    }
+
+    return render(request, 'stocks/charts/stock_charts.html', context)
