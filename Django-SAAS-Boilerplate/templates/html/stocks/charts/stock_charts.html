@@ -10,6 +10,15 @@
     {{ symbol }}
 </div>
 
+<div class="fixed top-21 left-0 p-4 bg-gray-100 border border-gray-300 rounded-lg shadow-lg ml-2 hover:bg-gray-200 transition duration-300 group z-20">
+    <a href="{% url "charts_sector" 1 %}" class="flex flex-col items-center text-gray-800">
+        <i class="fa-solid fa-rotate text-green-500"></i> 
+    </a>
+    <div class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 text-xs text-white bg-gray-800 rounded-lg hidden group-hover:block">
+        Swap to Sector Chart
+    </div>
+</div>
+
 <div class="container mx-auto px-4 py-6">
     <!-- Header Section -->
     <div class="flex justify-between mb-6 flex-wrap md:flex-nowrap">
@@ -52,15 +61,19 @@
 
         <!-- Selected Stock Symbol -->
         <div class="text-md font-semibold text-gray-800 mt-4">
-            <label for="ema-select" class="text-sm">Select EMA:</label>
-            <select 
-                id="ema-select" 
-                class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                onchange="handleEmaChange(event)"
-            >{% for ema in emas %}
-                <option value="{{ema}}">{{ema}}-Day EMA</option>
-            {% endfor %}
-            </select>
+            <form id="emaChange-form" method="POST" action="{% url 'change_ema' %}">
+                {% csrf_token %}
+                <label for="ema-select" class="text-sm">Select EMA:</label>
+                <select 
+                    id="ema-select" 
+                    class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                    onchange="handleEmaChange(event)"
+                >
+                    {% for ema in emas %}
+                        <option value="{{ema}}" {% if selected_ema == ema %} selected {% endif %}>{{ema}}-Day EMA</option>
+                    {% endfor %}
+                </select> 
+            </form>
         </div>
     </div>
 
@@ -69,28 +82,30 @@
         <!-- Range Selector -->
         <div class="flex items-center gap-2 sm:w-1/3 mb-4">
             <form method="POST" action="{% url 'charts' stock_id %}" id="1w-form">
-                {% csrf_token %}
-                <input type="hidden" name="ema" id="hidden-ema" value="{{ emas.0 }}">
+                {% csrf_token %} 
                 <button type="submit" name="range" value="week" 
-                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition range-btn" 
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition range-btn 
+                            {% if selected_range == 'week' %} bg-green-700 hover:bg-green-700 {% endif %}"
+                        {% if selected_range == 'week' %} disabled {% endif %}
                         id="w-btn">
                     1W
                 </button>
+
             </form>
             <form method="POST" action="{% url 'charts' stock_id %}" id="1m-form">
-                {% csrf_token %}
-                <input type="hidden" name="ema" id="hidden-ema" value="{{ emas.0 }}">
+                {% csrf_token %} 
                 <button type="submit" name="range" value="month" 
-                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition range-btn" 
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition range-btn {% if selected_range == 'month' %} bg-green-700 hover:bg-green-700 {% endif %}"
+                        {% if selected_range == 'month' %} disabled {% endif %}
                         id="m-btn">
                     1M
                 </button>
             </form>
             <form method="POST" action="{% url 'charts' stock_id %}" id="1y-form">
-                {% csrf_token %}
-                <input type="hidden" name="ema" id="hidden-ema" value="{{ emas.0 }}">
+                {% csrf_token %} 
                 <button type="submit" name="range" value="year" 
-                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition range-btn" 
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition range-btn {% if selected_range == 'year' %} bg-green-700 hover:bg-green-700 {% endif %}"
+                        {% if selected_range == 'year' %} disabled {% endif %}
                         id="y-btn">
                     1Y
                 </button>
@@ -119,10 +134,33 @@
 <script>
 
     function handleEmaChange(event) {
-        const selectedEma = event.target.value;
-        document.getElementById('hidden-ema').value = selectedEma;
-        console.log(selectedEma)
+        event.preventDefault(); // Prevent form submission
+    
+        const emaSelect = document.getElementById("ema-select");
+        const selectedEma = emaSelect.value; // Get selected EMA value
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+        // Create an AJAX request
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'change_ema' %}", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken); // Include CSRF token in the request header
+    
+        // Handle the response
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // Update the page with the new EMA selection without reloading
+                document.getElementById("ema-select").value = selectedEma;  // Optional: Ensure the select option reflects the update
+                window.location.reload();
+            } else {
+                alert('Error while changing EMA');
+            }
+        };
+    
+        // Send the data, including CSRF token and selected EMA
+        xhr.send("ema=" + encodeURIComponent(selectedEma) + "&csrfmiddlewaretoken=" + encodeURIComponent(csrfToken));
     }
+    
 
     function initSearchBar(input, dropdown, stockList, searchButton) {
         input.addEventListener('input', function () {
@@ -217,7 +255,8 @@
     // Data passed from Django to JavaScript
     const dates = {{ dates|safe }};
     const stockPrices = {{ stock_prices|safe }};
-    const movingAvg50 = {{ moving_avg50|safe }};
+    const movingAvg50 = {{ moving_avg|safe }};
+    const selectedEmaData = {{ selected_ema|safe }};
 
     // Combine dates and stock prices into a format ApexCharts can understand
     const stockData = dates.map((date, index) => ({
@@ -303,7 +342,7 @@
                 }
             },
             {
-                name: '50-Day EMA',
+                name: `${selectedEmaData}-Day EMA`,
                 data: movingAvgData,
                 stroke: {
                     curve: 'smooth', // Smooth line style

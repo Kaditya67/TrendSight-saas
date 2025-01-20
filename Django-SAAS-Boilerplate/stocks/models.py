@@ -205,3 +205,10 @@ class sectorIndicatorCount(models.Model):
 
     def __str__(self):
         return f"Count Sector Data for {self.sector.name}"
+    
+class userSetting(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="usersetting")
+    defaultEma = models.IntegerField(default=10)
+
+    def __str__(self):
+        return f"{self.user.name} Settings"

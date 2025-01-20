@@ -6,7 +6,7 @@ from unfold.admin import ModelAdmin
 from unfold.contrib.import_export.forms import ExportForm, ImportForm
 
 from .models import (ComputedSectorData, ComputedStockData, FinancialStockData, sectorIndicatorCount,
-                     PrevVolumes, Sector, SectorFinancialData, Stock)
+                     PrevVolumes, Sector, SectorFinancialData, Stock, userSetting)
 from .models import Watchlist,Portfolio, SellStocks
 
 # Stock Models Administration
@@ -96,6 +96,8 @@ class sectorIndicatorCountAdmin(ModelAdmin):
     list_display = ('sector', 'date', 'ema10Count', 'ema20Count', 'ema30Count', 'ema50Count', 'ema100Count', 'ema200Count', 'last_updated')
     search_fields = ('sector__name','sector__symbol')
     
+class userSettingAdmin(ModelAdmin):
+    list_display = ('user','defaultEma')
 
 # Registering the models and their custom admins
 admin.site.register(Stock, StockAdmin)
@@ -109,3 +111,4 @@ admin.site.register(Watchlist, WatchlistAdmin)
 admin.site.register(Portfolio, PortfolioAdmin)
 admin.site.register(SellStocks, SellStocksAdmin)
 admin.site.register(sectorIndicatorCount, sectorIndicatorCountAdmin)
+admin.site.register(userSetting, userSettingAdmin)

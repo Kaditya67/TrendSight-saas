@@ -7,8 +7,7 @@ from django.db import IntegrityError, transaction
 from user.models import User
 
 from .models import (ComputedSectorData, ComputedStockData, FinancialStockData,
-                     Portfolio, Sector, SectorFinancialData, SellStocks, Stock,
-                     User, Watchlist)
+                     Portfolio, Sector, SectorFinancialData, SellStocks, Stock, Watchlist, userSetting)
 
 
 @login_required
@@ -717,13 +716,37 @@ def charts(request):
     return render(request, 'stocks/charts/charts.html', context)
 
 from django.shortcuts import render, get_object_or_404
+from .models import Stock, FinancialStockData, ComputedStockData, userSetting, Sector
+
 def stock_chart(request, stock_id):
-    # Retrieve stock symbol from query parameters or default to a placeholder
-    symbol = Stock.objects.filter(id=stock_id).first().symbol
-    # symbol = request.GET.get('symbol', 'TATAMOTORS.NS')
-    stock_symbols = Stock.objects.all()
-    sector_symbols = Sector.objects.all()
-    emas = [10,20,30,50,10,200]
+    user = request.user
+    # Get user's selected EMA, falling back to default if not set
+    selected_ema = userSetting.objects.filter(user=user).first().defaultEma if userSetting.objects.filter(user=user).exists() else 10
+    print(selected_ema)
+    
+    # Retrieve all stock symbols and sector symbols for dropdowns
+    stock_symbols_all = Stock.objects.all() 
+    stock_symbols = []
+    valid_stock=""
+    for stock in stock_symbols_all:
+        if len(FinancialStockData.objects.filter(stock=stock)) > 15:
+            valid_stock = stock
+            stock_symbols.append(stock)
+    selected_range = 'month'
+
+    # Retrieve stock symbol from the Stock model
+    try:
+        stock = get_object_or_404(Stock, id=stock_id)
+        if(len(FinancialStockData.objects.filter(stock=stock)) < 15):
+            stock = valid_stock
+    except Http404:
+        stock = Sector(symbol="TATAMOTORS.NS")
+
+    # Retrieve stock symbol from the Stock model
+    symbol = stock.symbol
+
+    # EMA options (you can dynamically fetch this based on your use case)
+    emas = [10, 20, 50, 100, 200]
 
     # Function to fetch stock data and moving average data
     def get_stock_data(symbol, num_days):
@@ -731,49 +754,173 @@ def stock_chart(request, stock_id):
         dates = [stock.date.strftime('%Y-%m-%d') for stock in stock_data]
         stock_prices = [round(stock.close, 2) for stock in stock_data]
 
-        moving_avg50_data = ComputedStockData.objects.filter(stock__symbol=symbol).order_by('-date').values_list('ema50')[:num_days]
-        moving_avg50 = [round(data[0],2) for data in moving_avg50_data]
+        # Fetch moving average data for the selected EMA (you might want to adapt this to use dynamic EMA)
+        moving_avg_data = ComputedStockData.objects.filter(stock__symbol=symbol).order_by('-date').values_list(f'ema{selected_ema}')[:num_days]
+        moving_avg = [round(data[0], 2) for data in moving_avg_data]
 
-        return dates, stock_prices, moving_avg50
+        return dates, stock_prices, moving_avg
 
-    # Check if the request method is POST
-    if request.method == 'POST': 
+    # Handle POST request (when user selects range or makes other changes)
+    if request.method == 'POST':
         range_data = request.POST.get('range', 'day')
 
         # Set the number of days based on the selected range
         if range_data == 'week':
+            selected_range = 'week'
             num_days = 5
         elif range_data == 'year':
+            selected_range = 'year'
             num_days = 365
         else:
-            num_days = 30   
-             
-        dates, stock_prices, moving_avg50 = get_stock_data(symbol, num_days)
+            selected_range = 'month'
+            num_days = 30  # Default to 30 days
+            
+        dates, stock_prices, moving_avg = get_stock_data(symbol, num_days)
 
         context = {
             'dates': dates,
             'stock_prices': stock_prices,
-            'moving_avg50': moving_avg50,
+            'moving_avg': moving_avg,
             'symbol': symbol,
-            'stock_symbols':stock_symbols,
-            'sector_symbols':sector_symbols,
-            'stock_id':stock_id,
-            'emas':emas
+            'stock_symbols': stock_symbols, 
+            'stock_id': stock_id,
+            'emas': emas,
+            'selected_ema': selected_ema,
+            'selected_range' : selected_range,
         }
 
         return render(request, 'stocks/charts/stock_charts.html', context)
- 
-    dates, stock_prices, moving_avg50 = get_stock_data(symbol, 30)
+
+    # For initial load (GET request)
+    dates, stock_prices, moving_avg = get_stock_data(symbol, 30)
 
     context = {
         'dates': dates,
         'stock_prices': stock_prices,
-        'moving_avg50': moving_avg50,
-        'symbol': symbol, 
-        'stock_symbols':stock_symbols,
-        'sector_symbols':sector_symbols,
-        'stock_id':stock_id,
-        'emas':emas
+        'moving_avg': moving_avg,
+        'symbol': symbol,
+        'stock_symbols': stock_symbols, 
+        'stock_id': stock_id,
+        'emas': emas,
+        'selected_ema': selected_ema,
+        'selected_range' : selected_range,
     }
 
     return render(request, 'stocks/charts/stock_charts.html', context)
+
+from django.http import Http404
+
+def sector_chart(request, sector_id):
+    user = request.user
+    # Get user's selected EMA, falling back to default if not set
+    selected_ema = userSetting.objects.filter(user=user).first().defaultEma if userSetting.objects.filter(user=user).exists() else 10
+    print(selected_ema)
+    
+      
+    # Retrieve all stock symbols and sector symbols for dropdowns
+    sector_symbols_all = Sector.objects.all() 
+    sector_symbols = []
+    valid_sector=""
+    for sector in sector_symbols_all:
+        if len(SectorFinancialData.objects.filter(sector=sector)) > 15:
+            valid_sector = sector
+            sector_symbols.append(sector)
+    selected_range = 'month'
+
+    # Retrieve stock symbol from the Stock model
+    try:
+        sector = get_object_or_404(Sector, id=sector_id)
+        if(len(SectorFinancialData.objects.filter(sector=sector)) < 15):
+            sector = valid_sector
+    except Http404:
+        sector = Sector(symbol="^NSEI")
+
+    symbol = sector.symbol
+    
+    # EMA options (you can dynamically fetch this based on your use case)
+    emas = [10, 20, 50, 100, 200]
+
+    # Function to fetch stock data and moving average data
+    def get_sector_data(symbol, num_days):
+        sector_data = SectorFinancialData.objects.filter(sector__symbol=symbol).order_by('-date')[:num_days]
+        dates = [sector.date.strftime('%Y-%m-%d') for sector in sector_data]
+        sector_prices = [round(sector.close, 2) for sector in sector_data]
+
+        # Fetch moving average data for the selected EMA (you might want to adapt this to use dynamic EMA)
+        moving_avg_data = ComputedSectorData.objects.filter(sector__symbol=symbol).order_by('-date').values_list(f'ema{selected_ema}')[:num_days]
+        moving_avg = [round(data[0], 2) for data in moving_avg_data]
+
+        return dates, sector_prices, moving_avg
+
+    # Handle POST request (when user selects range or makes other changes)
+    if request.method == 'POST':
+        range_data = request.POST.get('range', 'day')
+
+        # Set the number of days based on the selected range
+        if range_data == 'week':
+            selected_range = 'week'
+            num_days = 5
+        elif range_data == 'year':
+            selected_range = 'year'
+            num_days = 365
+        else:
+            selected_range = 'month'
+            num_days = 30  # Default to 30 days
+            
+        dates, sector_prices, moving_avg = get_sector_data(symbol, num_days)
+
+        context = {
+            'dates': dates,
+            'stock_prices': sector_prices,
+            'moving_avg': moving_avg,
+            'symbol': symbol, 
+            'sector_symbols': sector_symbols,
+            'sector_id': sector_id,
+            'emas': emas,
+            'selected_ema': selected_ema,
+            'selected_range' : selected_range,
+        }
+
+        return render(request, 'stocks/charts/sector_charts.html', context)
+
+    # For initial load (GET request)
+    dates, sector_prices, moving_avg = get_sector_data(symbol, 30)
+
+    context = {
+        'dates': dates,
+        'stock_prices': sector_prices,
+        'moving_avg': moving_avg,
+        'symbol': symbol, 
+        'sector_symbols': sector_symbols,
+        'sector_id': sector_id,
+        'emas': emas,
+        'selected_ema': selected_ema,
+        'selected_range' : selected_range,
+    }
+
+    return render(request, 'stocks/charts/sector_charts.html', context)
+
+from django.http import JsonResponse
+
+@login_required
+def change_ema(request):
+    user = request.user
+    if request.method == "POST":
+        # print(request.POST)  # Debugging the POST data
+        if 'ema' in request.POST:
+            selected_ema = request.POST.get('ema')
+            
+            # Try to get or create the userSetting object
+            user_setting, created = userSetting.objects.update_or_create(
+                user=user,
+                defaults={'defaultEma': int(selected_ema)}
+            )
+            
+            if created:
+                message = "EMA setting created successfully."
+            else:
+                message = "EMA updated successfully."
+            
+            return JsonResponse({"message": message})
+    
+    return JsonResponse({"message": "Error processing request."})

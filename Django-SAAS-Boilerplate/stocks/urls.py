@@ -21,8 +21,11 @@ urlpatterns = [
     path('table/stocks/', views.stock, name='stock'),
     path('table/sectors/', views.sectors, name='sector'),
 
-    path('charts/<int:stock_id>/', views.stock_chart, name='charts'),
+    path('stocks/charts/<int:stock_id>/', views.stock_chart, name='charts'),
+    path('sector/charts/<int:sector_id>/', views.sector_chart, name='charts_sector'),
     path('charts/', views.charts, name='charts'),
+
+    path('change_ema/', views.change_ema, name='change_ema'),
 
     path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
