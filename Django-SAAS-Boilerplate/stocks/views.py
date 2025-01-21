@@ -7,6 +7,7 @@ from .calculateView import (compute_sector_indicators,
 from .featureViews import (custom_watchlist, watchlist, stock, sectors, custom_portfolio, stock_chart,sector_chart, charts, change_ema)
 from .forms import UserProfileForm
 from django.contrib.auth.decorators import login_required
+from .models import userSetting
 
 # Create your views here.
 def index(request):
@@ -182,6 +183,12 @@ def about(request):
 
 def profile(request):
     user = request.user
+    emas = [10, 20, 30, 50, 100, 200]
+    try:
+        defaultEma = userSetting.objects.get(user=user).defaultEma
+    except userSetting.DoesNotExist:
+        defaultEma = 10 
+
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
@@ -189,8 +196,16 @@ def profile(request):
             return redirect('profile')  # Optionally redirect to profile page after successful save
     else:
         form = UserProfileForm(instance=user)
+    
+    context = {
+        'form': form,
+        'user_avatar': request.user.dp if request.user.dp else None,
+        'defaultEma': int(defaultEma),
+        'emas': emas
+    }
+    # print(context)
 
-    return render(request, 'stocks/stock_users/profile.html', {'form': form,'user_avatar': request.user.dp if request.user.dp else None})
+    return render(request, 'stocks/stock_users/profile.html', context)
 
 def main_page(request):
     return render(request,'stocks/main_page.html')

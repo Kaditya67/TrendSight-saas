@@ -923,7 +923,6 @@ def change_ema(request):
         # print(request.POST)  # Debugging the POST data
         if 'ema' in request.POST:
             selected_ema = request.POST.get('ema')
-            
             # Try to get or create the userSetting object
             user_setting, created = userSetting.objects.update_or_create(
                 user=user,
