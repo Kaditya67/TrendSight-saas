@@ -61,7 +61,10 @@
                             <button class="text-green-500 hover:text-green-700 focus:outline-none pr-2" onclick="openModal('{{ stock.symbol }}', '{{ stock.id }}')">
                                 <i class="fas fa-plus-circle"></i>
                             </button>
-                            <span>{{ stock.symbol }}</span>
+                            <span><a href="{% url "charts" stock.id %}" class="hover:text-blue-500 text-gray-800" title="{{ stock.name }}">
+                                {{ stock.symbol }}
+                            </a>
+                            </span>
                         </td>
                         {% for value in stock.data %}
                         {% if value > 0 %}

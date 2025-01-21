@@ -46,7 +46,7 @@
             <tbody class="text-gray-600 text-sm font-light">
                 {% for item in portfolio_data %}
                 <tr class="border-b border-gray-200 hover:bg-gray-100 relative">
-                    <td class="py-3 px-6">{{ item.stock.name }}</td>
+                    <td class="py-3 px-6"><a href="{% url "charts" item.stock.id %}" class="hover:text-blue-500 text-gray-800" title="{{ item.stock.sumbol }}">{{ item.stock.name }}</a></td>
                     <td class="py-3 px-6">{{ item.last_purchased_date }}</td>
                     <td class="py-3 px-6">{{ item.quantity }}</td>
                     <td class="py-3 px-6">{{ item.average_purchase_price }}</td>

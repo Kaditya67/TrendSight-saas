@@ -86,7 +86,10 @@ def watchlist(request):
     for stock in selected_watchlist.stocks.all():
         selected_stocks.append(stock)
         stock_data = {
+            "id": stock.id,
             "symbol": stock.symbol,
+            "name": stock.name,
+            "chart":"charts",
             "dates": [],
             "data": []
         }
@@ -117,7 +120,10 @@ def watchlist(request):
     for sector in selected_watchlist.sectors.all():
         selected_sectors.append(sector)
         sector_data = {
+            "id": sector.id,
             "symbol": sector.symbol,
+            "name": sector.name,
+            "chart":"charts_sector",
             "dates": [],
             "data": []
         }
@@ -253,7 +259,10 @@ def custom_watchlist(request, watchlist_id):
     for stock in selected_watchlist.stocks.all():
         selected_stocks.append(stock)
         stock_data = {
+            "id": stock.id,
             "symbol": stock.symbol,
+            "name": stock.name,
+            "chart":"charts",
             "dates": [],
             "data": []
         }
@@ -285,7 +294,10 @@ def custom_watchlist(request, watchlist_id):
     for sector in selected_watchlist.sectors.all():
         selected_sectors.append(sector)
         sector_data = {
+            "id": sector.id,
             "symbol": sector.symbol,
+            "name": sector.name,
+            "chart":"charts_sector",
             "dates": [],
             "data": []
         }
@@ -385,6 +397,7 @@ def sectors(request):
         sector_data = {
             "id": sector.id,
             "symbol": sector.symbol,
+            "name": sector.name,
             "dates": [],
             "data": []
         }
@@ -458,6 +471,7 @@ def stock(request):
         stock_data = {
             "id": stock.id,
             "symbol": stock.symbol,
+            "name": stock.name,
             "dates": [],
             "data": []
         }

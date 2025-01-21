@@ -232,7 +232,9 @@
                     <tbody>
                         {% for stock in watchlist_data %}
                         <tr class="hover:bg-gray-50">
-                            <td class="py-2 px-4 border-b sticky left-0 bg-white z-10">{{ stock.symbol }}</td>
+                            <td class="sticky left-0 bg-white py-2 px-4 border-b z-10"><a href="{% url stock.chart  stock.id %}" class="hover:text-blue-500 text-gray-800" title="{{ stock.name }}">
+                                {{ stock.symbol }}
+                            </a></td>
                             {% for value in stock.data %}
                             {% if value > 0 %}
                             <td class="py-2 px-4 border-b bg-green-400">
