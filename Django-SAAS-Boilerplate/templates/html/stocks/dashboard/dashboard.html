@@ -35,7 +35,7 @@
 <div class="container mx-auto my-8">
     <!-- Header Section -->
     <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-700">Nifty 50 Dashboard</h1>
+        <h1 class="text-4xl font-bold text-gray-700"><i class="fa-solid fa-arrow-trend-up"></i> Nifty 50 Dashboard</h1>
         <p class="text-lg text-gray-500">Track key EMA trends and broader market insights</p>
     </div> 
     
@@ -271,6 +271,15 @@
         <div class="overflow-x-auto"> <!-- Enables horizontal scrolling -->
             <table class="min-w-full table-auto border-collapse text-sm text-left border-black" id="sectorTable">
                 <thead>
+                    <tr>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">Sector</th>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 10</th>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 20</th>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 30</th>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 50</th>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 100</th>
+                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 200</th>
+                    </tr>
                     {% for index in sector_data_table %}
                     <tr class="hover:bg-gray-50 transition-all duration-300" data-name="{{ index.name | lower }}">
                         <td class="sticky left-0 py-3 px-4 border border-gray-300 font-medium text-gray-700 bg-white z-10">{{ index.name }}</td>

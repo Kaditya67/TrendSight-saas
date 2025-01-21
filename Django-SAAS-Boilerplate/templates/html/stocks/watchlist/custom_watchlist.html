@@ -61,7 +61,7 @@
 <!-- Options Button with Three Dots -->
 <div class="flex justify-between">
     <div class="mt-4 text-left relative">
-        <div class="text-gray-700 font-small p-2 rounded-lg text-xl">{{ selected_watchlist.name }} Watchlist</div>
+        <div class="text-gray-700 font-small p-2 rounded-lg text-xl"><i class="fa-regular fa-clock"></i> {{ selected_watchlist.name }} Watchlist</div>
     </div>
     <div class="mt-4 text-right relative">
         <button class="border p-2 rounded-lg text-white bg-blue-500 ml-2" id="addStocks">Add Stock</button>
@@ -138,7 +138,7 @@
             <!-- Selected Stocks -->
             <div class="mb-4">
                 {% if selected_stocks %}
-                <h4 class="font-semibold text-red-700 text-left">Note : Uncheck to remove</h4>
+                <h4 class="font-semibold text-red-700 text-left"><i class="fa-regular fa-note-sticky"></i> Note : Uncheck to remove</h4>
                 {% for stock in selected_stocks %}
                     <div class="stock-item flex items-center">
                         <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}" checked>
@@ -150,7 +150,7 @@
 
             <!-- Remaining Stocks -->
             <div class="mb-4">
-                <h4 class="font-semibold text-blue-700 text-left">Check to Add</h4>
+                <h4 class="font-semibold text-blue-700 text-left"><i class="fa-solid fa-check"></i> Check to Add</h4>
                 {% for stock in remaining_stocks %}
                     <div class="stock-item flex items-center">
                         <input type="checkbox" name="stocks" value="{{ stock.symbol }}" id="stock-{{ stock.symbol }}">
@@ -185,7 +185,7 @@
 
             <div class="mb-4">
                 {% if selected_sectors %}
-                <h4 class="font-semibold text-red-700 text-left">Note : Uncheck to remove</h4>
+                <h4 class="font-semibold text-red-700 text-left"><i class="fa-regular fa-note-sticky"></i> Note : Uncheck to remove</h4>
                 {% for sector in selected_sectors %}
                     <div class="sector-item flex items-center">
                         <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}" checked>
@@ -196,7 +196,7 @@
             </div>
 
             <div class="mb-4">
-                <h4 class="font-semibold text-blue-700 text-left">Check to Add</h4>
+                <h4 class="font-semibold text-blue-700 text-left"><i class="fa-solid fa-check"></i> Check to Add</h4>
                 {% for sector in remaining_sectors %}
                     <div class="sector-item flex items-center">
                         <input type="checkbox" name="sectors" value="{{ sector.symbol }}" id="sector-{{ sector.symbol }}">

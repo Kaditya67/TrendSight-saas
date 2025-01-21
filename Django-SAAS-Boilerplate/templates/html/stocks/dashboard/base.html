@@ -9,6 +9,7 @@
 
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -103,128 +104,129 @@
 <body class="text-gray-900 flex flex-col min-h-screen">
 
     <!-- Navbar -->
-    <header class="bg-[#1F2937] text-white shadow-md">
-        <div class="container mx-auto p-6 flex items-center justify-between">
-            <!-- Logo -->
-            <h1 class="text-4xl font-semibold tracking-tight header-logo">
-                <a href="{% url "dashboard" %}" class="text-white hover:text-gray-200">TrendSight</a>
-            </h1> 
-
-            <!-- Search Bar --> 
-            <div class="hidden lg:flex items-center bg-gray-800 rounded-lg overflow-hidden w-full sm:w-1/2 md:w-1/2 lg:w-2/5 xl:w-1/3 shadow-md">
-                <input type="text" placeholder="Search..." class="w-full px-4 py-3 text-gray-200 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <button class="px-4 py-3 bg-gray-700 hover:bg-gray-600 focus:outline-none">
-                    <i class="fas fa-search text-white"></i>
-                </button>
-            </div>
-
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex space-x-3 text-lg">
-                <a href="/blog/" class="nav-link navbar-text px-4 py-3">Blog</a>
-                <a href="{% url "custom_portfolio" %}" class="nav-link navbar-text px-4 py-3">Portfolio</a>
-                <a href="{% url "watchlist" %}" class="nav-link navbar-text px-4 py-3">Watchlist</a>
-            </nav>
-
-            <!-- Right Section (Login/Signup or Profile Icon) -->
-            <div class="hidden md:flex items-center">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'profile_settings' %}" class="text-white hover:text-gray-200">
-                        {% if user_avatar.url %}
-                            <img src="{{ user_avatar.url }}" alt="User Avatar" class="w-10 h-10 rounded-full">
-                        {% else %}
-                            <!-- Fallback to the user icon if no avatar -->
-                            <i class="fas fa-user-circle text-3xl text-gray-600"></i>
-                        {% endif %}
-                    </a>
-                {% else %}
-                    <a href="{% url "login" %}" class="text-white hover:text-gray-300 px-4 py-3 nav-link">Login</a>
-                    <a href="{% url "signup" %}" class="text-white hover:text-gray-300 px-4 py-3 nav-link">Signup</a>
-                {% endif %}
-            </div>
-
-<!-- Mobile Menu Button -->
-<div class="flex md:hidden items-center">
-    {% if user.is_authenticated %}
-        <!-- Show logout icon if not authenticated, with link properly placed -->
-        <a href="{% url "logout" %}" class="flex items-center text-white text-2xl">
-            <i class="fas fa-sign-out text-red-500 mr-4"></i>
-        </a>
-        {% else %}
-        <!-- Show user icon if not authenticated, only for small screens -->
-        <a href="{% url "login" %}" class="flex items-center text-white text-2xl">
-            <i class="fa-regular fa-user mr-4 text-white text-2xl"></i> 
-        </a>
-    {% endif %}
-    <!-- Hamburger menu icon for mobile -->
-    <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none">
-        <i class="fas fa-bars"></i>
-    </button>
-</div>
-            
-        </div>
-    </header>
-
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-[#1F2937] text-white overflow-y-auto">
-        <div class="flex">
-            <a href="{% url "watchlist" %}" class="block px-6 py-3 hover:bg-gray-700">Watchlist</a>
-            <a href="{% url "custom_portfolio" %}" class="block px-6 py-3 hover:bg-gray-700">Portfolio</a>
-            <a href="/blog/" class="block px-6 py-3 hover:bg-gray-700">Blog</a>
-            {% if user.is_authenticated %} 
-            <a href="{% url 'profile_settings' %}" class="block pl-6 pr-3 py-3 hover:bg-gray-700"><i class="fa-regular fa-user mr-4 text-white"></i></a>
-            {% endif %}
-        </div> 
-    </div>
-
-    <!-- Second Navbar -->
-    <nav class="bg-gray-800 py-2">
-        <div class="container mx-auto flex justify-between items-center text-gray-200 space-x-6 overflow-x-auto whitespace-nowrap px-6">
-            <!-- Left Section -->
-            <div class="flex space-x-6">
-                <a href="{% url "stock" %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
-                    <i class="fas fa-chart-line mr-1"></i> Stocks
-                </a>
-                <a href="{% url "sector" %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
-                    <i class="fas fa-coins mr-1"></i> Sectors
-                </a>
-                <a href="{% url "charts" 1 %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
-                    <i class="fas fa-chart-bar mr-1"></i> Charts
-                </a>
-                <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
-                    <i class="fas fa-info mr-2"></i> Help Us
-                </a>
-                <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
-                    <i class="fas fa-phone mr-2"></i>Contact</a> 
-                </a>
-                <a href="{% url "profile_settings" %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
-                    <i class="fas fa-cog mr-2"></i>Settings</a> 
-                </a>
-                <div class="dropdown hidden sm:block">
-                    <button class="dropbtn hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">More <i class="fa fa-caret-down"></i>
-                    </button>
-                    <div class="dropdown-content z-30">
-                      <a href="{% url "help" %}" class="hover:text-blue-500">
-                        <i class="fas fa-info mr-2"></i>Help us</a>
-                      <a href="{% url "about" %}" class="hover:text-blue-500">
-                        <i class="fas fa-phone mr-2"></i>Contact</a> 
-                    </div>
-                  </div> 
-            </div>
-
-         <!-- Right Section (Settings Link) -->
-        <div class="flex items-center space-x-6 hover:text-gray-300">
-            <a href="{% url "profile_settings" %}" class="inline-block transition duration-200 px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <span class="hidden sm:inline-block"><i class="fas fa-cog"></i> Settings</span>
+<header class="bg-[#1F2937] text-white shadow-md">
+    <div class="container mx-auto p-6 flex items-center justify-between">
+        <!-- Logo -->
+        <h1 class="text-4xl font-semibold tracking-tight header-logo">
+            <a href="{% url 'dashboard' %}" class="text-white hover:text-gray-200">
+                <span class="flex flex-nowrap gap-2"><i class="fa fa-caret-up" aria-hidden="true"></i></i> TrendSight</span>
             </a>
+        </h1>        
+
+        <!-- Search Bar --> 
+        <div class="hidden lg:flex items-center bg-gray-800 rounded-lg overflow-hidden w-full sm:w-1/2 md:w-1/2 lg:w-2/5 xl:w-1/3 shadow-md">
+            <input type="text" placeholder="Search..." class="w-full px-4 py-3 text-gray-200 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <button class="px-4 py-3 bg-gray-700 hover:bg-gray-600 focus:outline-none">
+                <i class="fas fa-search text-white"></i>
+            </button>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-3 text-lg">
+            <a href="" class="nav-link navbar-text px-4 py-3"><i class="fa-regular fa-circle-play"></i> Blog</a>
+            <a href="{% url 'custom_portfolio' %}" class="nav-link navbar-text px-4 py-3 {% if request.resolver_match.url_name == 'custom_portfolio' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">Portfolio</a>
+            <a href="{% url 'watchlist' %}" class="nav-link navbar-text px-4 py-3 {% if request.resolver_match.url_name == 'watchlist' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">Watchlist</a>
+        </nav>
+
+        <!-- Right Section (Login/Signup or Profile Icon) -->
+        <div class="hidden md:flex items-center">
             {% if user.is_authenticated %}
-                <!-- Show only on larger screens (md and up) -->
-                <a href="{% url 'logout' %}" class="hidden md:flex items-center text-white text-2xl">
+                <a href="{% url 'profile_settings' %}" class="text-white hover:text-gray-200">
+                    {% if user_avatar.url %}
+                        <img src="{{ user_avatar.url }}" alt="User Avatar" class="w-10 h-10 rounded-full">
+                    {% else %}
+                        <!-- Fallback to the user icon if no avatar -->
+                        <i class="fas fa-user-circle text-3xl text-gray-600"></i>
+                    {% endif %}
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-white hover:text-gray-300 px-4 py-3 nav-link">Login</a>
+                <a href="{% url 'signup' %}" class="text-white hover:text-gray-300 px-4 py-3 nav-link">Signup</a>
+            {% endif %}
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="flex md:hidden items-center">
+            {% if user.is_authenticated %}
+                <!-- Show logout icon if authenticated, with link properly placed -->
+                <a href="{% url 'logout' %}" class="flex items-center text-white text-2xl">
                     <i class="fas fa-sign-out text-red-500 mr-4"></i>
                 </a>
+            {% else %}
+                <!-- Show user icon if not authenticated, only for small screens -->
+                <a href="{% url 'login' %}" class="flex items-center text-white text-2xl">
+                    <i class="fa-regular fa-user mr-4 text-white text-2xl"></i> 
+                </a>
             {% endif %}
+            <!-- Hamburger menu icon for mobile -->
+            <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
+            
     </div>
+</header>
+
+<!-- Mobile Menu -->
+<div id="mobileMenu" class="hidden md:hidden bg-[#1F2937] text-white overflow-y-auto">
+    <div class="flex">
+        <a href="{% url 'watchlist' %}" class="block px-6 py-3 hover:bg-gray-700 {% if request.resolver_match.url_name == 'watchlist' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">Watchlist</a>
+        <a href="{% url 'custom_portfolio' %}" class="block px-6 py-3 hover:bg-gray-700 {% if request.resolver_match.url_name == 'custom_portfolio' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">Portfolio</a>
+        <a href=" " class="block px-6 py-3 hover:bg-gray-700"><i class="fa-regular fa-circle-play"></i> Blog</a>
+        {% if user.is_authenticated %} 
+            <a href="{% url 'profile_settings' %}" class="block pl-6 pr-3 py-3 hover:bg-gray-700 {% if request.resolver_match.url_name == 'profile_settings' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}"><i class="fa-regular fa-user mr-4 text-white"></i></a>
+        {% endif %}
+    </div> 
+</div>
+
+<!-- Second Navbar -->
+<nav class="bg-gray-800 py-2">
+    <div class="container mx-auto flex justify-between items-center text-gray-200 space-x-6 overflow-x-auto whitespace-nowrap px-6">
+        <!-- Left Section -->
+        <div class="flex space-x-6">
+            <a href="{% url 'stock' %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg {% if request.resolver_match.url_name == 'stock' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">
+                <i class="fas fa-chart-line mr-1"></i> Stocks
+            </a>
+            <a href="{% url 'sector' %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg {% if request.resolver_match.url_name == 'sector' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">
+                <i class="fas fa-coins mr-1"></i> Sectors
+            </a>
+            <a href="{% url 'charts' 1 %}" class="inline-block hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg {% if request.resolver_match.url_name == 'charts' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">
+                <i class="fas fa-chart-bar mr-1"></i> Charts
+            </a>
+            <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <i class="fas fa-info mr-2"></i> Help Us
+            </a>
+            <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <i class="fas fa-phone mr-2"></i>Contact</a> 
+            <a href="{% url 'profile_settings' %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+                <i class="fas fa-cog mr-2"></i>Settings</a> 
+            <div class="dropdown hidden sm:block">
+                <button class="dropbtn hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">More <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content z-30">
+                  <a href="{% url 'help' %}" class="hover:text-blue-500">
+                    <i class="fas fa-info mr-2"></i>Help us</a>
+                  <a href="{% url 'about' %}" class="hover:text-blue-500">
+                    <i class="fas fa-phone mr-2"></i>Contact</a> 
+                </div>
+              </div> 
+        </div>
+
+     <!-- Right Section (Settings Link) -->
+    <div class="flex items-center space-x-6 hover:text-gray-300">
+        <a href="{% url 'profile_settings' %}" class="inline-block transition duration-200 px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <span class="hidden sm:inline-block"><i class="fas fa-cog"></i> Settings</span>
+        </a>
+        {% if user.is_authenticated %}
+            <!-- Show only on larger screens (md and up) -->
+            <a href="{% url 'logout' %}" class="hidden md:flex items-center text-white text-2xl">
+                <i class="fas fa-sign-out text-red-500 mr-4"></i>
+            </a>
+        {% endif %}
+    </div>
+</div>
 </nav>
+
 
     <!-- Page Content -->
     <main class="flex-grow container mx-auto p-8">

@@ -42,8 +42,8 @@
                     <tr class="bg-gray-800 text-white">
                         <!-- Freeze the first column -->
                         <th class="sticky left-0 bg-gray-800 py-3 px-4 text-left border-b z-10 cursor-pointer" onclick="sortTable(0)">
-                            <i class="fas fa-sort text-sm ml-2"></i>
                             Symbol
+                            <i class="fas fa-sort text-sm ml-2"></i>
                         </th>
                         {% for date in sectors.0.dates %}
                         <th class="py-3 px-4 text-left border-b cursor-pointer" onclick="sortTable({{ forloop.counter }})">

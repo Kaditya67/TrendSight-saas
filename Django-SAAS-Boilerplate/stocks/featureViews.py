@@ -711,7 +711,8 @@ def charts(request):
             'moving_avg50': moving_avg50,
             'symbol': symbol,
             'stock_symbols':stock_symbols,
-            'sector_symbols':sector_symbols 
+            'sector_symbols':sector_symbols,
+            'user_avatar': request.user.dp if request.user.dp else None 
         }
 
         return render(request, 'stocks/charts/charts.html', context)
@@ -724,7 +725,8 @@ def charts(request):
         'moving_avg50': moving_avg50,
         'symbol': symbol, 
         'stock_symbols':stock_symbols,
-        'sector_symbols':sector_symbols 
+        'sector_symbols':sector_symbols,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
 
     return render(request, 'stocks/charts/charts.html', context)
@@ -801,6 +803,7 @@ def stock_chart(request, stock_id):
             'emas': emas,
             'selected_ema': selected_ema,
             'selected_range' : selected_range,
+            'user_avatar': request.user.dp if request.user.dp else None
         }
 
         return render(request, 'stocks/charts/stock_charts.html', context)
@@ -818,6 +821,7 @@ def stock_chart(request, stock_id):
         'emas': emas,
         'selected_ema': selected_ema,
         'selected_range' : selected_range,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
 
     return render(request, 'stocks/charts/stock_charts.html', context)
@@ -893,6 +897,7 @@ def sector_chart(request, sector_id):
             'emas': emas,
             'selected_ema': selected_ema,
             'selected_range' : selected_range,
+            'user_avatar': request.user.dp if request.user.dp else None
         }
 
         return render(request, 'stocks/charts/sector_charts.html', context)
@@ -910,6 +915,7 @@ def sector_chart(request, sector_id):
         'emas': emas,
         'selected_ema': selected_ema,
         'selected_range' : selected_range,
+        'user_avatar': request.user.dp if request.user.dp else None
     }
 
     return render(request, 'stocks/charts/sector_charts.html', context)
