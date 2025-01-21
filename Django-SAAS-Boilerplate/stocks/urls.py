@@ -26,6 +26,7 @@ urlpatterns = [
     path('charts/', views.charts, name='charts'),
 
     path('change_ema/', views.change_ema, name='change_ema'),
+    path('search/', views.search_view, name='search'),
 
     path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),

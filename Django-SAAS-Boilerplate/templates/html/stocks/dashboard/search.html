@@ -1,0 +1,37 @@
+{% extends 'stocks/portfolio/base.html' %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+    <!-- Navbar -->
+    <header class="bg-gray-800 text-white shadow-lg py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'dashboard' %}" class="text-2xl font-bold"><i class="fas fa-chart-line"></i> TrendSight</a>
+            <form action="{% url 'search' %}" method="get" class="flex w-full max-w-sm">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search..." 
+                       class="w-full px-4 py-2 text-gray-900 rounded-l-md focus:outline-none">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-r-md text-white">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Search Results -->
+    <div class="container mx-auto py-8">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Search Results for "{{ query }}"</h1>
+
+        {% if results %}
+        <ul class="bg-white shadow-md rounded-md divide-y divide-gray-200">
+            {% for result in results %}
+            <li class="p-4 flex justify-between items-center">
+                <span class="text-gray-800 font-medium"><a href="{{ result.url }}"
+                    class="text-blue-500 hover:text-blue-700 text-sm font-bold">{{ result.name }}
+                </a></span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-600">No results found for "{{ query }}". Try searching for something else.</p>
+        {% endif %}
+    </div>
+{% endblock %}
