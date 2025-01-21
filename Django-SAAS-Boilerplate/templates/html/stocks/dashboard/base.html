@@ -123,7 +123,7 @@
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex space-x-3 text-lg">
-            <a href="" class="nav-link navbar-text px-4 py-3"><i class="fa-regular fa-circle-play"></i> Blog</a>
+            <a href="{% url 'blog:list_blogs' %}" class="nav-link navbar-text px-4 py-3"><i class="fa-regular fa-circle-play"></i> Blog</a>
             <a href="{% url 'custom_portfolio' %}" class="nav-link navbar-text px-4 py-3 {% if request.resolver_match.url_name == 'custom_portfolio' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">Portfolio</a>
             <a href="{% url 'watchlist' %}" class="nav-link navbar-text px-4 py-3 {% if request.resolver_match.url_name == 'watchlist' %} bg-gray-700 text-white {% else %} text-gray-300 {% endif %}">Watchlist</a>
         </nav>

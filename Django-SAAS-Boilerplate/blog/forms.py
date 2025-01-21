@@ -6,7 +6,7 @@ from .models import Blog, BlogImage
 class BlogForm(forms.ModelForm):
     class Meta:
         model = Blog
-        fields = ['title', 'slug', 'body', 'thumbnail', 'draft']
+        fields = ['title', 'slug', 'body','video_url', 'thumbnail', 'draft']
         widgets = {
             'body': forms.Textarea(attrs={'rows': 5, 'cols': 40}),
         }

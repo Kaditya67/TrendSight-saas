@@ -95,7 +95,7 @@ class BlogAdmin(ModelAdmin):
 
         fieldsets = [
             ('Details', {
-          'fields': ('id', 'blog_id', 'title', 'slug', 'thumbnail')
+          'fields': ('id', 'blog_id', 'title', 'slug', 'thumbnail','video_url')
             }),
             ('Body', {
                 'fields': ('body', )
@@ -128,3 +128,14 @@ class BlogAdmin(ModelAdmin):
         self.request = request
         return super().change_view(request, object_id, form_url, extra_context)
     
+
+
+from django.contrib import admin
+from .models import BlogInteraction
+
+@admin.register(BlogInteraction)
+class BlogInteractionAdmin(admin.ModelAdmin):
+    list_display = ('blog', 'likes', 'dislikes', 'views')
+    search_fields = ('blog__title',)
+    list_filter = ('likes', 'dislikes', 'views')
+    ordering = ('-likes',)

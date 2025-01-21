@@ -1,3 +1,4 @@
+from urllib.parse import parse_qs, urlparse
 from django.db import models
 from django.template.defaultfilters import slugify
 
@@ -25,6 +26,7 @@ class Blog(models.Model):
 
     draft = models.BooleanField(default=False, blank=True)
     datetime = models.DateTimeField(auto_now=True) # stays at last updated
+    video_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -35,6 +37,17 @@ class Blog(models.Model):
             self.slug = slugify(self.title)
 
         return super().save(*args, **kwargs)
+    
+    def youtube_video_id(self):
+        if self.video_url:
+            parsed_url = urlparse(self.video_url)
+            if parsed_url.hostname in ['www.youtube.com', 'youtube.com']:
+                query = parse_qs(parsed_url.query)
+                video_id = query.get('v')
+                return video_id[0] if video_id else None
+            elif parsed_url.hostname == 'youtu.be':
+                return parsed_url.path[1:]  # Remove the leading '/'
+        return None
 
 
 class BlogImage(models.Model):
@@ -44,3 +57,27 @@ class BlogImage(models.Model):
 
     def __str__(self) -> str:
         return f'{self.image.url}'
+    
+
+class BlogInteraction(models.Model):
+    blog = models.OneToOneField(Blog, on_delete=models.CASCADE, related_name='interaction')
+    likes = models.PositiveIntegerField(default=0)
+    dislikes = models.PositiveIntegerField(default=0)
+    views = models.PositiveIntegerField(default=0)
+    
+    # Optional: If you want to store comments as well, you can create a related model.
+    # For simplicity, let's assume comments are stored in a separate model
+    # that references the BlogInteraction model.
+    
+    def __str__(self):
+        return f"Interactions for {self.blog.title}"
+    
+
+class Comment(models.Model):
+    blog_interaction = models.ForeignKey(BlogInteraction, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming you want to track who commented
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.blog_interaction.blog.title}"

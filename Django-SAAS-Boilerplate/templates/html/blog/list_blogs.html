@@ -1,0 +1,293 @@
+{% extends 'blog/base.html' %} 
+
+{% block content %}
+
+  
+  <!-- Add this in the <head> section of your HTML -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+  
+  <div class="fixed top-0 right-0 h-full w-[5%]  backdrop-blur-md flex flex-col items-center justify-center space-y-7">
+    <a href="https://www.facebook.com" target="_blank" class="bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-700">
+        <i class="fab fa-facebook-f"></i>
+    </a>
+    <a href="https://www.twitter.com" target="_blank" class="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-500">
+        <i class="fab fa-twitter"></i>
+    </a>
+    <a href="https://www.instagram.com" target="_blank" class="bg-pink-500 text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-pink-600">
+        <i class="fab fa-instagram"></i>
+    </a>
+    <a href="https://www.linkedin.com" target="_blank" class="bg-blue-800 text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-900">
+        <i class="fab fa-linkedin-in"></i>
+    </a>
+</div>
+
+
+<div class="flex space-x-4 mt-2">
+  <a href="?filter=latest" 
+     class="px-6 py-2 rounded-xl {% if filter_type == 'latest' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-700{% endif %}">
+    Latest
+  </a>
+  {% comment %} <a href="?filter=most_liked" 
+     class="px-4 py-2 rounded-xl {% if filter_type == 'most_liked' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-600{% endif %}">
+    Most Liked
+  </a>
+  <a href="?filter=most_commented" 
+     class="px-4 py-2 rounded-xl {% if filter_type == 'most_commented' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-600{% endif %}">
+    Most Commented
+  </a> {% endcomment %}
+  <a href="?filter=oldest" 
+     class="px-4 py-2 rounded-xl {% if filter_type == 'oldest' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-700{% endif %}">
+    Oldest
+  </a>
+</div>
+
+
+  <!-- Blog List -->
+  <div class="w-3/4 p-4">
+    <!-- Your blog list here -->
+  </div>
+</div>
+
+
+
+
+
+    <!-- Font Awesome Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+    <div class="container mx-auto px-4 py-8 mt-8 bg-grey-600">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 mx-auto mt-8  bg-grey-400">
+          <!-- Iterate through all blogs -->
+          {% for blog in blogs %}
+          <div class="bg-[#1F2937] rounded-lg shadow-lg overflow-hidden flex flex-col">
+              {% comment %} <!-- Display thumbnail if available -->
+              {% comment %} {% if blog.thumbnail %}
+                <img src="{{ blog.thumbnail.url }}" alt="{{ blog.title }}" class="w-full h-64 object-cover">
+              {% endif %} {% endcomment %}
+              
+              <div class="p-4">
+                <!-- Blog title -->
+                <h2 class="text-xl font-semibold mb-2">
+                  <a href="{{ blog.video_url }}" class="text-blue-600 hover:underline" target="_blank">
+                    {{ blog.title }}
+                  </a>
+                </h2>
+                
+      
+                <!-- Display YouTube video if video_url is provided -->
+                {% if blog.youtube_video_id %}
+                  <div class="mb-8 mt-4">
+                    <iframe 
+                      class="w-full h-64"
+                      src="https://www.youtube.com/embed/{{ blog.youtube_video_id }}" 
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowfullscreen>
+                    </iframe>
+                  </div>
+                {% endif %}
+
+
+                <div class="bod text-white">
+                  <h2 
+                    class="text-white- text-sm mb-0 h-20 overflow-hidden font-bold transition-all blog-description" 
+                    id="blog-description-{{ blog.id }}">
+                    {{ blog.body|safe }}
+                  </h2>
+                  <button 
+                    class="read-more text-blue-600 hover:underline" 
+                    data-blog-id="{{ blog.id }}">
+                    Read More
+                  </button>
+                </div>
+                
+
+      
+              <div class="flex items-center justify-between text-white text-xs mt-6 font-bold">
+                <p><strong>Published on:</strong> {{ blog.datetime|date:"F j, Y" }}</p>
+    
+                <div class="blog" data-blog-id="{{ blog.id }}">
+                  <div class="flex space-x-3" data-blog-id="{{ blog.id }}">
+                    <!-- Like Button -->
+                    <button class="like-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
+                      <i class="fas fa-thumbs-up"></i>
+                    </button>
+                    <span id="like-count-{{ blog.id }}">{{ blog.interaction.likes }}</span> <!-- Like count -->
+                  
+                    <!-- Dislike Button -->
+                    <button class="dislike-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
+                      <i class="fas fa-thumbs-down"></i>
+                    </button>
+                    <span id="dislike-count-{{ blog.id }}">{{ blog.interaction.dislikes }}</span> <!-- Dislike count -->
+                  
+                    <!-- Comment Button -->
+                    <button class="comment-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
+                      <i class="fas fa-comment"></i>
+                    </button>
+                  </div>
+                  
+  
+                  <div id="comment-section-{{ blog.id }}" class="mt-4 hidden">
+                    <textarea id="comment-text-{{ blog.id }}" placeholder="Write your comment..." class="w-full p-2 border rounded-md"></textarea>
+                    <button class="submit-comment mt-2 bg-blue-600 text-white p-2 rounded">Submit Comment</button>
+                    <div id="comments-list-{{ blog.id }}" class="mt-4"></div> <!-- Comments -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% empty %}
+            <!-- Show a message if no blogs are available -->
+            <p class="text-center">No blogs available.</p>
+          {% endfor %}
+        </div>
+      
+        <!-- Pagination controls -->
+        <div class="mt-8 flex justify-center space-x-4">
+          {% if blogs.has_previous %}
+            <a href="?page=1" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">&laquo; First</a>
+            <a href="?page={{ blogs.previous_page_number }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Previous</a>
+          {% endif %}
+      
+          <span class="px-4 py-2 bg-gray-100 rounded">Page {{ blogs.number }} of {{ blogs.paginator.num_pages }}</span>
+      
+          {% if blogs.has_next %}
+            <a href="?page={{ blogs.next_page_number }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+            <a href="?page={{ blogs.paginator.num_pages }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Last &raquo;</a>
+          {% endif %}
+        </div>
+      </div>
+    
+    {% comment %} <script>
+ // Function to initialize counts from localStorage
+function initializeCounts(blogId) {
+  const likeCount = localStorage.getItem(`like-count-${blogId}`) || 0;
+  const dislikeCount = localStorage.getItem(`dislike-count-${blogId}`) || 0;
+  document.getElementById(`like-count-${blogId}`).textContent = likeCount;
+  document.getElementById(`dislike-count-${blogId}`).textContent = dislikeCount;
+}
+
+// Function to save counts to localStorage
+function saveCounts(blogId, type, count) {
+  localStorage.setItem(`${type}-count-${blogId}`, count);
+}
+
+// Add event listeners for all blogs
+document.querySelectorAll('.blog').forEach((blog) => {
+  const blogId = blog.getAttribute('data-blog-id');
+
+  // Initialize counts for the current blog
+  initializeCounts(blogId);
+
+  // Like button click event
+  blog.querySelector('.like-btn').addEventListener('click', function () {
+    let likeCount = parseInt(localStorage.getItem(`like-count-${blogId}`) || 0);
+    likeCount++;
+    document.getElementById(`like-count-${blogId}`).textContent = likeCount;
+    saveCounts(blogId, 'like', likeCount);
+  });
+
+  // Dislike button click event
+  blog.querySelector('.dislike-btn').addEventListener('click', function () {
+    let dislikeCount = parseInt(localStorage.getItem(`dislike-count-${blogId}`) || 0);
+    dislikeCount++;
+    document.getElementById(`dislike-count-${blogId}`).textContent = dislikeCount;
+    saveCounts(blogId, 'dislike', dislikeCount);
+  });
+
+  // Comment button click event (to toggle comment section)
+  blog.querySelector('.comment-btn').addEventListener('click', function () {
+    const commentSection = document.getElementById(`comment-section-${blogId}`);
+    commentSection.classList.toggle('hidden'); // Toggle visibility
+  });
+
+  // Submit comment event
+  blog.querySelector('.submit-comment').addEventListener('click', function () {
+    const commentText = document.getElementById(`comment-text-${blogId}`).value;
+    if (commentText.trim() !== "") {
+      const commentList = document.getElementById(`comments-list-${blogId}`);
+      const newComment = document.createElement('div');
+      newComment.classList.add('comment');
+      newComment.textContent = commentText;
+      commentList.appendChild(newComment);
+      document.getElementById(`comment-text-${blogId}`).value = ""; // Clear the input
+    }
+  });
+});
+
+
+    </script> {% endcomment %}
+
+    <script>
+  // Select all "Read More" buttons
+  const readMoreButtons = document.querySelectorAll('.read-more');
+
+  readMoreButtons.forEach((button) => {
+    button.addEventListener('click', function () {
+      // Get the blog ID from the button's data attribute
+      const blogId = this.getAttribute('data-blog-id');
+      
+      // Find the corresponding description element
+      const blogDescription = document.getElementById(`blog-description-${blogId}`);
+
+      // Toggle classes for expanding/collapsing
+      blogDescription.classList.toggle('h-20');
+      blogDescription.classList.toggle('overflow-hidden');
+
+      // Update button text
+      if (blogDescription.classList.contains('h-20')) {
+        this.textContent = 'Read More';
+      } else {
+        this.textContent = 'Read Less';
+      }
+    });
+  });
+</script>
+
+  <script>
+    document.querySelectorAll('.flex.space-x-3').forEach((blogElement) => {
+      const blogId = blogElement.getAttribute('data-blog-id');
+    
+      // Like button click event
+      blogElement.querySelector('.like-btn').addEventListener('click', function () {
+        fetch(`/blog/like/${blogId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is included
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Update the like count in the template
+            document.getElementById(`like-count-${blogId}`).textContent = data.likes;
+          })
+          .catch((error) => console.error('Error:', error));
+      });
+    
+      // Dislike button click event
+      blogElement.querySelector('.dislike-btn').addEventListener('click', function () {
+        fetch(`/blog/dislike/${blogId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is included
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Update the dislike count in the template
+            document.getElementById(`dislike-count-${blogId}`).textContent = data.dislikes;
+          })
+          .catch((error) => console.error('Error:', error));
+      });
+    });
+    </script>
+    
+
+
+
+
+{% endblock %}

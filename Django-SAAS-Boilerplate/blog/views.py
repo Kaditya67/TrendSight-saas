@@ -1,3 +1,5 @@
+import json
+from tokenize import Comment
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -11,24 +13,53 @@ from utils.decorators import login_required_rest_api
 
 @require_http_methods(['GET'])
 def get_blog(request, slug):
-    blog = get_object_or_404(Blog, slug=slug, draft=False)
-    return render(request, 'html/blog/blog-view.html', {
-        'blog': blog
+    blog = Blog.objects.get(slug=slug)
+    interaction, created = BlogInteraction.objects.get_or_create(blog=blog)
+    return JsonResponse({
+        'blog': {
+            'title': blog.title,
+            'body': blog.body,
+            'likes': interaction.likes,
+            'dislikes': interaction.dislikes
+        }
     })
 
-
+from .models import Blog, BlogInteraction
+from django.db.models import Count
+from django.db.models import F
 @require_http_methods(['GET'])
+
 def list_blogs(request):
-
+    filter_type = request.GET.get('filter', 'latest')  # Default to 'latest'
     page_number = request.GET.get("page", 1)
-    blogs = Blog.objects.filter(draft=False).order_by('-datetime')
-
-    paginator = Paginator(blogs, per_page=15)
-    page = paginator.get_page(page_number)
     
-    return render(request, 'html/blog/blog-list.html', {
-                                                'blogs': page,
-                                            })
+    # Debugging print: Check the filter_type value
+    print(f"Filter type received: {filter_type}")
+    
+    if filter_type == 'most_liked':
+        # Debugging print: Check the sorting behavior for most liked blogs
+        blogs = Blog.objects.annotate(like_count=F('interaction__likes')).order_by('-like_count')
+    elif filter_type == 'most_viewed':
+        # Debugging print: Check the sorting behavior for most viewed blogs
+        blogs = Blog.objects.annotate(view_count=F('interaction__views')).order_by('-view_count')
+    elif filter_type == 'most_commented':
+        # Debugging print: Check the sorting behavior for most commented blogs
+        blogs = Blog.objects.annotate(comment_count=Count('interaction__comments')).order_by('-comment_count')
+    elif filter_type == 'oldest':
+        # Debugging print: Check the sorting behavior for oldest blogs
+        blogs = Blog.objects.all().order_by('datetime')
+    else:
+        # Default to 'latest'
+        blogs = Blog.objects.all().order_by('-datetime')
+    
+    paginator = Paginator(blogs, per_page=6)
+    page = paginator.get_page(page_number)
+
+    # Debugging print: Check the final list of blogs before rendering
+    
+    
+    # Pass the blogs and filter_type to the template
+    return render(request, 'blog/list_blogs.html', {'blogs': page, 'filter_type': filter_type})
 
 
 BLOG_PERMISSIONS = ['blog.add_blog', 'blog.change_blog']
@@ -68,3 +99,62 @@ def create_blog(request):
     else:
         form = BlogForm()
         return render(request, 'html/blog/blog_create.html', {'form': form})
+    
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Blog, BlogInteraction
+
+@csrf_exempt  # Disable CSRF for this example (you can add CSRF protection in production)
+def update_like(request, blog_id):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        # Get the blog interaction or create it if it doesn't exist
+        blog = Blog.objects.get(id=blog_id)
+        interaction, created = BlogInteraction.objects.get_or_create(blog=blog)
+
+        # Update like count
+        if action == 'like':
+            interaction.likes += 1
+        elif action == 'dislike':
+            interaction.dislikes += 1
+
+        # Save the updated interaction
+        interaction.save()
+
+        # Return the updated like count
+        return JsonResponse({
+            'like_count': interaction.likes
+        })
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import BlogInteraction
+import json
+
+@csrf_exempt
+def update_interaction(request, blog_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        action = data.get('action')  # Expect 'like' or 'dislike'
+
+        interaction, _ = BlogInteraction.objects.get_or_create(blog_id=blog_id)
+
+        if action == 'like':
+            interaction.likes += 1
+        elif action == 'dislike':
+            interaction.dislikes += 1
+        else:
+            return JsonResponse({'error': 'Invalid action'}, status=400)
+
+        interaction.save()
+
+        return JsonResponse({
+            'likes': interaction.likes,
+            'dislikes': interaction.dislikes,
+        }, status=200)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
