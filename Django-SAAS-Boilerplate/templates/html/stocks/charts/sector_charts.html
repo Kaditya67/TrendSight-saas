@@ -10,16 +10,6 @@
     {{ symbol }}
 </div>
 
-<div class="fixed top-21 left-0 p-4 bg-gray-100 border border-gray-300 rounded-lg shadow-lg ml-2 hover:bg-gray-200 transition duration-300 group z-20">
-    <a href="{% url 'charts' 1 %}" class="flex flex-col items-center text-gray-800">
-        <i class="fa-solid fa-rotate text-green-500"></i> 
-    </a>
-    <div class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 text-xs text-white bg-gray-800 rounded-lg hidden group-hover:block">
-        Swap to Stocks Chart
-    </div>
-</div>
-
-
 <div class="container mx-auto px-4 py-6">
     <!-- Header Section -->
     <div class="flex justify-between mb-6 flex-wrap md:flex-nowrap">
@@ -34,13 +24,20 @@
                     autocomplete="off" 
                     required
                 >
-                <button 
-                    type="button" 
-                    id="search-button" 
-                    class="ml-3 px-4 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
-                >
-                    <i class="fa fa-search"></i>
-                </button>
+                <div class="relative group">
+                    <a href="{% url 'charts' 1 %}" class="flex flex-col items-center">
+                        <button 
+                            type="button" 
+                            id="swap-button" 
+                            class="ml-3 px-4 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+                        >
+                            <i class="fa-solid fa-rotate text-white"></i>
+                        </button>
+                    </a>
+                    <div class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 text-xs text-white bg-gray-800 rounded-lg hidden group-hover:block">
+                        Swap to Stock Chart
+                    </div>
+                </div> 
                 <div 
                     id="stock-dropdown" 
                     class="absolute left-0 w-full bg-white border rounded-lg mt-2 hidden z-10 shadow-lg max-h-60 overflow-auto"
@@ -163,7 +160,7 @@
     }
     
 
-    function initSearchBar(input, dropdown, stockList, searchButton) {
+    function initSearchBar(input, dropdown, stockList) {
         input.addEventListener('input', function () {
             const filter = input.value.toUpperCase();
             const items = stockList.getElementsByTagName('li');
@@ -209,11 +206,6 @@
             }
         });
     
-        // Navigate to URL on search button click or Enter key
-        searchButton.addEventListener('click', function () {
-            navigateToStock(input, stockList);
-        });
-    
         input.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 navigateToStock(input, stockList);
@@ -248,8 +240,7 @@
     initSearchBar(
         document.getElementById('stock-search'),
         document.getElementById('stock-dropdown'),
-        document.getElementById('stock-list'),
-        document.getElementById('search-button')
+        document.getElementById('stock-list'), 
     );
     
 
