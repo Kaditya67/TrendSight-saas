@@ -12,6 +12,7 @@ urlpatterns = [
         
     path('image/upload/', upload_image, name='image-upload'),
     path('list_blogs/', list_blogs, name='list_blogs'),
+    path('search/', views.search_blog, name='search'),
 
     # path('<str:blogid>/', get_blog, name='get-blog'),
     path('<slug:slug>/', get_blog, name='get_blog'),

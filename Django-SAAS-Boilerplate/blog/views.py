@@ -158,3 +158,15 @@ def update_interaction(request, blog_id):
         }, status=200)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+from django.shortcuts import render
+from .models import Blog
+
+def search_blog(request):
+    query = request.GET.get('q', '')
+    if query:
+        blogs = Blog.objects.filter(title__icontains=query)
+    else:
+        blogs = Blog.objects.all()
+    return render(request, 'blog/list_blogs.html', {'blogs': blogs, 'query': query})

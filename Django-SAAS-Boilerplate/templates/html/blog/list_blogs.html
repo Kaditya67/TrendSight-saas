@@ -24,23 +24,27 @@
 
 
 <div class="flex space-x-4 mt-2">
+  <!-- Filter Buttons -->
   <a href="?filter=latest" 
      class="px-6 py-2 rounded-xl {% if filter_type == 'latest' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-700{% endif %}">
     Latest
   </a>
-  {% comment %} <a href="?filter=most_liked" 
-     class="px-4 py-2 rounded-xl {% if filter_type == 'most_liked' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-600{% endif %}">
-    Most Liked
-  </a>
-  <a href="?filter=most_commented" 
-     class="px-4 py-2 rounded-xl {% if filter_type == 'most_commented' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-600{% endif %}">
-    Most Commented
-  </a> {% endcomment %}
+  
   <a href="?filter=oldest" 
      class="px-4 py-2 rounded-xl {% if filter_type == 'oldest' %}bg-blue-600 text-white{% else %}bg-blue-500 text-white hover:bg-blue-700{% endif %}">
     Oldest
   </a>
+
+  <!-- Search Bar -->
+  <form action="{% url 'blog:search' %}" method="get" class="flex items-center space-x-2">
+    <input type="text" name="q" placeholder="Search blogs..." 
+           class="px-4 py-2 rounded-xl border-2 border-gray-300 focus:outline-none focus:border-blue-500" />
+    <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+      Search
+    </button>
+  </form>
 </div>
+
 
 
   <!-- Blog List -->
