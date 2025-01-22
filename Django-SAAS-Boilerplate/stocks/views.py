@@ -277,7 +277,7 @@ def profile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Optionally redirect to profile page after successful save
+            return redirect('profile_settings')  # Optionally redirect to profile page after successful save
     else:
         form = UserProfileForm(instance=user)
     
