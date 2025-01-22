@@ -1,36 +1,66 @@
-{% extends "base.html" %}
-{% block title %} About Us  {% endblock %}
+{% extends 'stocks/dashboard/base.html' %}
+{% block title %} About Us {% endblock %}
 
 {% block content %}
-<p class="h1 text-center">About Us</p>
- <div class="container">
+<style>
+    .card-header {
+        background: #0056b3;
+        color: #fff;
+    }
+    .card-body p {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    .btn-lg {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+</style>
+<section class="bg-light min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h2 class="text-center">Welcome to TrendSight</h2>
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg rounded">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h1 class="h3 mb-2">Welcome to TrendSight</h1>
+                        <p class="mb-0">Your Comprehensive EMA-Based Stock Tracking Tool</p>
                     </div>
-                    <div class="card-body">
-                        <p class="lead">Your Comprehensive EMA-Based Stock Tracking Tool.</p>
-                        <p>StockTrack is designed for investors and traders seeking deep insights into market trends. Focusing on the Exponential Moving Average (EMA), our tool offers unparalleled tracking and analysis of stock and sector trends.</p>
-
-                        <h4>Key Features:</h4>
-                        <ul>
-                            <li><strong>Expansive Stocks Universe:</strong> Access a broad range of stocks across various sectors.</li>
-                            <li><strong>EMA Trend Analysis:</strong> Track bullish and bearish trends with customizable EMAs.</li>
-                            <li><strong>EOD Data and Insights:</strong> Make informed decisions with up-to-date EOD market data.</li>
-                            <li><strong>Customizable Alerts:</strong> Receive alerts on EMA breakouts and sector movements.</li>
-                            <li><strong>User-Friendly Interface:</strong> Easy to navigate for both new and seasoned traders.</li>
-                            <li><strong>Educational Resources:</strong> Enhance your trading knowledge with our materials.</li>
+                    <div class="card-body p-4">
+                        <p class="text-muted">
+                            StockTrack is designed for investors and traders seeking deep insights into market trends.
+                            Focusing on the Exponential Moving Average (EMA), our tool offers unparalleled tracking and
+                            analysis of stock and sector trends.
+                        </p>
+                        <h4 class="h5 mt-4">Key Features:</h4>
+                        <ul class="list-unstyled mt-3">
+                            <li><strong>Expansive Stocks Universe:</strong> Access a broad range of stocks across
+                                various sectors.</li>
+                            <li><strong>EMA Trend Analysis:</strong> Track bullish and bearish trends with customizable
+                                EMAs.</li>
+                            <li><strong>EOD Data and Insights:</strong> Make informed decisions with up-to-date EOD
+                                market data.</li>
+                            <li><strong>Customizable Alerts:</strong> Receive alerts on EMA breakouts and sector
+                                movements.</li>
+                            <li><strong>User-Friendly Interface:</strong> Easy to navigate for both new and seasoned
+                                traders.</li>
+                            <li><strong>Educational Resources:</strong> Enhance your trading knowledge with our
+                                materials.</li>
                             <li><strong>Dedicated Support:</strong> Expert assistance always available for your queries.</li>
                         </ul>
-
-                        <p><strong>Join MarketPulse Today:</strong> Embrace the power of EMA analysis and elevate your trading strategy. Be part of a community that stays a step ahead in the stock market.</p>
-
+                        <p class="text-muted mt-4">
+                            <strong>Join MarketPulse Today:</strong> Embrace the power of EMA analysis and elevate your
+                            trading strategy. Be part of a community that stays a step ahead in the stock market.
+                        </p>
+                        <div class="text-center mt-4">
+                            <a href="{% url 'signup' %}" class="btn btn-primary btn-lg px-4">
+                                Get Started
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+</section>
 {% endblock %}

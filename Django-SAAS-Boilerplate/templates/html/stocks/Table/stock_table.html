@@ -19,7 +19,7 @@
         {% endfor %}
     </div>
 {% endif %} 
-
+ 
 <!-- Search Bar Section -->
 <div class="p-4 relative">
     <input 
@@ -31,6 +31,7 @@
     />
     <i class="fas fa-search absolute left-7 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
 </div>
+
 
 <!-- Table Section -->
 <div class="overflow-x-auto bg-white shadow-md rounded-lg">
@@ -58,7 +59,7 @@
                     <tr class="hover:bg-gray-50 stock-row">
                         <td class="sticky left-0 bg-white py-2 px-4 border-b z-10 flex">
                             <!-- Plus Button -->
-                            <button class="text-green-500 hover:text-green-700 focus:outline-none pr-2" onclick="openModal('{{ stock.symbol }}', '{{ stock.id }}')">
+                            <button class="text-green-500 hover:text-green-700 focus:outline-none pr-2" onclick="openModalStock('{{ stock.symbol }}', '{{ stock.id }}')">
                                 <i class="fas fa-plus-circle"></i>
                             </button>
                             <span><a href="{% url "charts" stock.id %}" class="hover:text-blue-500 text-gray-800" title="{{ stock.name }}">
@@ -115,7 +116,7 @@
             <input type="hidden" name="add_to_watchlist" value="1">
 
             <div class="flex justify-between mt-4">
-                <button type="button" class="bg-gray-400 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-gray-500 transition duration-200" onclick="closeModal()">Cancel</button>
+                <button type="button" class="bg-gray-400 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-gray-500 transition duration-200" onclick="closeModalStock()">Cancel</button>
                 <button type="submit" class="bg-blue-500 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-blue-600 transition duration-200">Add</button>
             </div>
         </form>
@@ -170,13 +171,13 @@ function sortTable(columnIndex) {
         }
     });
 }
-    function openModal(symbol, stockId) {
+    function openModalStock(symbol, stockId) {
         document.getElementById('stockSymbol').innerText = `Do you want to add the stock: ${symbol}?`;
         document.getElementById('stockId').value = stockId; // Set the sector_id in the hidden input field
         document.getElementById('modal').classList.remove('hidden');
     }
 
-    function closeModal() {
+    function closeModalStock() {
         document.getElementById('modal').classList.add('hidden');
     }
 
@@ -187,15 +188,33 @@ function sortTable(columnIndex) {
         console.log("Stock ID:", stockIdy);
         console.log("Watchlist Name:", watchlistName);
 
-        closeModal();
+        closeModalStock();
     });
 
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('modal');
         if (event.target === modal) {
-            closeModal();
+            closeModalStock();
         }
     });
+
+    function searchStocks() {
+        const searchQuery = document.getElementById('searchBar').value.toLowerCase();  // Get the search input
+        const rows = document.querySelectorAll('#stocksTable tbody tr');  // Get all rows of the table
+    
+        rows.forEach(function(row) {
+            const symbolCell = row.querySelector('td');  // Get the first column (stock symbol) cell
+            const symbolText = symbolCell ? symbolCell.textContent.trim().toLowerCase() : ''; // Get the text from the symbol cell
+    
+            // If the symbol matches the search query, display the row, else hide it
+            if (symbolText.includes(searchQuery)) {
+                row.style.display = '';  // Show the row
+            } else {
+                row.style.display = 'none';  // Hide the row
+            }
+        });
+    }
+    
 </script>
 
 {% endblock %}

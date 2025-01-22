@@ -748,7 +748,7 @@ def stock_chart(request, stock_id):
         if len(FinancialStockData.objects.filter(stock=stock)) > 15:
             valid_stock = stock
             stock_symbols.append(stock)
-    selected_range = 'month'
+    selected_range = 'year'
 
     # Retrieve stock symbol from the Stock model
     try:
@@ -784,12 +784,12 @@ def stock_chart(request, stock_id):
         if range_data == 'week':
             selected_range = 'week'
             num_days = 5
-        elif range_data == 'year':
-            selected_range = 'year'
-            num_days = 365
-        else:
+        elif range_data == 'month':
             selected_range = 'month'
-            num_days = 30  # Default to 30 days
+            num_days = 30
+        else:
+            selected_range = 'year'
+            num_days = 365  # Default to 30 days
             
         dates, stock_prices, moving_avg = get_stock_data(symbol, num_days)
 
@@ -809,7 +809,7 @@ def stock_chart(request, stock_id):
         return render(request, 'stocks/charts/stock_charts.html', context)
 
     # For initial load (GET request)
-    dates, stock_prices, moving_avg = get_stock_data(symbol, 30)
+    dates, stock_prices, moving_avg = get_stock_data(symbol, 365)
 
     context = {
         'dates': dates,
@@ -843,7 +843,7 @@ def sector_chart(request, sector_id):
         if len(SectorFinancialData.objects.filter(sector=sector)) > 15:
             valid_sector = sector
             sector_symbols.append(sector)
-    selected_range = 'month'
+    selected_range = 'year'
 
     # Retrieve stock symbol from the Stock model
     try:
@@ -878,12 +878,12 @@ def sector_chart(request, sector_id):
         if range_data == 'week':
             selected_range = 'week'
             num_days = 5
-        elif range_data == 'year':
-            selected_range = 'year'
-            num_days = 365
-        else:
+        elif range_data == 'month':
             selected_range = 'month'
-            num_days = 30  # Default to 30 days
+            num_days = 30
+        else:
+            selected_range = 'year'
+            num_days = 365  # Default to 30 days
             
         dates, sector_prices, moving_avg = get_sector_data(symbol, num_days)
 
@@ -903,7 +903,7 @@ def sector_chart(request, sector_id):
         return render(request, 'stocks/charts/sector_charts.html', context)
 
     # For initial load (GET request)
-    dates, sector_prices, moving_avg = get_sector_data(symbol, 30)
+    dates, sector_prices, moving_avg = get_sector_data(symbol, 365)
 
     context = {
         'dates': dates,

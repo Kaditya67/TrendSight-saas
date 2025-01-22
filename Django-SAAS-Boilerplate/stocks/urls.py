@@ -28,7 +28,8 @@ urlpatterns = [
     path('change_ema/', views.change_ema, name='change_ema'),
     path('search/', views.search_view, name='search'),
 
-    path('index/',views.index,name="home"),
+    path('index/',views.main_page,name="home"),
+    # path('index/',views.index,name="home"),
     path('subscription/', views.subscription, name='subscription'),
     # path('logout/',views.user_logout,name="user_logout"),
     # # path('import_data/', views.import_data, name='import_sector_data'),

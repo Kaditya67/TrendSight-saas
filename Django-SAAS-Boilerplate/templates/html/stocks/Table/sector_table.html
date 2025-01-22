@@ -59,7 +59,7 @@
                         <td class="sticky left-0 bg-white py-2 px-4 border-b z-10">
                             <div class="flex items-center space-x-2">
                                 <!-- Plus Button -->
-                                <button class="text-green-500 hover:text-green-700 focus:outline-none" onclick="openModal('{{ sector.symbol }}', '{{ sector.id }}')">
+                                <button class="text-green-500 hover:text-green-700 focus:outline-none" onclick="openModalSector('{{ sector.symbol }}', '{{ sector.id }}')">
                                     <i class="fas fa-plus-circle"></i>
                                 </button>                                
                                 <span class="hover:text-blue-500 text-gray-800"><a href="{% url "charts_sector" sector.id %}" title="{{ sector.name }}">{{ sector.symbol }}</a></span>
@@ -114,7 +114,7 @@
             <input type="hidden" name="add_to_watchlist" value="1">
 
             <div class="flex justify-between mt-4">
-                <button type="button" class="bg-gray-400 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-gray-500 transition duration-200" onclick="closeModal()">Cancel</button>
+                <button type="button" class="bg-gray-400 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-gray-500 transition duration-200" onclick="closeModalSector()">Cancel</button>
                 <button type="submit" class="bg-blue-500 text-white py-2 px-6 rounded-lg text-lg font-medium hover:bg-blue-600 transition duration-200">Add</button>
             </div>
         </form>
@@ -138,13 +138,13 @@
         });
     }
 
-    function openModal(symbol, sectorId) {
+    function openModalSector(symbol, sectorId) {
         document.getElementById('sectorSymbol').innerText = `Do you want to add the sector: ${symbol}?`;
         document.getElementById('sectorId').value = sectorId; // Set the sector_id in the hidden input field
         document.getElementById('modal').classList.remove('hidden');
     }
 
-    function closeModal() {
+    function closeModalSector() {
         document.getElementById('modal').classList.add('hidden');
     }
 
@@ -155,13 +155,13 @@
         console.log("Sector ID:", sectorId);
         console.log("Watchlist Name:", watchlistName);
 
-        closeModal();
+        closeModalSector();
     });
 
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('modal');
         if (event.target === modal) {
-            closeModal();
+            closeModalSector();
         }
     });
 

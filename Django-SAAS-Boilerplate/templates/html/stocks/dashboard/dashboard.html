@@ -253,106 +253,109 @@
     
     
     <!-- Broader Market Trend Table (Scrollable) -->
-    <div class="mb-6">
-        <label for="search" class="sr-only">Search</label>
-        <div class="relative max-w-xs">
-            <input type="text" id="search" placeholder="Search by index..." class="block w-full p-3 pl-10 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 18a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35" />
-                </svg>
-            </span>
-        </div>
+<div class="mb-6">
+    <label for="search-table" class="sr-only">Search</label>
+    <div class="relative max-w-xs">
+        <input type="text" id="search-table" placeholder="Search by index..." class="block w-full p-3 pl-10 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 18a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35" />
+            </svg>
+        </span>
     </div>
+</div>
 
-    <div class="card shadow-lg rounded-lg bg-white p-4">
-        <h5 class="text-2xl font-semibold text-gray-800 mb-6 text-left">Sectoral Indices Trends - Daily</h5>
+<div class="card shadow-lg rounded-lg bg-white p-4">
+    <h5 class="text-2xl font-semibold text-gray-800 mb-6 text-left">Sectoral Indices Trends - Daily</h5>
 
-        <div class="overflow-x-auto"> <!-- Enables horizontal scrolling -->
-            <table class="min-w-full table-auto border-collapse text-sm text-left border-black" id="sectorTable">
-                <thead>
-                    <tr>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">Sector</th>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 10</th>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 20</th>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 30</th>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 50</th>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 100</th>
-                        <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 200</th>
-                    </tr>
-                    {% for index in sector_data_table %}
-                    <tr class="hover:bg-gray-50 transition-all duration-300" data-name="{{ index.name | lower }}">
-                        <td class="sticky left-0 py-3 px-4 border border-gray-300 font-medium text-gray-700 bg-white z-10">{{ index.name }}</td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
-                            {% if index.ema_10 > 50 %}bg-green-500
-                            {% elif index.ema_10 > 0 %}bg-green-400
-                            {% elif index.ema_10 < -50 %}bg-red-500
-                            {% else %}bg-red-400
-                            {% endif %}">
-                            {{ index.ema_10 }} {% if index.ema_10 > 0 %}&#8593;{% else %}&#8595;{% endif %}
-                        </td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
-                            {% if index.ema_20 > 50 %}bg-green-500
-                            {% elif index.ema_20 > 0 %}bg-green-400
-                            {% elif index.ema_20 < -50 %}bg-red-500
-                            {% else %}bg-red-400
-                            {% endif %}">
-                            {{ index.ema_20 }} {% if index.ema_20 > 0 %}&#8593;{% else %}&#8595;{% endif %}
-                        </td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
-                            {% if index.ema_30 > 50 %}bg-green-500
-                            {% elif index.ema_30 > 0 %}bg-green-400
-                            {% elif index.ema_30 < -50 %}bg-red-500
-                            {% else %}bg-red-400
-                            {% endif %}">
-                            {{ index.ema_30 }} {% if index.ema_30 > 0 %}&#8593;{% else %}&#8595;{% endif %}
-                        </td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
-                            {% if index.ema_50 > 50 %}bg-green-500
-                            {% elif index.ema_50 > 0 %}bg-green-400
-                            {% elif index.ema_50 < -50 %}bg-red-500
-                            {% else %}bg-red-400
-                            {% endif %}">
-                            {{ index.ema_50 }} {% if index.ema_50 > 0 %}&#8593;{% else %}&#8595;{% endif %}
-                        </td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
-                            {% if index.ema_100 > 50 %}bg-green-500
-                            {% elif index.ema_100 > 0 %}bg-green-400
-                            {% elif index.ema_100 < -50 %}bg-red-500
-                            {% else %}bg-red-400
-                            {% endif %}">
-                            {{ index.ema_100 }} {% if index.ema_100 > 0 %}&#8593;{% else %}&#8595;{% endif %}
-                        </td>
-                        <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
-                            {% if index.ema_200 > 50 %}bg-green-500
-                            {% elif index.ema_200 > 0 %}bg-green-400
-                            {% elif index.ema_200 < -50 %}bg-red-500
-                            {% else %}bg-red-400
-                            {% endif %}">
-                            {{ index.ema_200 }} {% if index.ema_200 > 0 %}&#8593;{% else %}&#8595;{% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>                
-            </table>
-        </div>
+    <div class="overflow-x-auto"> <!-- Enables horizontal scrolling -->
+        <table class="min-w-full table-auto border-collapse text-sm text-left border-black" id="sectorTable">
+            <thead>
+                <tr>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">Sector</th>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 10</th>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 20</th>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 30</th>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 50</th>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 100</th>
+                    <th class="py-3 px-4 border border-gray-300 font-medium text-gray-100 bg-gray-800 text-left">EMA 200</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index in sector_data_table %}
+                <tr class="hover:bg-gray-50 transition-all duration-300" data-name="{{ index.name | lower }}">
+                    <td class="sticky left-0 py-3 px-4 border border-gray-300 font-medium text-gray-700 bg-white z-10">{{ index.name }}</td>
+                    <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                        {% if index.ema_10 > 50 %}bg-green-500
+                        {% elif index.ema_10 > 0 %}bg-green-400
+                        {% elif index.ema_10 < -50 %}bg-red-500
+                        {% else %}bg-red-400
+                        {% endif %}">
+                        {{ index.ema_10 }} {% if index.ema_10 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                    </td>
+                    <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                        {% if index.ema_20 > 50 %}bg-green-500
+                        {% elif index.ema_20 > 0 %}bg-green-400
+                        {% elif index.ema_20 < -50 %}bg-red-500
+                        {% else %}bg-red-400
+                        {% endif %}">
+                        {{ index.ema_20 }} {% if index.ema_20 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                    </td>
+                    <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                        {% if index.ema_30 > 50 %}bg-green-500
+                        {% elif index.ema_30 > 0 %}bg-green-400
+                        {% elif index.ema_30 < -50 %}bg-red-500
+                        {% else %}bg-red-400
+                        {% endif %}">
+                        {{ index.ema_30 }} {% if index.ema_30 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                    </td>
+                    <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                        {% if index.ema_50 > 50 %}bg-green-500
+                        {% elif index.ema_50 > 0 %}bg-green-400
+                        {% elif index.ema_50 < -50 %}bg-red-500
+                        {% else %}bg-red-400
+                        {% endif %}">
+                        {{ index.ema_50 }} {% if index.ema_50 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                    </td>
+                    <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                        {% if index.ema_100 > 50 %}bg-green-500
+                        {% elif index.ema_100 > 0 %}bg-green-400
+                        {% elif index.ema_100 < -50 %}bg-red-500
+                        {% else %}bg-red-400
+                        {% endif %}">
+                        {{ index.ema_100 }} {% if index.ema_100 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                    </td>
+                    <td class="py-3 px-4 border border-gray-300 font-bold text-white text-left 
+                        {% if index.ema_200 > 50 %}bg-green-500
+                        {% elif index.ema_200 > 0 %}bg-green-400
+                        {% elif index.ema_200 < -50 %}bg-red-500
+                        {% else %}bg-red-400
+                        {% endif %}">
+                        {{ index.ema_200 }} {% if index.ema_200 > 0 %}&#8593;{% else %}&#8595;{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>                
+        </table>
     </div>
+</div>
 
-    <script>
-        // Function to filter table rows based on search input
-        document.getElementById('search').addEventListener('input', function(event) {
-            const searchQuery = event.target.value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
-            const rows = document.querySelectorAll('#sectorTable tbody tr');
+<script>
+    // Function to filter table rows based on search input
+    document.getElementById('search-table').addEventListener('input', function(event) {
+        const searchQuery = event.target.value.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+        const rows = document.querySelectorAll('#sectorTable tbody tr');
 
-            rows.forEach(function(row) {
-                const sectorName = row.getAttribute('data-name'); // Get the sector name from the data-name attribute
-                if (sectorName.includes(searchQuery)) {
-                    row.style.display = ''; // Show the row if it matches the search query
-                } else {
-                    row.style.display = 'none'; // Hide the row if it doesn't match
-                }
-            });
+        rows.forEach(function(row) {
+            const sectorName = row.getAttribute('data-name'); // Get the sector name from the data-name attribute
+            if (sectorName && sectorName.includes(searchQuery)) {
+                row.style.display = ''; // Show the row if it matches the search query
+            } else {
+                row.style.display = 'none'; // Hide the row if it doesn't match
+            }
         });
-    </script>
+    });
+</script>
+
 
 {% endblock %}
