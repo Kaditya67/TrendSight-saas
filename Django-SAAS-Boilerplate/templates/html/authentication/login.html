@@ -4,12 +4,16 @@
 {% load tz %}
 {% load static %}
 
-
-
 {% block title %}Login{% endblock title %}
 {% block description %}Login form{% endblock description %}
 
 {% block content %}
+<style>
+    button.toggle-password {
+        display: none !important;
+    }
+</style>
+
     <div class="tw-bg-[#fff9f9] tw-text-black tw-fixed tw-top-0 tw-z-[5000] 
                     tw-flex tw-place-content-center 
                     tw-place-items-center tw-h-full tw-w-full"
@@ -19,7 +23,7 @@
         <form action="{% url "login" %}{% if next_url %}?next={{next_url}}{% endif %}" 
                     class="tw-w-[350px] tw-min-h-[350px] tw-bg-white
                         tw-rounded-xl tw-p-5 tw-text-center tw-flex tw-flex-col tw-gap-3 tw-shadow-xl
-                        tw-place-content-center max-md:tw-w-full tw-place-items-center
+                        tw-place-content-center tw-place-items-center
                         "
                     id="login-form"
                     method="POST"
@@ -27,7 +31,7 @@
                 {% comment %} <a type="button" class="btn-close" aria-label="Close"  href="{% url "home" %}"></a> {% endcomment %}
                 {% csrf_token %}
                 <div class="tw-text-3xl tw-mb-[5%] tw-m-2">
-                    Login
+                    Login <i class="fa-solid fa-user"></i>
                 </div>
              
                 <div id="login-alert" class="{% if not error%} tw-hidden {% endif %}
@@ -51,7 +55,12 @@
                     Login
                 </button>
                 <div>
-                    Don't have an account? <a href="{% url "signup" %}" class="tw-text-blue-500">Signup</a>
+                    <div>
+                        Don't have an account? <a href="{% url "signup" %}" class="tw-text-blue-500">Signup</a>
+                    </div>
+                    <div>
+                        Forgot Password ? <a href="{% url "password-reset" %}" class="tw-text-blue-500">Reset</a>
+                    </div>
                 </div>
 
         </form>

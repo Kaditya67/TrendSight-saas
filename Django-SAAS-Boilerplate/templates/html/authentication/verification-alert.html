@@ -8,11 +8,11 @@
 
 
 {% block content %}
-    <div class="tw-bg-white tw-fixed tw-top-0 tw-z-[5000] tw-flex tw-flex-col tw-place-content-center tw-items-center tw-h-full tw-w-full">
+    <div class="tw-bg-white tw-fixed tw-top-0 tw-z-[5000] tw-flex tw-flex-col tw-place-content-center tw-items-center tw-h-full tw-w-full" style="background: url('{% static './images/stock-market.png' %}')">
 
         <div class="tw-bg-white tw-rounded-lg tw-shadow-xl tw-max-w-[550px] tw-h-[300px] tw-flex tw-flex-col tw-place-content-center tw-p-4">
             <div class="tw-text-xl">
-                A confirmation mail has been sent to <b>{{to_email}}</b>.<br> Please confirm your email
+                A confirmation mail<i class="fa-solid fa-envelope"></i> has been sent to <b>{{to_email}}</b>.<br> Please confirm your email
             </div>
             
             <div class="tw-text-sm tw-mt-4 tw-text-center">

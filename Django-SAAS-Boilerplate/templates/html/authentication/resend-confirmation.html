@@ -2,20 +2,20 @@
 {% load static %} 
 
 {% block content %}
-    <div class="tw-bg-white tw-fixed tw-top-0 tw-z-[5000] tw-flex tw-flex-col tw-place-content-center tw-items-center tw-h-full tw-w-full">
+    <div class="tw-bg-white tw-fixed tw-top-0 tw-z-[5000] tw-flex tw-flex-col tw-place-content-center tw-items-center tw-h-full tw-w-full" style="background: url('{% static './images/stock-market.png' %}')">
 
 
 
-        <form action="{% url "resend-verification" %}" method="POST" class="tw-rounded-md tw-shadow-lg tw-text-center 
+        <form action="{% url "resend-verification" %}" method="POST" class="tw-bg-white tw-rounded-md tw-shadow-lg tw-text-center 
                                                                             tw-w-[350px] tw-min-h-[300px] tw-flex tw-flex-col
                                                                             tw-gap-4 tw-place-items-center tw-p-3">
             {% csrf_token %}
             <div class="tw-text-2xl">
-                Resend confirmation email
+                Resend confirmation email<i class="fa-solid fa-envelope"></i>
             </div>
 
             <div class="tw-text-sm">
-                type your registered email to resend confirmation email
+                Type your registered email to resend confirmation email
             </div>
 
             <div  class="{% if not error%} tw-hidden {% endif %}
