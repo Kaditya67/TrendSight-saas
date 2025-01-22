@@ -2,7 +2,7 @@ from django.urls import path
 from django.shortcuts import redirect
 from . import views
 
-from .views import list_blogs, get_blog, update_interaction, update_like, upload_image,create_blog
+from .views import list_blogs, get_blog, update_like,upload_image,create_blog
 
 app_name = 'blog'
 
@@ -20,6 +20,6 @@ urlpatterns = [
     # path('blog/like/<int:blog_id>/', like_blog, name='like_blog'),
     # path('blog/dislike/<int:blog_id>/',dislike_blog, name='dislike_blog'),
     # path('blog/comment/<int:blog_id>/', comment_blog, name='comment_blog'),
-    path('update-like/<int:blog_id>/', update_like, name='update_like'),
-    path('interaction/<int:blog_id>/', update_interaction, name='update_interaction'),
+    # path('update-like/<int:blog_id>/', update_like, name='update_like'),
+    path('interaction/<slug:slug>/', update_like, name='update_like'),
 ]

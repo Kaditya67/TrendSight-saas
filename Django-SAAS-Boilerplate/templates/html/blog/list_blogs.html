@@ -95,7 +95,7 @@
 
                 <div class="bod text-white">
                   <h2 
-                    class="text-white- text-sm mb-0 h-20 overflow-hidden font-bold transition-all blog-description" 
+                    class="text-white- text-sm mb-0 h-20 overflow-hidden font-semibold transition-all blog-description" 
                     id="blog-description-{{ blog.id }}">
                     {{ blog.body|safe }}
                   </h2>
@@ -114,16 +114,29 @@
                 <div class="blog" data-blog-id="{{ blog.id }}">
                   <div class="flex space-x-3" data-blog-id="{{ blog.id }}">
                     <!-- Like Button -->
-                    <button class="like-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
-                      <i class="fas fa-thumbs-up"></i>
-                    </button>
-                    <span id="like-count-{{ blog.id }}">{{ blog.interaction.likes }}</span> <!-- Like count -->
+                
+                    
+                    <form id="like-form-{{ blog.slug }}" method="POST" action="{% url 'blog:update_like' blog.slug %}">
+                      {% csrf_token %}
+                      <button type="button" class="like-btn flex items-center text-blue-600 hover:text-blue-800 text-xl" data-slug="{{ blog.slug }}">
+                        <i class="fas fa-thumbs-up"></i>
+                      </button>
+                      <span id="like-count-{{ blog.slug }}">{{ blog.interaction.likes }}</span> <!-- Like count -->
+                    </form>
+              
                   
-                    <!-- Dislike Button -->
-                    <button class="dislike-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
-                      <i class="fas fa-thumbs-down"></i>
-                    </button>
-                    <span id="dislike-count-{{ blog.id }}">{{ blog.interaction.dislikes }}</span> <!-- Dislike count -->
+                  
+                      
+                      
+                      
+                    
+                      <!-- Dislike Button -->
+                      <button id="dislike-btn-{{ blog.id }}" class="dislike-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
+                        <i class="fas fa-thumbs-down"></i>
+                      </button>
+                      <span id="dislike-count-{{ blog.id }}">0</span> <!-- Dislike count -->
+                    
+                    
                   
                     <!-- Comment Button -->
                     <button class="comment-btn flex items-center text-blue-600 hover:text-blue-800 text-xl">
@@ -164,66 +177,7 @@
         </div>
       </div>
     
-    {% comment %} <script>
- // Function to initialize counts from localStorage
-function initializeCounts(blogId) {
-  const likeCount = localStorage.getItem(`like-count-${blogId}`) || 0;
-  const dislikeCount = localStorage.getItem(`dislike-count-${blogId}`) || 0;
-  document.getElementById(`like-count-${blogId}`).textContent = likeCount;
-  document.getElementById(`dislike-count-${blogId}`).textContent = dislikeCount;
-}
-
-// Function to save counts to localStorage
-function saveCounts(blogId, type, count) {
-  localStorage.setItem(`${type}-count-${blogId}`, count);
-}
-
-// Add event listeners for all blogs
-document.querySelectorAll('.blog').forEach((blog) => {
-  const blogId = blog.getAttribute('data-blog-id');
-
-  // Initialize counts for the current blog
-  initializeCounts(blogId);
-
-  // Like button click event
-  blog.querySelector('.like-btn').addEventListener('click', function () {
-    let likeCount = parseInt(localStorage.getItem(`like-count-${blogId}`) || 0);
-    likeCount++;
-    document.getElementById(`like-count-${blogId}`).textContent = likeCount;
-    saveCounts(blogId, 'like', likeCount);
-  });
-
-  // Dislike button click event
-  blog.querySelector('.dislike-btn').addEventListener('click', function () {
-    let dislikeCount = parseInt(localStorage.getItem(`dislike-count-${blogId}`) || 0);
-    dislikeCount++;
-    document.getElementById(`dislike-count-${blogId}`).textContent = dislikeCount;
-    saveCounts(blogId, 'dislike', dislikeCount);
-  });
-
-  // Comment button click event (to toggle comment section)
-  blog.querySelector('.comment-btn').addEventListener('click', function () {
-    const commentSection = document.getElementById(`comment-section-${blogId}`);
-    commentSection.classList.toggle('hidden'); // Toggle visibility
-  });
-
-  // Submit comment event
-  blog.querySelector('.submit-comment').addEventListener('click', function () {
-    const commentText = document.getElementById(`comment-text-${blogId}`).value;
-    if (commentText.trim() !== "") {
-      const commentList = document.getElementById(`comments-list-${blogId}`);
-      const newComment = document.createElement('div');
-      newComment.classList.add('comment');
-      newComment.textContent = commentText;
-      commentList.appendChild(newComment);
-      document.getElementById(`comment-text-${blogId}`).value = ""; // Clear the input
-    }
-  });
-});
-
-
-    </script> {% endcomment %}
-
+   
     <script>
   // Select all "Read More" buttons
   const readMoreButtons = document.querySelectorAll('.read-more');
@@ -250,48 +204,47 @@ document.querySelectorAll('.blog').forEach((blog) => {
   });
 </script>
 
-  <script>
-    document.querySelectorAll('.flex.space-x-3').forEach((blogElement) => {
-      const blogId = blogElement.getAttribute('data-blog-id');
-    
-      // Like button click event
-      blogElement.querySelector('.like-btn').addEventListener('click', function () {
-        fetch(`/blog/like/${blogId}/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is included
-          },
+
+<script>
+  document.querySelectorAll('.like-btn').forEach((button) => {
+    button.addEventListener('click', function (e) {
+      e.preventDefault(); // Prevent default behavior
+  
+      const slug = this.dataset.slug; // Get the blog's slug
+      const likeCountElement = document.querySelector(`#like-count-${slug}`); // Like count display
+      const form = document.querySelector(`#like-form-${slug}`); // Form element
+  
+      // Get the current like count
+      let currentLikes = parseInt(likeCountElement.textContent) || 0;
+  
+      // Send an AJAX request to toggle like
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 'liked') {
+            // If liked, increment the like count
+            likeCountElement.textContent = currentLikes + 1;
+          } else if (data.status === 'unliked') {
+            // If unliked, decrement the like count
+            likeCountElement.textContent = currentLikes - 1;
+          }
         })
-          .then((response) => response.json())
-          .then((data) => {
-            // Update the like count in the template
-            document.getElementById(`like-count-${blogId}`).textContent = data.likes;
-          })
-          .catch((error) => console.error('Error:', error));
-      });
-    
-      // Dislike button click event
-      blogElement.querySelector('.dislike-btn').addEventListener('click', function () {
-        fetch(`/blog/dislike/${blogId}/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is included
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            // Update the dislike count in the template
-            document.getElementById(`dislike-count-${blogId}`).textContent = data.dislikes;
-          })
-          .catch((error) => console.error('Error:', error));
-      });
+        .catch((error) => console.error('Error:', error));
     });
-    </script>
+  });
+  
+  
+  
+
+  
+  
+  
+</script>
     
-
-
-
-
 {% endblock %}

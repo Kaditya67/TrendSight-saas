@@ -64,13 +64,16 @@ class BlogInteraction(models.Model):
     likes = models.PositiveIntegerField(default=0)
     dislikes = models.PositiveIntegerField(default=0)
     views = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Interactions for {self.blog.title}"
+
     
     # Optional: If you want to store comments as well, you can create a related model.
     # For simplicity, let's assume comments are stored in a separate model
     # that references the BlogInteraction model.
     
-    def __str__(self):
-        return f"Interactions for {self.blog.title}"
+  
     
 
 class Comment(models.Model):
@@ -81,3 +84,15 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.blog_interaction.blog.title}"
+
+
+class UserLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'blog')  # Ensures a user can only like a blog once
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.blog.title}"

@@ -1,6 +1,6 @@
 import json
 from tokenize import Comment
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
@@ -101,63 +101,13 @@ def create_blog(request):
         return render(request, 'html/blog/blog_create.html', {'form': form})
     
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+@receiver(post_save, sender=Blog)
+def create_blog_interaction(sender, instance, created, **kwargs):
+    if created:  # Only create BlogInteraction for new Blog instances
+        BlogInteraction.objects.create(blog=instance)
 
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Blog, BlogInteraction
-
-@csrf_exempt  # Disable CSRF for this example (you can add CSRF protection in production)
-def update_like(request, blog_id):
-    if request.method == 'POST':
-        action = request.POST.get('action')
-
-        # Get the blog interaction or create it if it doesn't exist
-        blog = Blog.objects.get(id=blog_id)
-        interaction, created = BlogInteraction.objects.get_or_create(blog=blog)
-
-        # Update like count
-        if action == 'like':
-            interaction.likes += 1
-        elif action == 'dislike':
-            interaction.dislikes += 1
-
-        # Save the updated interaction
-        interaction.save()
-
-        # Return the updated like count
-        return JsonResponse({
-            'like_count': interaction.likes
-        })
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import BlogInteraction
-import json
-
-@csrf_exempt
-def update_interaction(request, blog_id):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        action = data.get('action')  # Expect 'like' or 'dislike'
-
-        interaction, _ = BlogInteraction.objects.get_or_create(blog_id=blog_id)
-
-        if action == 'like':
-            interaction.likes += 1
-        elif action == 'dislike':
-            interaction.dislikes += 1
-        else:
-            return JsonResponse({'error': 'Invalid action'}, status=400)
-
-        interaction.save()
-
-        return JsonResponse({
-            'likes': interaction.likes,
-            'dislikes': interaction.dislikes,
-        }, status=200)
-
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 from django.shortcuts import render
@@ -170,3 +120,42 @@ def search_blog(request):
     else:
         blogs = Blog.objects.all()
     return render(request, 'blog/list_blogs.html', {'blogs': blogs, 'query': query})
+
+
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from .models import Blog, BlogInteraction
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Blog, BlogInteraction
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from .models import Blog, BlogInteraction, UserLike
+
+from django.http import JsonResponse
+
+def update_like(request, slug):
+    if request.method == 'POST':
+        blog = get_object_or_404(Blog, slug=slug)
+        user = request.user
+
+        # Check if the user has already liked the blog
+        user_like, created = UserLike.objects.get_or_create(user=user, blog=blog)
+
+        if created:
+            # If the like was just created, increment the like count
+            blog_interaction = get_object_or_404(BlogInteraction, blog=blog)
+            blog_interaction.likes += 1
+            blog_interaction.save()
+            return JsonResponse({'status': 'liked'})
+        else:
+            # If the like already exists, remove it and decrement the like count
+            user_like.delete()
+            blog_interaction = get_object_or_404(BlogInteraction, blog=blog)
+            blog_interaction.likes -= 1
+            blog_interaction.save()
+            return JsonResponse({'status': 'unliked'})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
