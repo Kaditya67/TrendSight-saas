@@ -131,6 +131,29 @@ def compute_stock_indicators(request):
     stocks = Stock.objects.all()
     computed_data = []
     no_data = []
+    need_update = []   # List to store stocks needing update
+    upto_date = []     # List to store up-to-date stocks
+
+    # Helper function to categorize stocks
+    def categorize_stocks():
+        nonlocal need_update, upto_date
+        need_update = []
+        upto_date = []
+        for stock in stocks:
+            try:
+                # Fetch the last record of stock data
+                last_record = ComputedStockData.objects.filter(stock=stock).last()
+                if last_record and last_record.date == datetime.now().date():
+                    upto_date.append(stock)  # Stock is up-to-date
+                else:
+                    need_update.append(stock)  # Stock needs update
+            except Exception as e:
+                print(f"Error processing stock {stock.symbol}: {e}")
+                need_update.append(stock)  # Default to needing update
+
+    # Initial categorization
+    categorize_stocks()
+
     if request.method == 'POST':
         selected_stock_ids = request.POST.getlist('stocks')  # Get list of selected stock IDs
         print(f"Selected Stock IDs: {selected_stock_ids}")
@@ -253,9 +276,13 @@ def compute_stock_indicators(request):
                     import traceback
                     print("Traceback:", traceback.format_exc())
 
+    # print("Stock indicators computation started...",need_update)
+    # print("Updated: ",len(upto_date),upto_date)
     context = {
-        'stocks': stocks,
+        # 'stocks': stocks,
         'computed_data': computed_data,
+        'upto_date': upto_date,
+        'need_update': need_update,
         'no_data': no_data
     }
 
@@ -716,6 +743,25 @@ def compute_sector_indicators(request):
     sectors = Sector.objects.all()
     computed_data = []
     no_data = []
+    need_update = []
+    upto_date = []
+
+    def categorize_sectors():
+        nonlocal need_update, upto_date
+        need_update = []
+        upto_date = []
+        for sector in sectors:
+            try:
+                last_record = ComputedSectorData.objects.filter(sector=sector).last()
+                if last_record and last_record.date == datetime.now().date():
+                    upto_date.append(sector)
+                else:
+                    need_update.append(sector)
+            except Exception as e:
+                print(f"Error processing sector {sector.symbol}: {e}")
+                need_update.append(sector)
+
+    categorize_sectors()
     if request.method == 'POST':
         selected_sector_ids = request.POST.getlist('sectors')  # Get list of selected sector IDs
         print(f"Selected Sector IDs: {selected_sector_ids}")
@@ -795,9 +841,11 @@ def compute_sector_indicators(request):
                     print("Traceback:", traceback.format_exc())
 
     context = {
-        'sectors': sectors,
+        # 'sectors': sectors,
         'computed_data': computed_data,
-        'no_data': no_data
+        'no_data': no_data,
+        'need_update': need_update,
+        'upto_date': upto_date
     }
 
     print("Sector indicators computation complete!")

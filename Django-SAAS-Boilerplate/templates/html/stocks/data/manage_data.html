@@ -1,0 +1,76 @@
+<header class="bg-blue-600 text-white shadow-md">
+    <div class="container mx-auto p-4">
+        <h1 class="text-lg font-bold">
+            <a href="/" class="hover:text-gray-200">TrendSight</a>
+        </h1>
+        
+        <nav class="mt-4">
+            <ul class="grid grid-cols-4">
+                <!-- Update Data Dropdown -->
+                <li class="relative">
+                    <a href="#" class="hover:text-gray-200" onclick="toggleDropdown('updateDataDropdown')">Update Data<i class="fa-solid fa-caret-down text-white px-2"></i></a>
+                    <ul id="updateDataDropdown" class="absolute left-0 hidden mt-2 space-y-2 bg-white text-gray-800 border border-gray-300 shadow-lg rounded-lg">
+                        <li><a href="{% url 'update_stocks' %}" class="block px-4 py-2 hover:bg-gray-100">Stocks</a></li>
+                        <li><a href="{% url 'update_sectors' %}" class="block px-4 py-2 hover:bg-gray-100">Sectors</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Update Indicators Dropdown -->
+                <li class="relative">
+                    <a href="#" class="hover:text-gray-200" onclick="toggleDropdown('updateIndicatorsDropdown')">Update Indicators<i class="fa-solid fa-caret-down text-white px-2"></i></a>
+                    <ul id="updateIndicatorsDropdown" class="absolute left-0 hidden mt-2 space-y-2 bg-white text-gray-800 border border-gray-300 shadow-lg rounded-lg">
+                        <li><a href="{% url 'update_stock_indicators' %}" class="block px-4 py-2 hover:bg-gray-100">Stock</a></li>
+                        <li><a href="{% url 'update_sector_indicators' %}" class="block px-4 py-2 hover:bg-gray-100">Sector</a></li> 
+                    </ul>
+                </li>
+
+                <!-- Fetch Data Dropdown -->
+                <li class="relative">
+                    <a href="#" class="hover:text-gray-200" onclick="toggleDropdown('fetchDataDropdown')">Fetch Data<i class="fa-solid fa-caret-down text-white px-2"></i></a>
+                    <ul id="fetchDataDropdown" class="absolute left-0 hidden mt-2 space-y-2 bg-white text-gray-800 border border-gray-300 shadow-lg rounded-lg">
+                        <li><a href="{% url 'fetch_stocks' %}" class="block px-4 py-2 hover:bg-gray-100">Stocks</a></li>
+                        <li><a href="{% url 'fetch_sectors' %}" class="block px-4 py-2 hover:bg-gray-100">Sectors</a></li>
+                    </ul>
+                </li>
+
+                <!-- Calculate Indicators Dropdown -->
+                <li class="relative">
+                    <a href="#" class="hover:text-gray-200" onclick="toggleDropdown('calculateIndicatorsDropdown')">Calculate Indicators<i class="fa-solid fa-caret-down text-white px-2"></i></a>
+                    <ul id="calculateIndicatorsDropdown" class="absolute left-0 hidden mt-2 space-y-2 bg-white text-gray-800 border border-gray-300 shadow-lg rounded-lg">
+                        <li><a href="{% url 'compute_stock_indicators' %}" class="block px-4 py-2 hover:bg-gray-100">Stock</a></li>
+                        <li><a href="{% url 'compute_sector_indicators' %}" class="block px-4 py-2 hover:bg-gray-100">Sector</a></li> 
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<script>
+    // Function to toggle the visibility of a dropdown and close others
+    function toggleDropdown(dropdownId) {
+        // Get all dropdowns
+        const allDropdowns = document.querySelectorAll('.relative > ul');
+        
+        // Close all dropdowns before opening the clicked one
+        allDropdowns.forEach(function(dropdown) {
+            if (dropdown.id !== dropdownId) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Toggle the clicked dropdown
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close all dropdowns when clicking outside
+    window.addEventListener('click', function(event) {
+        const dropdowns = document.querySelectorAll('.relative > ul');
+        dropdowns.forEach(function(dropdown) {
+            if (!dropdown.contains(event.target) && !event.target.closest('a')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+</script>

@@ -12,14 +12,14 @@
             <!-- Section for Updated Stocks -->
             <div>
                 <div class="flex justify-between items-center mb-4 pr-10">
-                    <h3 class="text-lg font-semibold">Stocks Already Up-to-Date</h3>
+                    <h3 class="text-lg font-semibold">Updated Stocks: <span class="text-green-500">{{ uptoDate|length }}</span></h3>
                     <label class="flex items-center space-x-3">
                         <input 
                             type="checkbox" 
                             id="select-all-updated" 
                             class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         >
-                        <span class="font-bold text-xl text-blue-700">Select All</span>
+                        <span class="font-bold text-xl text-blue-600">Select All</span>
                     </label>
                 </div>
 
@@ -48,7 +48,7 @@
                             id="select-all-need-update" 
                             class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         >
-                        <span class="font-bold text-xl text-blue-700">Select All</span>
+                        <span class="font-bold text-xl text-blue-600">Select All</span>
                     </label>
                 </div>
 

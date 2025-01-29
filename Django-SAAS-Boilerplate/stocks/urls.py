@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     # fetch stock data
+    path('manage_data/', views.manage_data, name='manage_data'),
     path('fetch/stocks/', views.fetch_stocks, name='fetch_stocks'),
     path('fetch/sectors/', views.fetch_sectors, name='fetch_sectors'),
     path('update/stocks/', views.update_stocks, name='update_stocks'),

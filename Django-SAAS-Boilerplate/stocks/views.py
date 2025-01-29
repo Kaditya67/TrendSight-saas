@@ -92,6 +92,8 @@ def search_view(request):
     print(context)
     return render(request, "stocks/dashboard/search.html", context)
 
+def manage_data(request):
+    return render(request, 'stocks/data/manage_data.html')
 
 # Create your views here.
 def index(request):
