@@ -92,35 +92,6 @@ def search_view(request):
     print(context)
     return render(request, "stocks/dashboard/search.html", context)
 
-def manage_data(request):
-    return render(request, 'stocks/data/manage_data.html')
-
-# Create your views here.
-def index(request):
-    if request.user.is_authenticated:
-        logged=True
-    else:
-        logged=False
-    context = {
-        'logged': logged
-    }
-    return render(request, 'stocks/index.html',context)
-
-def user_login(request):
-    return render(request, 'stocks/user_login.html')
-
-def nuser_logout(request):
-    return render(request, 'stocks/logout.html')
-
-def subscription(request):
-    return render(request, 'stocks/subscription.html')
-
-def forget_password(request):
-    return render(request, 'stocks/forgetpassword.html')
-
-def signup(request):
-    return render(request, 'stocks/signup.html')
-
 from .models import Sector,SectorFinancialData,ComputedSectorData, sectorIndicatorCount
 
 def countDay():
@@ -181,13 +152,41 @@ def countDay():
         # print(stock_data)
 
 
+def manage_data(request):
+    countDay();           # count for sectors - update dashboard
+    return render(request, 'stocks/data/manage_data.html')
+
+# Create your views here.
+def index(request):
+    if request.user.is_authenticated:
+        logged=True
+    else:
+        logged=False
+    context = {
+        'logged': logged
+    }
+    return render(request, 'stocks/index.html',context)
+
+def user_login(request):
+    return render(request, 'stocks/user_login.html')
+
+def nuser_logout(request):
+    return render(request, 'stocks/logout.html')
+
+def subscription(request):
+    return render(request, 'stocks/subscription.html')
+
+def forget_password(request):
+    return render(request, 'stocks/forgetpassword.html')
+
+def signup(request):
+    return render(request, 'stocks/signup.html')
 
 from django.shortcuts import render
 import json
 
 @login_required
 def dashboard(request):
-    # countDay();           // count for sectors
     # Fetch all data from the database
     data = sectorIndicatorCount.objects.all()
 
