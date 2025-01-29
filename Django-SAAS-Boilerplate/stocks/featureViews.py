@@ -347,6 +347,7 @@ from .models import Sector, Watchlist, SectorFinancialData, ComputedSectorData
 @login_required
 def sectors(request):
     # Get all sector records
+    defaultEma = userSetting.objects.get(user=request.user).defaultEma if userSetting.objects.filter(user=request.user).exists() else 10
     sector_records = Sector.objects.all()
     sectors = []
     user = request.user 
@@ -403,9 +404,12 @@ def sectors(request):
         }
 
         ema_counter = 0
+        selected_ema = f'ema{defaultEma}'    
         for record, ema_record in reversed(list(zip(data_records, ema_records))):
             sector_data["dates"].append(record.date.strftime('%d %b'))
-            if record.close > ema_record.ema30:
+            ema_value = getattr(ema_record, selected_ema, None)  # This will fetch ema30 or ema20 depending on selected_ema
+    
+            if ema_value is not None and record.close > ema_value:
                 ema_counter = ema_counter + 1 if ema_counter >= 0 else 1
             else:
                 ema_counter = ema_counter - 1 if ema_counter <= 0 else -1
@@ -418,19 +422,30 @@ def sectors(request):
     context = {
         'sectors': sectors,
         'watchlists': watchlists,
+        'defaultEma': defaultEma,
         'user_avatar': request.user.dp if request.user.dp else None
     }
     return render(request, 'stocks/Table/sector_table.html', context)
 
 @login_required
 def stock(request):
-    stock_records = Stock.objects.all()  # Get all stocks, not just the first
+    defaultEma = userSetting.objects.get(user=request.user).defaultEma if userSetting.objects.filter(user=request.user).exists() else 10
+    print(defaultEma)
+    sectors_option = Sector.objects.all()
+    selected_sector = sectors_option.last()
+    # print(selected_sector)
     stocks = []
     user = request.user 
     watchlists = Watchlist.objects.filter(user=user).order_by('-count')
 
     if request.method == 'POST':
-        if 'add_to_watchlist' in request.POST:
+        if 'filter_by_sector' in request.POST:
+            # print("POST : ", request.POST)
+            selected_sector_id = request.POST.get('sector')
+            selected_sector = Sector.objects.get(id=selected_sector_id)
+            # print(selected_sector)
+            pass
+        elif 'add_to_watchlist' in request.POST:
                 # Get the sector_id and watchlist_name from the POST data
                 stock_id = request.POST.get('stock_id')
                 watchlist_id = request.POST.get('watchlist_name')
@@ -456,7 +471,10 @@ def stock(request):
                     print(f"Stock with id {stock_id} not found.")
                 except Watchlist.DoesNotExist:
                     print(f"Watchlist with id {watchlist_id} not found.")
-                    
+
+    stock_records = Stock.objects.filter(sectors=selected_sector)
+    # print("stock_records : ", stock_records)
+    # print("selected_sector : ", selected_sector)
     for stock in stock_records:
       
         data_records = FinancialStockData.objects.filter(stock=stock).order_by('-date')[:30]
@@ -466,7 +484,6 @@ def stock(request):
         ema_records = ComputedStockData.objects.filter(stock=stock).order_by('-date')[:30]
         if len(ema_records) < 30:
             continue
-
           
         stock_data = {
             "id": stock.id,
@@ -477,9 +494,12 @@ def stock(request):
         }
 
         ema_counter = 0
+        selected_ema = f'ema{defaultEma}'
+        print(f"Selected EMA: {selected_ema}")
         for (record, ema_record) in reversed(list(zip(data_records, ema_records))):
             stock_data["dates"].append(record.date.strftime('%d %b'))
-            if record.close > ema_record.ema30:
+            ema_value = getattr(ema_record, selected_ema, None)
+            if ema_value is not None and record.close > ema_value:
                 ema_counter = ema_counter + 1 if ema_counter >= 0 else 1
             else:
                 ema_counter = ema_counter - 1 if ema_counter <= 0 else -1
@@ -492,6 +512,9 @@ def stock(request):
     context = {
         'stocks': stocks,
         'watchlists': watchlists,
+        'sectors_option': sectors_option,
+        'selected_sector': selected_sector,
+        'defaultEma': defaultEma,
         'user_avatar': request.user.dp if request.user.dp else None
     }
     # print(context)
