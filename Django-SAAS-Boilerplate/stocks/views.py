@@ -265,6 +265,8 @@ def add_watchlist(request):
 
 def about(request):
     return render(request, 'stocks/about.html')
+def contact(request):
+    return render(request, 'stocks/contact.html')
 
 def profile(request):
     user = request.user

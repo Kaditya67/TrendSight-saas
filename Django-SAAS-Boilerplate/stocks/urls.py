@@ -70,5 +70,5 @@ urlpatterns = [
     # path('fetch-sector-data/', views.fetch_sector_data, name='fetch_sector_data'),
     # path('fetch_stock_data/', views.fetch_stock_data, name='fetch_stock_data'),
     # path('remove-from-watchlist/', views.remove_from_watchlist, name='remove_from_watchlist'),
-    # path('contact/', views.contact, name='contact'),
+    path('contact/', views.contact, name='contact'),
     ] 

@@ -1,60 +1,47 @@
 {% extends 'stocks/dashboard/base.html' %}
 
-{% block title %} Help page {% endblock %}
+{% block title %}Help Page{% endblock %}
 {% block content %}
 
-<style>
-    .card-header {
-        background: #0056b3;
-        color: #fff;
-    }
-    .card-body p {
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-    .btn-lg {
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-    
-</style>
-<p class="h1 text-center">Help</p>
-<hr class="hr" />
+<!-- Help Section -->
+<div class="py-12 bg-gray-900 text-white">
+    <div class="container mx-auto px-6 text-center">
+        <h1 class="text-4xl font-semibold mb-8">Help</h1>
+        <hr class="mx-auto border-t-2 border-gray-600 w-32 mb-12" />
 
+        <!-- EMA Candle Closing Strategy Section -->
+        <div class="bg-gray-800 p-8 rounded-lg shadow-lg mb-12">
+            <h2 class="text-3xl font-bold text-blue-400 mb-4">EMA Candle Closing Strategy</h2>
+            <p class="text-lg text-gray-300 mb-6">
+                Understanding the position of a closing candle in relation to different Exponential Moving Averages (EMAs) is a key strategy in technical trading. Each EMA has its unique significance:
+            </p>
+            <ul class="list-disc pl-6 text-gray-300 space-y-4">
+                <li><strong class="text-blue-400">10 EMA:</strong> Often used for short-term trends. A candle closing above the 10 EMA might indicate an upward trend, while a close below could suggest a downward trend.</li>
+                <li><strong class="text-blue-400">20 EMA:</strong> Acts as a balance point for short to medium-term trends. Prices above this EMA are typically in a bullish phase and below in a bearish phase.</li>
+                <li><strong class="text-blue-400">50 EMA:</strong> Used to identify the mid-term trend. Closing above this EMA suggests a stronger bullish sentiment, while below it indicates bearish sentiment.</li>
+                <li><strong class="text-blue-400">100 EMA:</strong> Reflects the long-term trend. A closing above this level is a strong bullish signal, while below indicates a bearish trend.</li>
+                <li><strong class="text-blue-400">200 EMA:</strong> Considered a major indicator of the market's trend over the long term. Closing above this EMA is a very bullish sign, while closing below is quite bearish.</li>
+            </ul>
+            <p class="text-lg text-gray-300 mt-6">
+                Combining these EMAs with other technical indicators can provide a more comprehensive trading strategy. Remember, trading involves risk, and it's important to conduct thorough research and analysis before making any decisions.
+            </p>
+        </div>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <!-- EMA Candle Closing Strategy Section -->
-            <div class="card mt-5">
-                <div class="card-header">
-                    <h2 class="text-center">EMA Candle Closing Strategy</h2>
-                </div>
-                <div class="card-body">
-                    <p>Understanding the position of a closing candle in relation to different Exponential Moving Averages (EMAs) is a key strategy in technical trading. Each EMA has its unique significance:</p>
-                    <ul>
-                        <li><strong>10 EMA:</strong> Often used for short-term trends. A candle closing above the 10 EMA might indicate an upward trend, while a close below could suggest a downward trend.</li>
-                        <li><strong>20 EMA:</strong> Acts as a balance point for short to medium-term trends. Prices above this EMA are typically in a bullish phase and below in a bearish phase.</li>
-                        <li><strong>50 EMA:</strong> Used to identify the mid-term trend. Closing above this EMA suggests a stronger bullish sentiment, while below it indicates bearish sentiment.</li>
-                        <li><strong>100 EMA:</strong> Reflects the long-term trend. A closing above this level is a strong bullish signal, while below indicates a bearish trend.</li>
-                        <li><strong>200 EMA:</strong> Considered a major indicator of the market's trend over the long term. Closing above this EMA is a very bullish sign, while closing below is quite bearish.</li>
-                    </ul>
-                    <p>Combining these EMAs with other technical indicators can provide a more comprehensive trading strategy. Remember, trading involves risk, and it's important to conduct thorough research and analysis before making any decisions.</p>
-                </div>
-            </div>
-
-            <!-- 20 EMA Trading Strategy Section -->
-            <div class="card mt-5">
-                <div class="card-header">
-                    <h2 class="text-center">20 EMA Trading Strategy</h2>
-                </div>
-                <div class="card-body">
-                    <p>The 20-period Exponential Moving Average (EMA) strategy is a popular method among technical traders, used to identify potential entry and exit points in the market. The 20 EMA acts as a dynamic level of support or resistance.</p>
-                    <p><strong>Bullish Signal:</strong> When a candle closes <em>above</em> the 20 EMA, it indicates a potential upward trend, suggesting a buying opportunity.</p>
-                    <p><strong>Bearish Signal:</strong> Conversely, a candle closing <em>below</em> the 20 EMA suggests a downward trend, indicating a selling or shorting opportunity.</p>
-                    <p>This strategy is most effective when combined with other indicators and analysis methods to confirm signals and effectively manage risks. Remember, no strategy guarantees success, and it's important to be aware of potential market risks.</p>
-                </div>
-            </div>
+        <!-- 20 EMA Trading Strategy Section -->
+        <div class="bg-gray-800 p-8 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-400 mb-4">20 EMA Trading Strategy</h2>
+            <p class="text-lg text-gray-300 mb-6">
+                The 20-period Exponential Moving Average (EMA) strategy is a popular method among technical traders, used to identify potential entry and exit points in the market. The 20 EMA acts as a dynamic level of support or resistance.
+            </p>
+            <p class="text-lg text-gray-300 mb-6">
+                <strong class="text-blue-400">Bullish Signal:</strong> When a candle closes <em class="text-green-400">above</em> the 20 EMA, it indicates a potential upward trend, suggesting a buying opportunity.
+            </p>
+            <p class="text-lg text-gray-300 mb-6">
+                <strong class="text-blue-400">Bearish Signal:</strong> Conversely, a candle closing <em class="text-red-400">below</em> the 20 EMA suggests a downward trend, indicating a selling or shorting opportunity.
+            </p>
+            <p class="text-lg text-gray-300">
+                This strategy is most effective when combined with other indicators and analysis methods to confirm signals and effectively manage risks. Remember, no strategy guarantees success, and it's important to be aware of potential market risks.
+            </p>
         </div>
     </div>
 </div>

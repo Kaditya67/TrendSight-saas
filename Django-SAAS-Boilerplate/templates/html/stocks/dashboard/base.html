@@ -231,7 +231,7 @@
             <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                 <i class="fas fa-info mr-2"></i> Help Us
             </a>
-            <a href="/category/lifestyle/" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
+            <a href="{% url 'contact' %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                 <i class="fas fa-phone mr-2"></i>Contact</a> 
             <a href="{% url 'profile_settings' %}" class="sm:hidden hover:bg-gray-700 transition duration-200 px-4 py-2 rounded-lg">
                 <i class="fas fa-cog mr-2"></i>Settings</a> 
@@ -241,7 +241,7 @@
                 <div class="dropdown-content z-30">
                   <a href="{% url 'help' %}" class="hover:text-blue-500">
                     <i class="fas fa-info mr-2"></i>Help us</a>
-                  <a href="{% url 'about' %}" class="hover:text-blue-500">
+                  <a href="{% url 'contact' %}" class="hover:text-blue-500">
                     <i class="fas fa-phone mr-2"></i>Contact</a> 
                 </div>
               </div> 
