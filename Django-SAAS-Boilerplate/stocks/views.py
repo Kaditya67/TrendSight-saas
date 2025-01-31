@@ -293,6 +293,8 @@ def profile(request):
     return render(request, 'stocks/stock_users/profile.html', context)
 
 def main_page(request):
+    # if request.user.is_authenticated:
+    #     return redirect('dashboard')
     return render(request,'stocks/main_page.html')
 
 def sidebar(request):
