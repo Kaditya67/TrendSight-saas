@@ -1,4 +1,6 @@
+from datetime import timezone
 from urllib.parse import parse_qs, urlparse
+
 from django.db import models
 from django.template.defaultfilters import slugify
 
@@ -50,13 +52,13 @@ class Blog(models.Model):
         return None
 
 
-class BlogImage(models.Model):
+# class BlogImage(models.Model):
 
-    blog = models.ForeignKey(to=Blog, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='blogs/')
+#     blog = models.ForeignKey(to=Blog, on_delete=models.CASCADE,null=True)
+#     image = models.ImageField(upload_to='blogs/')
 
-    def __str__(self) -> str:
-        return f'{self.image.url}'
+#     def __str__(self) -> str:
+#         return f'{self.image.url}'
     
 
 class BlogInteraction(models.Model):
@@ -86,6 +88,7 @@ class Comment(models.Model):
         return f"Comment by {self.user.username} on {self.blog_interaction.blog.title}"
 
 
+
 class UserLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
@@ -96,3 +99,89 @@ class UserLike(models.Model):
 
     def __str__(self):
         return f"{self.user.username} liked {self.blog.title}"
+
+
+
+
+import uuid
+
+from django.conf import settings
+from django.db import models
+from django.utils.text import slugify
+
+
+def generate_unique_slug(title):
+    """Generate a unique slug for the blog."""
+    return slugify(title) + "-" + str(uuid.uuid4())[:8]
+
+class TextBlogs(models.Model):
+    title = models.CharField(max_length=200, unique=True)
+    content = models.TextField()  # Stores HTML content from Quill.js
+    slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    author = models.CharField(max_length=200, null=True)  # Can store author's name (you can link to a user model later)
+    published_date = models.DateTimeField(blank=True, null=True)  # Stores the date of publishing
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(self.title)
+        
+        # Call the parent class's save method to save the instance to the database
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+    
+
+from django.db import models
+
+from django.db import models
+
+from django.db import models
+
+class BlogUpload(models.Model):         
+    title = models.CharField(max_length=255)
+    uploaded_file = models.FileField(upload_to='blogs/uploads/', null=True)
+    content = models.TextField(blank=True)  # Stores extracted text
+    uploaded_at = models.DateTimeField(auto_now_add=True, null=True)
+    extracted_images = models.ManyToManyField('BlogImage', blank=True)  # Store extracted images
+    sequence = models.JSONField(default=list)
+    combined_content = models.JSONField(default=list)  # Add this line to store combined content (text + image)
+    view_count = models.PositiveIntegerField(default=0)  
+
+    def __str__(self):
+        return self.title
+
+
+# class BlogImage(models.Model):
+#     image = models.ImageField(upload_to='blogs/extracted_images/')
+#     blog = models.ForeignKey('Blog', on_delete=models.CASCADE, related_name="blog_images", null=True, blank=True)
+#     uploaded_blog = models.ForeignKey('BlogUpload', on_delete=models.CASCADE, related_name="images", null=True, blank=True)
+
+#     def __str__(self):
+#         return f"Image for {self.blog.title if self.blog else self.uploaded_blog.title}"
+
+
+class BlogImage(models.Model):
+    blog = models.ForeignKey(to=Blog, on_delete=models.CASCADE, null=True, blank=True)
+    blog_upload = models.ForeignKey(to=BlogUpload, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='blogs/')
+    view_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self) -> str:
+        return self.image.url
+
+
+
+from django.contrib.auth.models import User
+from django.db import models
+class BlogView(models.Model):
+    blog = models.ForeignKey(BlogUpload, on_delete=models.CASCADE)  # Track which blog was viewed
+    viewed_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True) 
+    
+
+ 
+    def __str__(self):
+        return f"View on {self.blog.title} by {self.user if self.user else 'Anonymous'}"

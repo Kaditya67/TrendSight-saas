@@ -139,3 +139,72 @@ class BlogInteractionAdmin(admin.ModelAdmin):
     search_fields = ('blog__title',)
     list_filter = ('likes', 'dislikes', 'views')
     ordering = ('-likes',)
+
+
+
+
+from django.contrib import admin
+from .models import Comment
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'blog_interaction', 'user', 'text', 'created_at')  # Fields to display in the admin list view
+    list_filter = ('created_at', 'user')  # Filters for the admin sidebar
+    search_fields = ('text', 'user__username', 'blog_interaction__blog__title')  # Search fields
+    ordering = ('-created_at',)  # Default ordering
+    raw_id_fields = ('blog_interaction', 'user')  # Allows for raw ID input for ForeignKey fields
+
+
+
+# blog/admin.py
+from django.contrib import admin
+from .models import TextBlogs
+
+class TextBlogsAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'author', 'created_at', 'updated_at','published_date')
+    search_fields = ('title', 'content')
+    prepopulated_fields = {'slug': ('title',)}  # Automatically generate the slug from the title
+
+admin.site.register(TextBlogs, TextBlogsAdmin)
+
+
+from django.contrib import admin
+from .models import BlogUpload, BlogImage
+
+class BlogImageInline(admin.TabularInline):  
+    """ Allows managing related images directly from the BlogUpload admin. """
+    model = BlogUpload.extracted_images.through  # ManyToManyField intermediary table
+    extra = 1
+    verbose_name = "Extracted Image"
+    verbose_name_plural = "Extracted Images"
+
+@admin.register(BlogUpload)
+class BlogUploadAdmin(admin.ModelAdmin):
+    list_display = ('title', 'uploaded_at', 'has_file', 'num_extracted_images')
+    search_fields = ('title',)
+    list_filter = ('uploaded_at',)
+    readonly_fields = ('uploaded_at', 'content',)  # Keep extracted content read-only
+    inlines = [BlogImageInline]
+
+    def has_file(self, obj):
+        """ Check if a file was uploaded. """
+        return bool(obj.uploaded_file)
+    has_file.boolean = True
+    has_file.short_description = "File Uploaded"
+
+    def num_extracted_images(self, obj):
+        """ Count the number of extracted images. """
+        return obj.extracted_images.count()
+    num_extracted_images.short_description = "Extracted Images"
+
+# Register BlogImage separately if needed
+@admin.register(BlogImage)
+class BlogImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'image',)
+
+
+
+
+
+
+

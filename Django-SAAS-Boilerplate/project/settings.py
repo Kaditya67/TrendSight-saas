@@ -322,15 +322,17 @@ STATICFILES_DIRS = [
     BASE_DIR.joinpath('templates', 'assets'),
 ] 
 
-MEDIA_ROOT = BASE_DIR.joinpath('media')
+BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Media settings
+MEDIA_ROOT = BASE_DIR / 'media'  # Use Path object with '/' for joining paths
+MEDIA_URL = '/media/'
 
+# Different settings based on DEBUG flag
 if DEBUG:
-    MEDIA_URL = '/media/'
-    MEDIA_DOMAIN = 'http://localhost:8000'
-   
+    MEDIA_DOMAIN = 'http://localhost:8000'  # Local development domain
 else:
-    MEDIA_URL = '/media/'
+    MEDIA_DOMAIN = 'https://yourdomain.com'
 
     # Define the storage settings for media files
     DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
