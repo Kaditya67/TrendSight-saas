@@ -1,195 +1,277 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 {% load static %}
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="icon" href="{% static 'images/TrendSight_logo.png' %}" type="image/png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>TrendSight</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="{% static 'images/TrendSight_logo.png' %}" type="image/png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+  <title>TrendSight</title>
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #121826;
-            color: #fff;
-            overflow-x: hidden;
-        } 
-        #random-quote {
-          display: inline-block;
-          font-size: 1.2rem;
-          font-weight: 500;
-          min-height: 50px;
-        }
-        
-        /* Cursor effect */
-        #cursor {
-          display: inline-block;
-          width: 2px;
-          height: 22px;
-          background-color: white;
-          animation: blink 0.6s infinite;
-        }
-      
-        @keyframes blink {
-          50% { opacity: 0; }
-        }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
 
-    </style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+    }
+
+    #random-quote {
+      display: inline-block;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    #cursor {
+      display: inline-block;
+      width: 2px;
+      height: 22px;
+      background-color: white;
+      animation: blink 0.6s infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s ease-out, transform 1s ease-out;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 
-<body> 
-    <!-- Navbar -->
-    <nav class="bg-[#1F2937] py-4 px-10 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
-        <h1 class="text-white text-3xl font-bold">
-          <a href="{% url 'dashboard' %}" class="text-white hover:text-gray-200">
-            <span class="flex flex-nowrap gap-2"><i class="fa fa-caret-up" aria-hidden="true"></i></i> TrendSight</span>
-        </a>
-        </h1>
-        <ul class="flex md:space-x-4 text-white text-md">
-          {% comment %} <li><a href="#features" class="nav-link navbar-text px-4 py-3 text-gray-300">Features</a></li>  {% endcomment %}
-          <li class="flex items-right">
-              <a href="{% url 'login' %}" class="nav-link navbar-text px-4 py-3 text-gray-300 flex items-center hover:text-blue-400">
-                  <i class="fa-regular fa-user mr-2"></i> 
-                  <span class="hidden sm:block">Login</span>
-              </a>
-          </li>
-          <li class="flex items-right hidden md:block">
-              <a href="{% url 'signup' %}" class="nav-link navbar-text px-4 py-3 text-gray-300 flex items-center hover:text-blue-400">
-                  <i class="fa-solid fa-right-to-bracket mr-2"></i>
-                  <span>Signup</span>
-              </a>
-          </li> 
+<body class="bg-white text-black dark:bg-[#121826] dark:text-white">
+  <!-- Navbar -->
+  <nav class="bg-[#F9FAFB] dark:bg-[#1F2937] py-4 px-10 flex justify-between items-center shadow-lg fixed w-full top-0 z-50 text-black dark:text-white">
+    <h1 class="text-3xl font-bold">
+      <a href="{% url 'dashboard' %}" class="hover:text-gray-800 dark:hover:text-gray-200">
+        <span class="flex flex-nowrap gap-2">
+          <i class="fa fa-caret-up" aria-hidden="true"></i> TrendSight
+        </span>
+      </a>
+    </h1>
+    <div class="flex items-center gap-4">
+      <button id="theme-toggle" class="hover:text-yellow-500 transition">
+        <i class="fa-solid fa-circle-half-stroke text-xl"></i>
+      </button>
+      <ul class="flex md:space-x-4 text-md">
+        <li>
+          <a href="{% url 'login' %}" class="px-4 py-3 text-gray-700 dark:text-gray-300 flex items-center hover:text-blue-500 transition">
+            <i class="fa-regular fa-user mr-2"></i>
+            <span class="hidden sm:block">Login</span>
+          </a>
+        </li>
+        <li class="hidden md:block">
+          <a href="{% url 'signup' %}" class="px-4 py-3 text-gray-700 dark:text-gray-300 flex items-center hover:text-blue-500 transition">
+            <i class="fa-solid fa-right-to-bracket mr-2"></i>
+            <span>Signup</span>
+          </a>
+        </li>
       </ul>
-      
-    </nav>
-
-    <!-- Hero Section -->
-    <div class="mt-[6rem] px-7 py-12 md:pt-20 bg-[#0D131F] text-white" style="min-height: 65vh;">
-      <div class="text-center">
-        <h2 class="text-4xl mb-3"><i class="fa-solid fa-arrow-trend-up mr-2"></i><span class="font-bold">TrendSight</span></h2>
-        <p class="text-lg opacity-80">The smarter way to analyze market trends and make informed decisions.</p>
-      </div>
-      <p class="text-yellow-400 italic mt-4 min-h-[50px] text-left overflow-hidden md:ml-[18%] lg:ml-[25%]" id="random-quote"></p>
-        <div class="flex justify-center gap-4 mt-6">
-            <a href="{% url 'signup' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Get Started<i class="fa-solid fa-play"></i></a>
-        </div>
     </div>
+  </nav>
 
-    <!-- Features Section -->
-    <section id="features" class="py-16 text-center" style="min-height: 60vh;">
-        <h2 class="text-4xl font-bold mb-12">Why TrendSight?</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
-            <div class="bg-[#1A2332] shadow-lg p-6 rounded-lg text-center">
-                <i class="fas fa-chart-line text-blue-400 text-5xl mb-4"></i>
-                <h3 class="text-xl font-bold">Effortless Stock Analysis</h3>
-                <p class="opacity-80">Gain insights with simple and clear visualizations.</p>
-            </div>
-            <div class="bg-[#1A2332] shadow-lg p-6 rounded-lg text-center">
-              <i class="fas fa-cogs text-green-400 text-5xl mb-4"></i>
-                <h3 class="text-xl font-bold">Custom Indicators</h3>
-              <p class="opacity-80">Add technical indicators to analyze stocks more effectively.</p>
-            </div>
-            <div class="bg-[#1A2332] shadow-lg p-6 rounded-lg text-center">
-                <i class="fas fa-bell text-yellow-400 text-5xl mb-4"></i>
-                <h3 class="text-xl font-bold">Customizable Alerts</h3>
-                <p class="opacity-80">Get notifications based on your defined criteria.</p>
-            </div>
+   <!-- Hero Section -->
+  <div class="mt-[6rem] px-7 py-12 md:pt-20 bg-[#F9FAFB] dark:bg-[#0D131F] text-black dark:text-white min-h-[65vh]">
+    <div class="text-center">
+      <h2 class="text-4xl mb-3">
+        <i class="fa-solid fa-arrow-trend-up mr-2"></i>
+        <span class="font-bold">TrendSight</span>
+      </h2>
+      <p class="text-lg opacity-80">The smarter way to analyze market trends and make informed decisions.</p>
+    </div>
+    <p class="text-yellow-500 italic mt-4 text-left overflow-hidden border-l-4 border-yellow-500 pl-4 md:ml-[18%] lg:ml-[25%]" id="random-quote"></p>
+    <div class="flex justify-center gap-4 mt-6">
+      <a href="{% url 'signup' %}"
+        class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-md font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-300 flex items-center gap-2 ring-1 ring-blue-400/30 hover:ring-blue-300">
+        Get Started <i class="fa-solid fa-play text-white"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Features Timeline Section -->
+  <section id="features" class="py-20 px-6 bg-[#F9FAFB] dark:bg-[#121826]">
+    <h2 class="text-4xl font-bold text-center mb-16">Why TrendSight?</h2>
+    <div class="flex flex-col gap-20 max-w-5xl mx-auto">
+      <div class="fade-in flex flex-col md:flex-row items-center gap-10">
+        <div class="flex-1 text-left">
+          <h3 class="text-2xl font-bold mb-3">Effortless Stock Analysis</h3>
+          <p class="opacity-80">Gain insights with crystal-clear and interactive visualizations tailored for smart decisions.</p>
         </div>
-    </section> 
-
-    <section id="interactive-charts" class="py-20 text-center bg-gradient-to-r from-[#1A2332] to-[#0D131F] text-white" style="min-height: 80vh;">
-      <div class="container mx-auto px-6">
-        <h2 class="text-5xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-yellow-400 animate__animated animate__fadeIn animate__delay-1s">
-          Many More...
-        </h2>
-        <p class="text-xl opacity-90 mb-12 px-4 sm:px-0 animate__animated animate__fadeIn animate__delay-2s">
-          Custom Watchlists, Portfolio, and a user-friendly interface designed to enhance your stock tracking experience.
-        </p>
-    
-        <!-- Feature Icons -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          <!-- Custom Watchlists -->
-          <div class="bg-[#1A2332] p-6 rounded-lg shadow-lg transition-all transform hover:scale-105 hover:shadow-2xl text-center">
-            <i class="fas fa-list-alt text-blue-400 text-6xl mb-4 transition-all duration-300"></i>
-            <h3 class="text-xl font-semibold mb-3">Custom Watchlists</h3>
-            <p class="opacity-80">Organize your favorite stocks and track their performance easily.</p>
-          </div>
-    
-          <!-- Portfolio -->
-          <div class="bg-[#1A2332] p-6 rounded-lg shadow-lg transition-all transform hover:scale-105 hover:shadow-2xl text-center">
-            <i class="fas fa-briefcase text-green-500 text-6xl mb-4 transition-all duration-300"></i>
-            <h3 class="text-xl font-semibold mb-3">Portfolio</h3>
-            <p class="opacity-80">Build and manage your investment portfolio all in one place.</p>
-          </div>
-    
-          <!-- User-friendly Interface -->
-          <div class="bg-[#1A2332] p-6 rounded-lg shadow-lg transition-all transform hover:scale-105 hover:shadow-2xl text-center">
-            <i class="fas fa-desktop text-yellow-500 text-6xl mb-4 transition-all duration-300"></i>
-            <h3 class="text-xl font-semibold mb-3">User-friendly Interface</h3>
-            <p class="opacity-80">Navigate easily with an intuitive design and smooth experience.</p>
-          </div>
+        <div class="flex-1">
+          <dotlottie-player src="https://lottie.host/7f42882c-4e4a-4379-9ede-7de0ac0fe3e1/rIwv9HayCD.lottie" background="transparent" speed="1" style="width: 100%; height: 300px" loop autoplay></dotlottie-player>
         </div>
       </div>
-    </section>
-    
-    <!-- Footer -->
-    <footer class="bg-[#0D131F] text-white py-8 text-center">
-        <p>&copy; 2025 TrendSight<i class="fa-solid fa-heart"></i> All rights reserved</p>
-        <div class="mt-4 flex justify-center gap-6">
-            <a href="#" class="text-white hover:text-blue-400 transition"><i class="fa-brands fa-youtube text-2xl"></i></i></a>
-            <a href="#" class="text-white hover:text-blue-400 transition"><i class="fab fa-twitter text-2xl"></i></a>
-            <a href="#" class="text-white hover:text-blue-400 transition"><i class="fab fa-instagram text-2xl"></i></a>
+      <div class="fade-in flex flex-col md:flex-row-reverse items-center gap-10">
+        <div class="flex-1 text-left">
+          <h3 class="text-2xl font-bold mb-3">Custom Indicators</h3>
+          <p class="opacity-80">Plug in your own logic and configure smart indicators to fine-tune your stock picks.</p>
         </div>
-    </footer> 
+        <div class="flex-1">
+          <div id="lottie-feature-2" class="w-full h-64"></div>
+        </div>
+      </div>
+      <div class="fade-in flex flex-col md:flex-row items-center gap-10">
+        <div class="flex-1 text-left">
+          <h3 class="text-2xl font-bold mb-3">Customizable Alerts</h3>
+          <p class="opacity-80">Stay ahead with alerts that notify you instantly based on market triggers you define.</p>
+        </div>
+        <div class="flex-1">
+          <div id="lottie-feature-3" class="w-full h-64"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
+<!-- Enhanced Interactive Charts Section Matching Features Layout -->
+<section id="interactive-charts" class="py-20 bg-[#F9FAFB] dark:bg-[#121826] text-black dark:text-white px-6">
+  <h2 class="text-4xl font-bold text-center mb-16">More Capabilities</h2>
+  <div class="flex flex-col gap-20 max-w-5xl mx-auto">
+    <div class="fade-in flex flex-col md:flex-row items-center gap-10">
+      <div class="flex-1 text-left">
+        <h3 class="text-2xl font-bold mb-3">Custom Watchlists</h3>
+        <p class="opacity-80">Track your favorite stocks in neatly organized watchlists.</p>
+      </div>
+      <div class="flex-1">
+        <dotlottie-player src="https://lottie.host/07e35b9f-8f07-48b1-9961-b7e074fa48a2/TQFaK5JCbs.lottie" background="transparent" speed="1" style="width: 100%; height: 300px" loop autoplay></dotlottie-player>
+      </div>
+    </div>
+    <div class="fade-in flex flex-col md:flex-row-reverse items-center gap-10">
+      <div class="flex-1 text-left">
+        <h3 class="text-2xl font-bold mb-3">Portfolio Management</h3>
+        <p class="opacity-80">Monitor your portfolio and assess performance in real-time.</p>
+      </div>
+      <div class="flex-1">
+        <dotlottie-player src="https://lottie.host/495750ab-91d6-4d9a-8016-44d4a2b7436c/rxxMLJ1VoV.lottie" background="transparent" speed="1" style="width: 100%; height: 300px" loop autoplay></dotlottie-player>
+      </div>
+    </div>
+    <div class="fade-in flex flex-col md:flex-row items-center gap-10">
+      <div class="flex-1 text-left">
+        <h3 class="text-2xl font-bold mb-3">Intuitive UI</h3>
+        <p class="opacity-80">Enjoy a seamless experience with a modern, responsive design.</p>
+      </div>
+      <div class="flex-1">
+        <dotlottie-player src="https://lottie.host/481496bb-2081-4612-b5c4-54f87cd12148/bWM4rHmBXY.lottie" background="transparent" speed="1" style="width: 100%; height: 300px" loop autoplay></dotlottie-player>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-[#F9FAFB] dark:bg-[#0D131F] text-black dark:text-white py-8 text-center">
+  <p>&copy; 2025 TrendSight <i class="fa-solid fa-heart text-red-400"></i> All rights reserved</p>
+  <div class="mt-4 flex justify-center gap-6">
+    <a href="#" class="text-inherit hover:text-blue-400 transition"><i class="fa-brands fa-youtube text-2xl"></i></a>
+    <a href="#" class="text-inherit hover:text-blue-400 transition"><i class="fab fa-twitter text-2xl"></i></a>
+    <a href="#" class="text-inherit hover:text-blue-400 transition"><i class="fab fa-instagram text-2xl"></i></a>
+  </div>
+</footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const themeToggle = document.getElementById('theme-toggle');
+      const currentTheme = localStorage.getItem('theme');
+      if (currentTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+
       const quotes = [
-      "An investment in knowledge pays the best interest. – Benjamin Franklin",
-      "The stock market is filled with individuals who know the price of everything, but the value of nothing. – Philip Fisher",
-      "Investing should be more like watching paint dry or watching grass grow. – Paul Samuelson",
-      "Do not be embarrassed by your failures, learn from them and start again. – Richard Branson",
-      "Know what you own, and know why you own it. – Peter Lynch",
-      "In investing, what is comfortable is rarely profitable. – Robert Arnott"
-  ];
+        "An investment in knowledge pays the best interest. – Benjamin Franklin",
+        "The stock market is filled with individuals who know the price of everything, but the value of nothing. – Philip Fisher",
+        "Investing should be more like watching paint dry or watching grass grow. – Paul Samuelson",
+        "Do not be embarrassed by your failures, learn from them and start again. – Richard Branson",
+        "Know what you own, and know why you own it. – Peter Lynch",
+        "In investing, what is comfortable is rarely profitable. – Robert Arnott"
+      ];
+      let quoteIndex = 0;
+      let charIndex = 0;
+      const quoteElement = document.getElementById('random-quote');
 
-  let quoteIndex = 0;
-  let charIndex = 0;
-  const quoteElement = document.getElementById('random-quote');
+      function updateQuote(text) {
+        quoteElement.innerHTML = text + `<span id="cursor"></span>`;
+      }
 
-  function updateQuote(text) {
-      quoteElement.innerHTML = text + `<span id="cursor"></span>`; // Add blinking cursor
-  }
-
-  function typeQuote() {
-      if (charIndex < quotes[quoteIndex].length) {
+      function typeQuote() {
+        if (charIndex < quotes[quoteIndex].length) {
           updateQuote(quotes[quoteIndex].substring(0, charIndex + 1));
           charIndex++;
-          setTimeout(typeQuote, 70); // Typing speed
-      } else {
-          setTimeout(eraseQuote, 2000); // Wait before erasing
+          setTimeout(typeQuote, 70);
+        } else {
+          setTimeout(eraseQuote, 2000);
+        }
       }
-  }
 
-  function eraseQuote() {
-      if (charIndex > 0) {
+      function eraseQuote() {
+        if (charIndex > 0) {
           updateQuote(quotes[quoteIndex].substring(0, charIndex - 1));
           charIndex--;
-          setTimeout(eraseQuote, 50); // Erasing speed
-      } else {
+          setTimeout(eraseQuote, 50);
+        } else {
           quoteIndex = (quoteIndex + 1) % quotes.length;
-          setTimeout(typeQuote, 700); // Delay before typing next quote
+          setTimeout(typeQuote, 700);
+        }
       }
-  }
 
-  typeQuote(); // Start the animation
-</script>
-  
+      typeQuote();
+
+      const animations = [
+        { id: "lottie-feature-2", path: "https://assets2.lottiefiles.com/packages/lf20_sSF6EG.json" },
+        { id: "lottie-feature-3", path: "https://assets2.lottiefiles.com/packages/lf20_w51pcehl.json" }
+      ];
+
+      animations.forEach(({ id, path }) => {
+        const target = document.getElementById(id);
+        if (target) {
+          const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                lottie.loadAnimation({ container: target, renderer: "svg", loop: true, autoplay: true, path });
+                obs.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.2 });
+          observer.observe(target);
+        }
+      });
+      const fadeEls = document.querySelectorAll('.fade-in');
+      const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      fadeEls.forEach(el => fadeObserver.observe(el));
+    });
+  </script>
 </body>
 
 </html>
