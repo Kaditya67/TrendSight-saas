@@ -305,29 +305,20 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True  
 USE_TZ = True  
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-STATIC_ROOT = BASE_DIR.joinpath('staticfiles', 'static')
+STATIC_URL = '/static/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Where static files will be collected (DON'T include this in STATICFILES_DIRS)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Source folders (your actual assets before collectstatic runs)
 STATICFILES_DIRS = [
-    BASE_DIR.joinpath('staticfiles', 'static'),
-    BASE_DIR.joinpath('templates'),
-    BASE_DIR.joinpath('templates', 'assets'),
-] 
+    BASE_DIR / 'static',  # ✅ Only include custom static folders here
+    BASE_DIR / 'templates' / 'assets',
+]
 
-
-MEDIA_ROOT = BASE_DIR.joinpath('media')
-
+MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     MEDIA_URL = '/media/'
