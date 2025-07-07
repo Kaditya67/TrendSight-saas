@@ -63,7 +63,7 @@ else:
 #         json.dump(decoded_json, f, indent=4)
 
 if DEBUG:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['project-wcz0.onrender.com']
 
 else:
     ALLOWED_HOSTS = env('ALLOWED_HOSTS').replace(' ', '').split(',')
