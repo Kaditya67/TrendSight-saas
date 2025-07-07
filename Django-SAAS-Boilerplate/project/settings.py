@@ -181,6 +181,7 @@ PAYMENT_VARIANTS = {
     # }
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -189,7 +190,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    'whitenoise.middleware.WhiteNoiseMiddleware', #whitenoise
     'django_browser_reload.middleware.BrowserReloadMiddleware', # reload
     'django_ratelimit.middleware.RatelimitMiddleware',
 ]
@@ -315,12 +315,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# STATIC_ROOT = BASE_DIR.joinpath('staticfiles', 'static')
+STATIC_ROOT = BASE_DIR.joinpath('staticfiles', 'static')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATICFILES_DIRS = [
     BASE_DIR.joinpath('staticfiles', 'static'),
     BASE_DIR.joinpath('templates'),
     BASE_DIR.joinpath('templates', 'assets'),
 ] 
+
 
 MEDIA_ROOT = BASE_DIR.joinpath('media')
 
