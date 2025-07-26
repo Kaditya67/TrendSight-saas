@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto p-6 bg-gray-100 min-h-screen">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Upload Your Blog</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+            Upload Blog
+        </button>
+    </form>
+</div>
+{% endblock %}
+    

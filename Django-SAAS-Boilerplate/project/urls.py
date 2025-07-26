@@ -45,7 +45,7 @@ urlpatterns = [
     # add new path here
     path('', include('stocks.urls')),
     path('blog/', include('blog.urls')),
-    path('transactions/', include('transaction.urls')),
+    # path('transactions/', include('transaction.urls')),
     # path('', home_view, name='home'),
 
     path("__reload__/", include("django_browser_reload.urls")),

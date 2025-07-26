@@ -63,8 +63,7 @@ else:
 #         json.dump(decoded_json, f, indent=4)
 
 if DEBUG:
-    ALLOWED_HOSTS = ['project-wcz0.onrender.com']
-
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
     ALLOWED_HOSTS = env('ALLOWED_HOSTS').replace(' ', '').split(',')
 
@@ -150,20 +149,20 @@ if DEBUG:
    
 
 # Settings for Development
-PAYMENT_VARIANTS = {
-    'stripe': (
-        # 'payments.stripe.StripeProviderV3',
-        'payments.stripe.StripeProvider',
-        {
-            'api_key': env('STRIPE_TEST_API_KEY'),
-            'use_token': True,
-            'secure_endpoint': False,
-            'secret_key': env('STRIPE_TEST_API_KEY'),
-            'public_key': env('STRIPE_PUB_TEST_KEY'),
-            'endpoint_secret': env('STRIPE_WEBHOOK_TEST_API_KEY'),
-        }
-    )
-}
+# PAYMENT_VARIANTS = {
+#     'stripe': (
+#         # 'payments.stripe.StripeProviderV3',
+#         'payments.stripe.StripeProvider',
+#         {
+#             'api_key': env('STRIPE_TEST_API_KEY'),
+#             'use_token': True,
+#             'secure_endpoint': False,
+#             'secret_key': env('STRIPE_TEST_API_KEY'),
+#             'public_key': env('STRIPE_PUB_TEST_KEY'),
+#             'endpoint_secret': env('STRIPE_WEBHOOK_TEST_API_KEY'),
+#         }
+#     )
+# }
 
  # Settings for Production
     # PAYMENT_VARIANTS = {
@@ -314,7 +313,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Source folders (your actual assets before collectstatic runs)
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # ✅ Only include custom static folders here
+    BASE_DIR /'styling' /'static',  # ✅ Only include custom static folders here
     BASE_DIR / 'templates' / 'assets',
 ]
 

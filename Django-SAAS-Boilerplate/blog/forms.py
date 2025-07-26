@@ -19,3 +19,12 @@ class BlogImageForm(forms.ModelForm):
     class Meta:
         model = BlogImage
         fields = '__all__'
+
+
+from django import forms
+from .models import BlogUpload
+
+class BlogUploadForm(forms.ModelForm):
+    class Meta:
+        model = BlogUpload
+        fields = ['title', 'uploaded_file']
